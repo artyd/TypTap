@@ -41,7 +41,6 @@ localStorage['typtap_v2'] = {
 index.html          — приложение целиком (разметка + логика)
 support.js          — рантайм, нужен рядом с index.html
 Mascot.dc.html      — подкомпонент маскота
-.github/workflows/deploy-pages.yml — пуш в main → публикация на GitHub Pages
 ```
 
 ## Запуск локально
@@ -55,6 +54,8 @@ python -m http.server 8000     # затем http://localhost:8000
 
 ## Публикация
 
-`Settings → Pages → Source → GitHub Actions` — workflow
-**Deploy frontend (GitHub Pages)** публикует `index.html`, `support.js`
-и `Mascot.dc.html` при каждом пуше в `main`.
+Сайт живёт на GitHub Pages: <https://artyd.github.io/TypTap/>.
+
+Настройка — `Settings → Pages → Source: Deploy from a branch`, ветка
+`main`, папка `/ (root)`. Отдельный workflow не нужен: файлы лежат в корне
+репозитория, поэтому Pages пересобирает сайт сам при каждом пуше в `main`.
