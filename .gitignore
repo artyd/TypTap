@@ -1,0 +1,17 @@
+# Локальные настройки Claude Code
+.claude/
+
+# Исходный архив с бэкендом (распакован в репозиторий)
+*.zip
+
+# Supabase / окружение
+.env
+.env.*
+supabase/.temp/
+supabase/.branches/
+
+# ОС / редакторы
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

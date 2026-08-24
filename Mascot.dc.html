@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">
+<svg viewBox="0 0 120 120" style="width:100%;height:100%;overflow:visible" aria-hidden="true">
+  <ellipse cx="60" cy="110" rx="30" ry="6" fill="rgba(30,20,15,.10)"></ellipse>
+  <!-- limbs -->
+  <rect x="20" y="66" width="10" height="22" rx="5" fill="var(--brand-ink,#B24E12)" transform="rotate(18 25 77)"></rect>
+  <rect x="90" y="66" width="10" height="22" rx="5" fill="var(--brand-ink,#B24E12)" transform="rotate(-18 95 77)"></rect>
+  <rect x="42" y="96" width="14" height="14" rx="6" fill="var(--brand-ink,#B24E12)"></rect>
+  <rect x="64" y="96" width="14" height="14" rx="6" fill="var(--brand-ink,#B24E12)"></rect>
+  <!-- keycap body -->
+  <rect x="22" y="24" width="76" height="74" rx="22" fill="var(--brand-ink,#B24E12)"></rect>
+  <rect x="24" y="24" width="72" height="64" rx="20" fill="var(--brand,#FB7A2A)"></rect>
+  <rect x="30" y="30" width="60" height="46" rx="15" fill="var(--brand-2,#FF9A4D)"></rect>
+  <!-- faint keycap letter (built from rects, no font dependency) -->
+  <rect x="52" y="35" width="16" height="4" rx="2" fill="rgba(255,255,255,.35)"></rect>
+  <rect x="58" y="35" width="4" height="15" rx="2" fill="rgba(255,255,255,.35)"></rect>
+
+  <sc-if value="{{ isNeutral }}" hint-placeholder-val="{{ true }}"><g>
+    <circle cx="47" cy="58" r="5.5" fill="#2A211C"></circle>
+    <circle cx="73" cy="58" r="5.5" fill="#2A211C"></circle>
+    <circle cx="49" cy="56" r="1.8" fill="#fff"></circle>
+    <circle cx="75" cy="56" r="1.8" fill="#fff"></circle>
+    <path d="M50 70 Q60 76 70 70" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path>
+  </g></sc-if>
+
+  <sc-if value="{{ isHappy }}" hint-placeholder-val="{{ true }}"><g>
+    <path d="M42 58 Q47 51 52 58" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path>
+    <path d="M68 58 Q73 51 78 58" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path>
+    <path d="M48 66 Q60 80 72 66 Z" fill="#2A211C"></path>
+    <path d="M53 73 Q60 78 67 73" fill="#F2748A"></path>
+    <path d="M18 34 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="var(--accent,#FFB020)"></path>
+    <path d="M100 44 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 l4 -1.5 Z" fill="var(--accent,#FFB020)"></path>
+  </g></sc-if>
+
+  <sc-if value="{{ isEncouraging }}" hint-placeholder-val="{{ true }}"><g>
+    <circle cx="47" cy="58" r="5.5" fill="#2A211C"></circle>
+    <circle cx="49" cy="56" r="1.8" fill="#fff"></circle>
+    <path d="M67 58 Q73 54 79 58" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path>
+    <path d="M50 69 Q60 75 70 69" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path>
+    <circle cx="98" cy="52" r="7" fill="var(--brand-ink,#B24E12)"></circle>
+  </g></sc-if>
+
+  <sc-if value="{{ isSleepy }}" hint-placeholder-val="{{ true }}"><g>
+    <path d="M42 59 Q47 62 52 59" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path>
+    <path d="M68 59 Q73 62 78 59" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path>
+    <ellipse cx="60" cy="71" rx="4" ry="5" fill="#2A211C"></ellipse>
+    <polyline points="86,30 96,30 86,40 96,40" stroke="var(--ink-2,#6E625A)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline>
+    <polyline points="98,20 105,20 98,27 105,27" stroke="var(--ink-2,#6E625A)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline>
+  </g></sc-if>
+
+  <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ true }}"><g>
+    <circle cx="47" cy="57" r="5" fill="#2A211C"></circle>
+    <circle cx="73" cy="57" r="5" fill="#2A211C"></circle>
+    <path d="M50 69 Q60 73 70 69" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path>
+    <circle cx="48" cy="86" r="4" fill="var(--brand-ink,#B24E12)" style="animation:tt-bounce 1s infinite"></circle>
+    <circle cx="60" cy="86" r="4" fill="var(--brand-ink,#B24E12)" style="animation:tt-bounce 1s infinite .18s"></circle>
+    <circle cx="72" cy="86" r="4" fill="var(--brand-ink,#B24E12)" style="animation:tt-bounce 1s infinite .36s"></circle>
+  </g></sc-if>
+
+  <sc-if value="{{ isIdle }}" hint-placeholder-val="{{ true }}"><g>
+    <line x1="42" y1="58" x2="52" y2="58" stroke="#2A211C" stroke-width="3.5" stroke-linecap="round"></line>
+    <line x1="68" y1="58" x2="78" y2="58" stroke="#2A211C" stroke-width="3.5" stroke-linecap="round"></line>
+    <path d="M52 70 Q60 73 68 70" stroke="#2A211C" stroke-width="3" fill="none" stroke-linecap="round"></path>
+    <polyline points="84,36 92,36 84,44 92,44" stroke="var(--ink-2,#6E625A)" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="animation:tt-float 3s ease-in-out infinite"></polyline>
+  </g></sc-if>
+
+  <sc-if value="{{ isCelebrate }}" hint-placeholder-val="{{ true }}"><g>
+    <path d="M40 55 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#2A211C"></path>
+    <path d="M78 55 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#2A211C"></path>
+    <path d="M46 66 Q60 82 74 66 Z" fill="#2A211C"></path>
+    <path d="M52 73 Q60 78 68 73" fill="#F2748A"></path>
+    <rect x="44" y="18" width="32" height="12" rx="2" fill="var(--accent,#FFB020)" transform="rotate(-4 60 24)"></rect>
+    <path d="M46 18 l4 -8 l4 8 M56 18 l4 -9 l4 9 M66 18 l4 -8 l4 8" fill="var(--accent,#FFB020)" stroke="var(--accent,#FFB020)" stroke-width="1"></path>
+    <path d="M16 30 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="var(--accent,#FFB020)" style="animation:tt-float 2.4s ease-in-out infinite"></path>
+    <path d="M100 40 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="var(--accent,#FFB020)" style="animation:tt-float 2.8s ease-in-out infinite"></path>
+  </g></sc-if>
+
+  <sc-if value="{{ isPuzzled }}" hint-placeholder-val="{{ true }}"><g>
+    <line x1="42" y1="47" x2="53" y2="44" stroke="#2A211C" stroke-width="3" stroke-linecap="round"></line>
+    <line x1="68" y1="45" x2="79" y2="47" stroke="#2A211C" stroke-width="3" stroke-linecap="round"></line>
+    <circle cx="47" cy="58" r="5.5" fill="#2A211C"></circle>
+    <circle cx="73" cy="57" r="4" fill="#2A211C"></circle>
+    <path d="M49 71 Q56 67 62 71 Q68 75 72 71" stroke="#2A211C" stroke-width="3" fill="none" stroke-linecap="round"></path>
+    <path d="M92 34 q7 -6 10 1 q2 5 -4 7 q-3 1 -3 5 M95 55 l0 0.5" stroke="var(--ink-2,#6E625A)" stroke-width="3" fill="none" stroke-linecap="round"></path>
+    <circle cx="95" cy="55" r="1.8" fill="var(--ink-2,#6E625A)"></circle>
+  </g></sc-if>
+</svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:160,&quot;height&quot;:160},&quot;mood&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;neutral&quot;,&quot;happy&quot;,&quot;encouraging&quot;,&quot;sleepy&quot;,&quot;loading&quot;,&quot;idle&quot;,&quot;celebrate&quot;,&quot;puzzled&quot;],&quot;default&quot;:&quot;happy&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals(){
+    const m = this.props.mood || 'neutral';
+    return {
+      isNeutral: m === 'neutral',
+      isHappy: m === 'happy',
+      isEncouraging: m === 'encouraging',
+      isSleepy: m === 'sleepy',
+      isLoading: m === 'loading',
+      isIdle: m === 'idle',
+      isCelebrate: m === 'celebrate',
+      isPuzzled: m === 'puzzled'
+    };
+  }
+}
+</script>
+</body>
+</html>
