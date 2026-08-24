@@ -1,4 +1,0 @@
-project_id = "typtap"
-
-[functions.api]
-verify_jwt = true

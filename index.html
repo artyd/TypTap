@@ -943,63 +943,6 @@
   </sc-if>
 </div>
 </x-dc>
-<script>
-  // ===================== TypTap backend sync =====================
-  // Заполните после деплоя Supabase (см. README.md в корне репозитория):
-  //   TYPTAP_API_BASE — https://<project-ref>.supabase.co/functions/v1/api
-  //   TYPTAP_ANON_KEY — anon public key проекта (это публичный ключ, его
-  //   можно спокойно хранить прямо в HTML — секретность обеспечивает не он,
-  //   а то, что service_role ключ используется только внутри Edge Function).
-  window.TYPTAP_API_BASE = 'https://YOUR-PROJECT-REF.supabase.co/functions/v1/api';
-  window.TYPTAP_ANON_KEY = 'YOUR-SUPABASE-ANON-KEY';
-
-  window.TypTapSync = (function () {
-    var saveTimer = null;
-    var pending = null;
-
-    function configured() {
-      return window.TYPTAP_API_BASE && window.TYPTAP_API_BASE.indexOf('YOUR-PROJECT-REF') === -1;
-    }
-
-    function call(path, opts) {
-      if (!configured()) return Promise.reject(new Error('typtap backend not configured yet'));
-      var headers = Object.assign(
-        { 'Content-Type': 'application/json', Authorization: 'Bearer ' + window.TYPTAP_ANON_KEY },
-        (opts && opts.headers) || {}
-      );
-      return fetch(window.TYPTAP_API_BASE + path, Object.assign({}, opts, { headers: headers })).then(function (res) {
-        if (!res.ok) throw new Error('typtap backend http ' + res.status);
-        return res.json();
-      });
-    }
-
-    return {
-      // Тянет профиль с сервера по нику. { nickname, exists, data|null }
-      fetchProfile: function (nickname) {
-        return call('/login', { method: 'POST', body: JSON.stringify({ nickname: nickname }) });
-      },
-      // Пуш всего "снимка" профиля на сервер, с дебаунсом ~900мс, чтобы не
-      // слать запрос на каждый чих (несколько сохранений подряд схлопнутся
-      // в один сетевой вызов с самыми свежими данными).
-      saveProfile: function (nickname, data) {
-        pending = { nickname: nickname, data: data };
-        if (saveTimer) clearTimeout(saveTimer);
-        saveTimer = setTimeout(function () {
-          var payload = pending;
-          pending = null;
-          if (!payload) return;
-          call('/profile', { method: 'PUT', body: JSON.stringify(payload) }).catch(function (e) {
-            console.warn('[typtap] sync save failed (offline?)', e);
-          });
-        }, 900);
-      },
-      fetchLeaderboard: function (metric, nickname) {
-        var qs = '?metric=' + encodeURIComponent(metric || 'wpm') + (nickname ? '&nickname=' + encodeURIComponent(nickname) : '');
-        return call('/leaderboard' + qs, { method: 'GET' });
-      },
-    };
-  })();
-</script>
 <script type="text/x-dc" data-dc-script data-props="{&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;hub&quot;,&quot;onboarding&quot;,&quot;lesson&quot;,&quot;drill&quot;,&quot;results&quot;,&quot;dashboard&quot;,&quot;game&quot;,&quot;system&quot;,&quot;empty&quot;],&quot;default&quot;:&quot;hub&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Appearance&quot;},&quot;colorKeys&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Keyboard&quot;,&quot;label&quot;:&quot;Per-finger key colors&quot;},&quot;celebrate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Appearance&quot;,&quot;label&quot;:&quot;Confetti on results&quot;}}">
 class Component extends DCLogic {
   constructor(props){
@@ -1074,7 +1017,6 @@ class Component extends DCLogic {
   // ---------- lifecycle ----------
   componentDidMount(){
     window.addEventListener('keydown', this._onKey);
-    if(this.pdata.current) this._syncPullProfile(this.pdata.current);
     const sc=this.state.screen;
     if(sc==='lesson'){ const n=this._nextLesson(); this._startLesson(n.tier,n.idx); }
     else if(sc==='drill'){ this._startDrill(); }
@@ -1098,29 +1040,12 @@ class Component extends DCLogic {
     return { sessions, bestRace:38, streak:{count:12,last:today.toISOString().slice(0,10)}, completed, xp:2450, seeded:true };
   }
   _blank(){ return {sessions:[],bestRace:0,streak:{count:0,last:null},completed:{},xp:0,created:Date.now()}; }
-  _save(){ this._saveLocal(); if(window.TypTapSync && this.pdata.current) window.TypTapSync.saveProfile(this.pdata.current, this.store); }
+  _save(){ this._saveLocal(); }
   _saveLocal(){ try{ localStorage.setItem('typtap_v2', JSON.stringify(this.pdata)); }catch(e){} }
   _reset(){ if(!this.pdata.current) return; this.pdata.profiles[this.pdata.current]=this._blank(); this.store=this.pdata.profiles[this.pdata.current]; this._save(); this.setState({screen:'dashboard'}); }
   _seedDemo(){ if(!this.pdata.current) return; this.pdata.profiles[this.pdata.current]=this._seed(); this.store=this.pdata.profiles[this.pdata.current]; this._save(); this.forceUpdate(); }
-  _login(nick){ nick=(nick||'').trim().slice(0,20); if(!nick) return; const exists=!!this.pdata.profiles[nick]; if(!exists) this.pdata.profiles[nick]=this._blank(); this.pdata.current=nick; this.store=this.pdata.profiles[nick]; this._save(); this.setState({screen: exists?'hub':'onboarding', loginName:'', profileMenu:false, lbModal:true}); this._syncPullProfile(nick); }
+  _login(nick){ nick=(nick||'').trim().slice(0,20); if(!nick) return; const exists=!!this.pdata.profiles[nick]; if(!exists) this.pdata.profiles[nick]=this._blank(); this.pdata.current=nick; this.store=this.pdata.profiles[nick]; this._save(); this.setState({screen: exists?'hub':'onboarding', loginName:'', profileMenu:false, lbModal:true}); }
   _logout(){ this.pdata.current=null; this.store=null; this._save(); this._stopLoop(); this.setState({screen:'login', profileMenu:false}); }
-  // Подтягивает профиль этого ника с сервера (общий для всех устройств).
-  // Если на сервере профиль уже есть — он побеждает (last-sync-wins) и
-  // подменяет локальный кэш. Если это первый вход с этого ника нигде —
-  // на сервере его ещё нет, тогда наоборот: заливаем туда локальный.
-  _syncPullProfile(nick){
-    if(!window.TypTapSync) return;
-    window.TypTapSync.fetchProfile(nick).then((res)=>{
-      if(!res) return;
-      if(res.exists && res.data){
-        this.pdata.profiles[nick]=res.data;
-        if(this.pdata.current===nick){ this.store=this.pdata.profiles[nick]; this.forceUpdate(); }
-        this._saveLocal();
-      } else if(this.pdata.profiles[nick]){
-        window.TypTapSync.saveProfile(nick, this.pdata.profiles[nick]);
-      }
-    }).catch((e)=>{ console.warn('[typtap] sync pull failed (offline?)', e); });
-  }
   _addXp(n){ if(this.store) this.store.xp=(this.store.xp||0)+n; }
 
   // ---------- leaderboard (seed data, all-time) ----------
@@ -1144,43 +1069,20 @@ class Component extends DCLogic {
     uk:{title:'\u0422\u0430\u0431\u043b\u0438\u0446\u044f \u043b\u0456\u0434\u0435\u0440\u0456\u0432',sub:'\u041d\u0430\u0439\u0448\u0432\u0438\u0434\u0448\u0456 \u0434\u0440\u0443\u043a\u0430\u0440\u0456 \u0441\u0432\u0456\u0442\u0443 \u2014 \u043f\u0456\u0434\u0456\u0439\u043c\u0430\u0439\u0441\u044f \u0432 \u0440\u0435\u0439\u0442\u0438\u043d\u0433\u0443.',scope:'\u0413\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u043e \u00b7 \u0417\u0430 \u0432\u0435\u0441\u044c \u0447\u0430\u0441',wpm:'\u0417\u043d\u0430\u043a/\u0445\u0432',acc:'\u0422\u043e\u0447\u043d\u0456\u0441\u0442\u044c',streak:'\u0421\u0435\u0440\u0456\u044f',you:'\u0422\u0418',your:'\u0422\u0432\u043e\u0454 \u043c\u0456\u0441\u0446\u0435',hint:'\u041f\u0440\u043e\u0439\u0434\u0438 \u0443\u0440\u043e\u043a \u0430\u0431\u043e \u0442\u0440\u0435\u043d\u0443\u0432\u0430\u043d\u043d\u044f, \u0449\u043e\u0431 \u043e\u0442\u0440\u0438\u043c\u0430\u0442\u0438 \u043f\u0435\u0440\u0448\u0438\u0439 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u0456 \u043c\u0456\u0441\u0446\u0435.',uDays:'\u0434\u043d',mTitle:'\u041d\u0430\u0439\u043a\u0440\u0430\u0449\u0456 \u0434\u0440\u0443\u043a\u0430\u0440\u0456 \u0437\u0430\u0440\u0430\u0437',mSub:'\u041f\u043e\u0434\u0438\u0432\u0438\u0441\u044c, \u0445\u0442\u043e \u043e\u0447\u043e\u043b\u044e\u0454 \u0441\u0432\u0456\u0442\u043e\u0432\u0443 \u0442\u0430\u0431\u043b\u0438\u0446\u044e \u0441\u044c\u043e\u0433\u043e\u0434\u043d\u0456.',mCta:'\u0412\u0456\u0434\u043a\u0440\u0438\u0442\u0438 \u0442\u0430\u0431\u043b\u0438\u0446\u044e',mClose:'\u041f\u0456\u0437\u043d\u0456\u0448\u0435'},
     ru:{title:'\u0422\u0430\u0431\u043b\u0438\u0446\u0430 \u043b\u0438\u0434\u0435\u0440\u043e\u0432',sub:'\u0421\u0430\u043c\u044b\u0435 \u0431\u044b\u0441\u0442\u0440\u044b\u0435 \u043c\u0430\u0448\u0438\u043d\u0438\u0441\u0442\u044b \u043c\u0438\u0440\u0430 \u2014 \u043f\u043e\u0434\u043d\u0438\u043c\u0430\u0439\u0441\u044f \u0432 \u0440\u0435\u0439\u0442\u0438\u043d\u0433\u0435.',scope:'\u0413\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u043e \u00b7 \u0417\u0430 \u0432\u0441\u0451 \u0432\u0440\u0435\u043c\u044f',wpm:'\u0417\u043d\u0430\u043a/\u043c\u0438\u043d',acc:'\u0422\u043e\u0447\u043d\u043e\u0441\u0442\u044c',streak:'\u0421\u0435\u0440\u0438\u044f',you:'\u0422\u042b',your:'\u0422\u0432\u043e\u0451 \u043c\u0435\u0441\u0442\u043e',hint:'\u041f\u0440\u043e\u0439\u0434\u0438 \u0443\u0440\u043e\u043a \u0438\u043b\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0443, \u0447\u0442\u043e\u0431\u044b \u043f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u043f\u0435\u0440\u0432\u044b\u0439 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u0438 \u043c\u0435\u0441\u0442\u043e.',uDays:'\u0434\u043d',mTitle:'\u041b\u0443\u0447\u0448\u0438\u0435 \u043c\u0430\u0448\u0438\u043d\u0438\u0441\u0442\u044b \u0441\u0435\u0439\u0447\u0430\u0441',mSub:'\u0421\u043c\u043e\u0442\u0440\u0438, \u043a\u0442\u043e \u0432\u043e\u0437\u0433\u043b\u0430\u0432\u043b\u044f\u0435\u0442 \u043c\u0438\u0440\u043e\u0432\u0443\u044e \u0442\u0430\u0431\u043b\u0438\u0446\u0443 \u0441\u0435\u0433\u043e\u0434\u043d\u044f.',mCta:'\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0442\u0430\u0431\u043b\u0438\u0446\u0443',mClose:'\u041f\u043e\u0437\u0436\u0435'}
   }; return M[lang]||M.en; }
-  // Запускает (и кэширует в state) загрузку реального лидерборда с сервера
-  // для текущей метрики. Пока данные не пришли (или бэкенд не настроен /
-  // недоступен) — рендер использует старый захардкоженный _lbSeed() как
-  // мгновенный fallback, так что экран никогда не выглядит пустым.
-  _syncEnsureLeaderboard(metric){
-    if(!window.TypTapSync) return;
-    if(this._lbFetching===metric) return;
-    if(this.state.lbRemote && this.state.lbRemote.metric===metric) return;
-    this._lbFetching=metric;
-    window.TypTapSync.fetchLeaderboard(metric, this.pdata.current).then((res)=>{
-      this._lbFetching=null;
-      this.setState({lbRemote:Object.assign({metric},res)});
-    }).catch(()=>{ this._lbFetching=null; });
-  }
   _lbView(){
     const s=this.state; const metric=s.lbMetric||'wpm'; const L=this.LB(s.lang);
-    this._syncEnsureLeaderboard(metric);
-    const remote=(s.lbRemote && s.lbRemote.metric===metric) ? s.lbRemote : null;
     const hist=(this.store&&this.store.sessions)||[];
     const bestWpm=hist.length?Math.max(...hist.map(x=>x.wpm)):0;
     const bestAcc=hist.length?Math.max(...hist.map(x=>x.acc)):0;
     const streakCount=(this.store&&this.store.streak&&this.store.streak.count)||0;
     const disp=(v)=> metric==='acc'?(v.toFixed(1)+'%'):String(v);
     const unit=()=> metric==='acc'?'':(metric==='wpm'?'wpm':L.uDays);
-    const sorted=remote
-      ? remote.top.map(r=>({name:r.nickname,wpm:metric==='wpm'?r.value:0,acc:metric==='acc'?r.value:0,streak:metric==='streak'?r.value:0}))
-      : this._lbSeed().slice().sort((a,b)=>b[metric]-a[metric]);
+    const sorted=this._lbSeed().slice().sort((a,b)=>b[metric]-a[metric]);
     const rows=sorted.map((p,i)=>({rank:i+1,name:p.name,av:this._ini(p.name),val:disp(p[metric]),unit:unit()}));
     const uv=metric==='wpm'?bestWpm:metric==='acc'?bestAcc:streakCount;
     const has=uv>0; const maxRef=metric==='acc'?100:130;
-    let you;
-    if(remote && remote.you){
-      you={rank:'#'+remote.you.rank.toLocaleString('en-US'),name:this.pdata.current||'you',av:this._ini(this.pdata.current||'?'),val:has?disp(uv):'\u2014',unit:has?unit():''};
-    } else {
-      const yr=has?Math.max(11,Math.round(2500*(1-Math.min(1,uv/maxRef)))):2481;
-      you={rank:'#'+yr.toLocaleString('en-US'),name:this.pdata.current||'you',av:this._ini(this.pdata.current||'?'),val:has?disp(uv):'\u2014',unit:has?unit():''};
-    }
+    const yr=has?Math.max(11,Math.round(2500*(1-Math.min(1,uv/maxRef)))):2481;
+    const you={rank:'#'+yr.toLocaleString('en-US'),name:this.pdata.current||'you',av:this._ini(this.pdata.current||'?'),val:has?disp(uv):'\u2014',unit:has?unit():''};
     return {L,metric,top3:rows.slice(0,3),list:rows.slice(3,10),you};
   }
 
