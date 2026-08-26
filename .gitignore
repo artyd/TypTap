@@ -10,6 +10,13 @@
 supabase/.temp/
 supabase/.branches/
 
+# Node / Playwright
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
 # ОС / редакторы
 .DS_Store
 Thumbs.db

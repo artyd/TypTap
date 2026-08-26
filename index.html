@@ -1275,7 +1275,8 @@ class Component extends DCLogic {
   _startFalling(idleOnly){
     this._stopLoop();
     if(idleOnly){ this.setState({falling:{items:[],score:0,lives:3,running:false,over:false,started:false}}); return; }
-    const pool='asdfjkl;ghрутек'.split('');
+    const D=this.LANGDATA[this.state.lang]||this.LANGDATA.en;
+    const pool=(D.home+D.top+D.bottom).split('');
     this.setState({falling:{items:[],score:0,lives:3,running:true,over:false,started:true,pool,spawn:0,speed:0.45}}, ()=>{
       this._startLoop(()=>this._fallTick(), 33);
     });

@@ -1,0 +1,15 @@
+{
+  "name": "typtap",
+  "version": "1.0.0",
+  "description": "Статическое веб-приложение без сборки и без npm: один `index.html`\r плюс рантайм рядом с ним. Уроки, адаптивные тренировки, статистика,\r 16 мини-игр и таблица лидеров.",
+  "main": "support.js",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
+  }
+}
