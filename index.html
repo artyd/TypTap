@@ -1026,12 +1026,15 @@ class Component extends DCLogic {
   // ---------- lifecycle ----------
   componentDidMount(){
     window.addEventListener('keydown', this._onKey);
-    // keyboard-layout auto-follow: detect now, on focus/visibility, and poll (OS layout switches fire no JS event)
-    this._layoutPoll = ()=>{ if(this.state.layoutAuto) this._pollLayout(); };
+    // keyboard-layout auto-follow: detect now, on focus/visibility, on modifier keyup, and poll
+    this._layoutPoll = ()=>{ if(this.state.layoutAuto) this._repollBurst(); };
+    // Shift+Alt / Ctrl+Shift / ⌘+Space switch the OS layout on key RELEASE — re-poll then.
+    this._onModUp = (e)=>{ const k=e.key; if(k==='Alt'||k==='Shift'||k==='Control'||k==='Meta'||k==='AltGraph'||k==='CapsLock'||e.altKey||e.metaKey||e.ctrlKey){ this._repollBurst(); } };
     window.addEventListener('focus', this._layoutPoll);
     document.addEventListener('visibilitychange', this._layoutPoll);
+    window.addEventListener('keyup', this._onModUp, true);
     if(navigator.keyboard && navigator.keyboard.addEventListener){ try{ navigator.keyboard.addEventListener('layoutchange', this._layoutPoll); }catch(e){} }
-    this._layoutTimer = setInterval(this._layoutPoll, 1500);
+    this._layoutTimer = setInterval(()=>{ if(this.state.layoutAuto) this._pollLayout(); }, 1500);
     this._pollLayout();
     const sc=this.state.screen;
     if(sc==='lesson'){ const n=this._nextLesson(); this._startLesson(n.tier,n.idx); }
@@ -1042,6 +1045,7 @@ class Component extends DCLogic {
     window.removeEventListener('keydown', this._onKey);
     if(this._layoutPoll){ window.removeEventListener('focus', this._layoutPoll); document.removeEventListener('visibilitychange', this._layoutPoll);
       if(navigator.keyboard && navigator.keyboard.removeEventListener){ try{ navigator.keyboard.removeEventListener('layoutchange', this._layoutPoll); }catch(e){} } }
+    if(this._onModUp) window.removeEventListener('keyup', this._onModUp, true);
     if(this._layoutTimer) clearInterval(this._layoutTimer);
     this._stopLoop();
   }
@@ -1111,6 +1115,14 @@ class Component extends DCLogic {
         if(L) this._applyLayout(L);
       }
     }catch(e){}
+  }
+  // getLayoutMap() usually only refreshes right after the page processes a keyboard
+  // event, so a plain OS layout switch (Shift+Alt / ⌘+Space) with no typing is invisible
+  // to the interval poll. Fire a short burst of polls right after a modifier keyup —
+  // by then the OS switch is done and getLayoutMap reads the new layout.
+  _repollBurst(){
+    if(!this.state.layoutAuto) return;
+    [0,120,300,600,1000].forEach(d=>setTimeout(()=>{ if(this.state.layoutAuto) this._pollLayout(); }, d));
   }
   // Apply a detected layout: switch typing content and rebuild the current typing screen.
   _applyLayout(code){
