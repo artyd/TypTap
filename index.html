@@ -1156,12 +1156,15 @@ class Component extends DCLogic {
     this.setState({layoutToast:d});
     this._toastTimer=setTimeout(()=>{ this.setState({layoutToast:null}); }, 1400);
   }
-  // Explicit user request (Shift+Tab): re-read the system layout and apply whatever it reports,
-  // even if it differs from the current layout. Best-effort — getLayoutMap can still be stale.
-  _rereadLayout(){
-    this._lastKeyAt = 0;                    // don't let the recent-typing guard block an explicit re-read
-    this._lastMapLayout = this.state.lang;  // treat any reading != current layout as a change to apply
-    this._repollBurst();
+  // Shift+Tab: directly cycle the on-screen layout EN → УК → РУ → EN. This does NOT rely on
+  // navigator.keyboard.getLayoutMap() (unreliable on many Windows setups) — it always switches
+  // on the keypress. Typing still corrects to whatever characters actually come through.
+  _cycleLayout(){
+    const order=['en','uk','ru'];
+    const i=order.indexOf(this.state.lang);
+    const next=order[(i+1)%order.length]||'en';
+    this._lastKeyAt=Date.now();  // mark user-driven so a stale layout-map poll can't fight it
+    this._applyLayout(next,'key');
   }
   _rebuildForLayout(){
     const sc=this.state.screen;
@@ -1468,10 +1471,10 @@ class Component extends DCLogic {
 
   _onKey(e){
     const s = this.state;
-    // Shift+Tab = re-read the system keyboard layout on demand (before any typing).
+    // Shift+Tab = switch the on-screen keyboard layout on demand (EN → УК → РУ), before typing.
     if(s.layoutAuto && e.key==='Tab' && e.shiftKey && (this._isTypingScreen(s.screen) || s.screen==='game')){
       e.preventDefault();
-      this._rereadLayout();
+      this._cycleLayout();
       return;
     }
     // auto-follow the system keyboard layout from the character actually produced.
