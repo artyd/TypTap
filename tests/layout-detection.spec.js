@@ -101,6 +101,23 @@ test('typing Latin from a Cyrillic layout switches back to English', async ({ pa
   expect(res.after, 'a Latin keystroke switches back to English').toBe('en');
 });
 
+// A layout switch surfaces a transient toast (replaces the removed top-bar chips).
+test('a layout switch shows a keyboard-layout toast', async ({ page }) => {
+  const logic = await getLogic(page);
+  const res = await logic.evaluate(async (l) => {
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    if (l.state.screen === 'login') { l._login('T'); await wait(60); }
+    l._lastKeyAt = 0; l._lastMapLayout = undefined;
+    l.setState({ lang: 'en', layoutToast: null }, () => l._startLesson(0, 0)); await wait(120);
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'і', bubbles: true }));
+    await wait(120);
+    return { toastName: l.state.layoutToast && l.state.layoutToast.name };
+  });
+  expect(res.toastName, 'switching to a Ukrainian layout shows a toast naming it').toBe('Українська');
+  // and the toast text is rendered in the DOM
+  await expect(page.getByText('Українська', { exact: true })).toBeVisible();
+});
+
 // When getLayoutMap actually updates (reliable machines), a switch with no typing works.
 test('a genuine layout-map change (no typing) is followed', async ({ page }) => {
   const logic = await getLogic(page);

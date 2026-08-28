@@ -144,12 +144,6 @@
       <div style="flex:1"></div>
       <div style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-weight:800;font-size:13px"><i class="fa-solid fa-fire" style="color:var(--brand)"></i><span>{{ streak }}</span></div>
       <div style="display:flex;align-items:center;gap:6px;background:var(--accent-bg);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:20px;padding:6px 12px;font-weight:800;font-size:13px;color:var(--accent-ink)"><i class="fa-solid fa-bolt"></i><span>{{ xp }} XP</span></div>
-      <div title="{{ layoutAutoHint }}" style="display:flex;align-items:center;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px 3px 3px 9px;gap:2px">
-        <i class="fa-solid fa-keyboard" style="font-size:12px;color:var(--muted);margin-right:1px"></i>
-        <sc-for list="{{ langs }}" as="l" hint-placeholder-count="3">
-          <button onClick="{{ l.onClick }}" style="{{ l.style }}">{{ l.short }}</button>
-        </sc-for>
-      </div>
       <div style="display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px;gap:2px">
         <sc-for list="{{ uiLangs }}" as="u" hint-placeholder-count="2">
           <button onClick="{{ u.onClick }}" style="{{ u.style }}">{{ u.short }}</button>
@@ -157,6 +151,15 @@
       </div>
       <button onClick="{{ toggleTheme }}" title="Theme" style="width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center"><i class="{{ themeIcon }}"></i></button>
     </header>
+
+    <!-- keyboard-layout switch toast -->
+    <sc-if value="{{ layoutToastShow }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;top:76px;left:50%;transform:translateX(-50%);z-index:120;display:flex;align-items:center;gap:11px;background:var(--ink);color:var(--surface);padding:12px 20px;border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.28);font-weight:800;font-size:14.5px;animation:tt-pop .25s;pointer-events:none">
+        <i class="fa-solid fa-keyboard" style="opacity:.85;font-size:16px"></i>
+        <span style="opacity:.75;font-weight:700">{{ layoutToastLabel }}:</span>
+        <span>{{ layoutToastName }}</span>
+      </div>
+    </sc-if>
 
     <!-- scroll region -->
     <div style="flex:1;overflow-y:auto;overflow-x:hidden;position:relative">
@@ -1140,17 +1143,21 @@ class Component extends DCLogic {
     // set a different-script layout in the last few seconds, ignore a conflicting map reading.
     if(src==='map' && this._lastKeyAt && (Date.now()-this._lastKeyAt < 4000) && !this._sameScript(code, this.state.lang)) return false;
     this.setState({lang:code}, ()=>{ this._savePrefs(); this._rebuildForLayout(); });
+    this._showLayoutToast(code);
     return true;
+  }
+  // Transient popup shown when the typing layout auto-switches (replaces the manual chips).
+  _showLayoutToast(code){
+    const names={en:'English', uk:'Українська', ru:'Русский'};
+    if(this._toastTimer) clearTimeout(this._toastTimer);
+    this.setState({layoutToast:{name:names[code]||code}});
+    this._toastTimer=setTimeout(()=>{ this.setState({layoutToast:null}); }, 2400);
   }
   _rebuildForLayout(){
     const sc=this.state.screen;
     if(sc==='lesson'){ const n=this._nextLesson(); this._startLesson(n.tier,n.idx); }
     else if(sc==='drill'){ this._startDrill(); }
     else if(sc==='game' && this.state.game){ this._startGame(this.state.game); }
-  }
-  // Manual override from the header chips.
-  _setLayoutManual(code){
-    this.setState({lang:code, layoutAuto:false}, ()=>{ this._savePrefs(); this._rebuildForLayout(); });
   }
 
   // ---------- leaderboard (seed data, all-time) ----------
@@ -1243,7 +1250,7 @@ class Component extends DCLogic {
       // nav + shell
       nav_home:'Home', nav_lessons:'Lessons', nav_drills:'Drills', nav_games:'Games', nav_leaderboard:'Leaderboard',
       brandSub:'TOUCH-TYPING', profile:'Profile', logout:'Log out', dayStreak:'day streak',
-      layoutAutoHint:'Lessons follow your system keyboard layout',
+      layoutAutoHint:'Lessons follow your system keyboard layout', layoutSwitched:'Keyboard layout',
       // page titles
       t_hub:'Home', t_onboarding:'Get started', t_lessons:'Lessons', t_lesson:'Structured lesson', t_drill:'Adaptive drill', t_results:'Your results', t_dashboard:'Progress', t_game:'Mini-games', t_leaderboard:'Leaderboard', t_system:'Design system', t_empty:'States',
       // login
@@ -1309,7 +1316,7 @@ class Component extends DCLogic {
     uk: {
       nav_home:'Головна', nav_lessons:'Уроки', nav_drills:'Тренування', nav_games:'Ігри', nav_leaderboard:'Лідери',
       brandSub:'СЛІПИЙ ДРУК', profile:'Профіль', logout:'Вийти з профілю', dayStreak:'дн. поспіль',
-      layoutAutoHint:'Уроки підлаштовуються під розкладку системної клавіатури',
+      layoutAutoHint:'Уроки підлаштовуються під розкладку системної клавіатури', layoutSwitched:'Розкладка клавіатури',
       t_hub:'Головна', t_onboarding:'Початок', t_lessons:'Уроки', t_lesson:'Структурований урок', t_drill:'Адаптивне тренування', t_results:'Твій результат', t_dashboard:'Прогрес', t_game:'Міні-ігри', t_leaderboard:'Лідери', t_system:'Дизайн-система', t_empty:'Стани',
       loginWelcome:'Ласкаво просимо!', loginNamePh:'Твій нік', loginNoPass:'Без пароля. Прогрес зберігається на цьому пристрої.',
       loginSubReturn:'З поверненням, %! Весь твій прогрес на місці.', loginSubNew:'Новий профіль — Typo вже чекає на тебе!', loginSubDefault:'Введи нік, щоб почати або продовжити.',
@@ -1919,10 +1926,8 @@ class Component extends DCLogic {
         style:`display:flex;align-items:center;gap:12px;padding:9px 11px;border-radius:13px;cursor:pointer;font-weight:800;font-size:14.5px;transition:background .12s;`+(act?`background:var(--brand-bg);color:var(--brand-ink);`:`color:var(--ink-2);background:transparent;`) };
     });
 
-    // typing layout chips (auto-follows system keyboard; click = manual override)
-    const langDefs=[['en','EN'],['uk','УК'],['ru','РУ']];
-    const langs=langDefs.map(([code,short])=>({short,onClick:()=>this._setLayoutManual(code),
-      style:`border:none;cursor:pointer;font-weight:800;font-size:12.5px;padding:6px 12px;border-radius:16px;`+(s.lang===code?`background:var(--brand);color:#fff;`:`background:transparent;color:var(--ink-2);`)}));
+    // Typing layout is fully auto (follows the system keyboard); switches are surfaced
+    // via a transient toast (layoutToast, set below), not manual chips in the top bar.
     // UI language toggle (interface language, independent of typing layout)
     const uiDefs=[['uk','UA'],['en','EN']];
     const uiLangs=uiDefs.map(([code,short])=>({short,onClick:()=>this._setUi(code),
@@ -1934,7 +1939,8 @@ class Component extends DCLogic {
       theme:s.theme, themeIcon: s.theme==='light'?'fa-solid fa-moon':'fa-solid fa-sun',
       toggleTheme:()=>this.setState({theme:s.theme==='light'?'dark':'light'}),
       pageTitle:titles[screen]||'TypTap',
-      nav, langs, uiLangs, t:T, layoutAutoHint:T.layoutAutoHint,
+      nav, uiLangs, t:T,
+      layoutToastShow: !!s.layoutToast, layoutToastLabel: T.layoutSwitched, layoutToastName: s.layoutToast ? s.layoutToast.name : '',
       goHome:()=>this.go('hub'), goLesson:()=>this.go('lesson'), goDrill:()=>this.go('drill'),
       goLessons:()=>this.go('lessons'),
       goOnboarding:()=>this.go('onboarding'), goDashboard:()=>this.go('hub'),
