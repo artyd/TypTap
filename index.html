@@ -152,12 +152,14 @@
       <button onClick="{{ toggleTheme }}" title="Theme" style="width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center"><i class="{{ themeIcon }}"></i></button>
     </header>
 
-    <!-- keyboard-layout switch toast -->
+    <!-- keyboard-layout switch HUD (centered, macOS-style) -->
     <sc-if value="{{ layoutToastShow }}" hint-placeholder-val="{{ false }}">
-      <div style="position:fixed;top:76px;left:50%;transform:translateX(-50%);z-index:120;display:flex;align-items:center;gap:11px;background:var(--ink);color:var(--surface);padding:12px 20px;border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.28);font-weight:800;font-size:14.5px;animation:tt-pop .25s;pointer-events:none">
-        <i class="fa-solid fa-keyboard" style="opacity:.85;font-size:16px"></i>
-        <span style="opacity:.75;font-weight:700">{{ layoutToastLabel }}:</span>
-        <span>{{ layoutToastName }}</span>
+      <div style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;pointer-events:none">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;min-width:170px;padding:30px 36px;border-radius:26px;background:rgba(28,28,32,.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 24px 70px rgba(0,0,0,.45);color:#fff;animation:tt-pop .22s">
+          <div style="width:94px;height:94px;border-radius:22px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-family:'Fredoka';font-weight:600;font-size:38px;letter-spacing:1px">{{ layoutToastAbbr }}</div>
+          <div style="font-family:'Fredoka';font-weight:600;font-size:21px">{{ layoutToastName }}</div>
+          <div style="font-size:11.5px;opacity:.55;font-weight:700;text-transform:uppercase;letter-spacing:.06em">{{ layoutToastLabel }}</div>
+        </div>
       </div>
     </sc-if>
 
@@ -1146,12 +1148,20 @@ class Component extends DCLogic {
     this._showLayoutToast(code);
     return true;
   }
-  // Transient popup shown when the typing layout auto-switches (replaces the manual chips).
+  // Centered macOS-style HUD shown when the typing layout switches.
   _showLayoutToast(code){
-    const names={en:'English', uk:'Українська', ru:'Русский'};
+    const info={en:{name:'English',abbr:'EN'}, uk:{name:'Українська',abbr:'УК'}, ru:{name:'Русский',abbr:'РУ'}};
+    const d=info[code]||{name:code, abbr:(code||'').toUpperCase()};
     if(this._toastTimer) clearTimeout(this._toastTimer);
-    this.setState({layoutToast:{name:names[code]||code}});
-    this._toastTimer=setTimeout(()=>{ this.setState({layoutToast:null}); }, 2400);
+    this.setState({layoutToast:d});
+    this._toastTimer=setTimeout(()=>{ this.setState({layoutToast:null}); }, 1400);
+  }
+  // Explicit user request (Shift+Tab): re-read the system layout and apply whatever it reports,
+  // even if it differs from the current layout. Best-effort — getLayoutMap can still be stale.
+  _rereadLayout(){
+    this._lastKeyAt = 0;                    // don't let the recent-typing guard block an explicit re-read
+    this._lastMapLayout = this.state.lang;  // treat any reading != current layout as a change to apply
+    this._repollBurst();
   }
   _rebuildForLayout(){
     const sc=this.state.screen;
@@ -1458,6 +1468,12 @@ class Component extends DCLogic {
 
   _onKey(e){
     const s = this.state;
+    // Shift+Tab = re-read the system keyboard layout on demand (before any typing).
+    if(s.layoutAuto && e.key==='Tab' && e.shiftKey && (this._isTypingScreen(s.screen) || s.screen==='game')){
+      e.preventDefault();
+      this._rereadLayout();
+      return;
+    }
     // auto-follow the system keyboard layout from the character actually produced.
     // This is ground truth (it's literally what the user typed) and wins over getLayoutMap.
     if(s.layoutAuto && e.key && e.key.length===1 && (this._isTypingScreen(s.screen) || s.screen==='game')){
@@ -1940,7 +1956,7 @@ class Component extends DCLogic {
       toggleTheme:()=>this.setState({theme:s.theme==='light'?'dark':'light'}),
       pageTitle:titles[screen]||'TypTap',
       nav, uiLangs, t:T,
-      layoutToastShow: !!s.layoutToast, layoutToastLabel: T.layoutSwitched, layoutToastName: s.layoutToast ? s.layoutToast.name : '',
+      layoutToastShow: !!s.layoutToast, layoutToastLabel: T.layoutSwitched, layoutToastName: s.layoutToast ? s.layoutToast.name : '', layoutToastAbbr: s.layoutToast ? s.layoutToast.abbr : '',
       goHome:()=>this.go('hub'), goLesson:()=>this.go('lesson'), goDrill:()=>this.go('drill'),
       goLessons:()=>this.go('lessons'),
       goOnboarding:()=>this.go('onboarding'), goDashboard:()=>this.go('hub'),

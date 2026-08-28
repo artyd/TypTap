@@ -101,6 +101,25 @@ test('typing Latin from a Cyrillic layout switches back to English', async ({ pa
   expect(res.after, 'a Latin keystroke switches back to English').toBe('en');
 });
 
+// Shift+Tab re-reads the system layout on demand (before any typing).
+test('Shift+Tab re-reads the system layout and switches without typing', async ({ page }) => {
+  const logic = await getLogic(page);
+  const res = await logic.evaluate(async (l) => {
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    if (l.state.screen === 'login') { l._login('T'); await wait(60); }
+    l._lastKeyAt = 0; l._lastMapLayout = undefined;
+    l.setState({ lang: 'en' }, () => l._startLesson(0, 0)); await wait(120);
+    const before = l.state.lang;
+    // OS switched to Ukrainian and getLayoutMap now reports it; user presses Shift+Tab (no typing).
+    navigator.keyboard.getLayoutMap = () => Promise.resolve(new Map([['KeyF', 'а'], ['KeyS', 'і'], ['Quote', 'є']]));
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true }));
+    await wait(700);
+    return { before, after: l.state.lang };
+  });
+  expect(res.before).toBe('en');
+  expect(res.after, 'Shift+Tab applies the re-read UK layout without typing').toBe('uk');
+});
+
 // A layout switch surfaces a transient toast (replaces the removed top-bar chips).
 test('a layout switch shows a keyboard-layout toast', async ({ page }) => {
   const logic = await getLogic(page);
