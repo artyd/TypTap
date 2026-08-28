@@ -96,11 +96,11 @@
         <span style="font-family:'Fredoka';font-weight:600;font-size:24px">TypTap</span>
       </div>
       <div style="width:128px;height:128px;margin:8px auto 2px;animation:tt-float 4s ease-in-out infinite"><dc-import name="Mascot" mood="{{ loginMood }}" hint-size="128px,128px"></dc-import></div>
-      <h1 style="font-family:'Fredoka';font-weight:600;font-size:26px;margin:2px 0 6px">Ласкаво просимо!</h1>
+      <h1 style="font-family:'Fredoka';font-weight:600;font-size:26px;margin:2px 0 6px">{{ t.loginWelcome }}</h1>
       <p style="color:var(--ink-2);font-weight:600;font-size:14px;margin:0 0 20px;line-height:1.5;min-height:42px">{{ loginSub }}</p>
-      <input value="{{ loginName }}" onChange="{{ onLoginInput }}" onKeyDown="{{ onLoginKey }}" placeholder="Твій нік" maxlength="20" style="width:100%;box-sizing:border-box;border:2px solid var(--border);background:var(--surface-2);color:var(--ink);font-family:'Nunito';font-weight:800;font-size:17px;padding:14px 16px;border-radius:14px;text-align:center;outline:none" style-focus="border-color:var(--brand)"/>
+      <input value="{{ loginName }}" onChange="{{ onLoginInput }}" onKeyDown="{{ onLoginKey }}" placeholder="{{ t.loginNamePh }}" maxlength="20" style="width:100%;box-sizing:border-box;border:2px solid var(--border);background:var(--surface-2);color:var(--ink);font-family:'Nunito';font-weight:800;font-size:17px;padding:14px 16px;border-radius:14px;text-align:center;outline:none" style-focus="border-color:var(--brand)"/>
       <button onClick="{{ submitLogin }}" style="width:100%;margin-top:12px;border:none;background:var(--brand);color:#fff;font-family:'Fredoka';font-weight:600;font-size:18px;padding:14px;border-radius:16px;box-shadow:0 5px 0 var(--brand-ink);cursor:pointer">{{ loginBtn }}</button>
-      <div style="font-size:12px;color:var(--muted);font-weight:700;margin-top:16px;line-height:1.5"><i class="fa-solid fa-circle-info"></i> Без пароля. Прогрес зберігається на цьому пристрої.</div>
+      <div style="font-size:12px;color:var(--muted);font-weight:700;margin-top:16px;line-height:1.5"><i class="fa-solid fa-circle-info"></i> {{ t.loginNoPass }}</div>
     </div>
   </div>
   </sc-if>
@@ -112,7 +112,7 @@
   <aside class="tt-side" style="width:246px;flex:none;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;padding:20px 16px;gap:6px">
     <div onClick="{{ goHome }}" class="tt-brand" style="display:flex;align-items:center;gap:11px;padding:6px 8px 16px;cursor:pointer">
       <div style="width:38px;height:38px;border-radius:11px;background:var(--brand);box-shadow:0 3px 0 var(--brand-ink);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fredoka';font-weight:600;font-size:22px">T</div>
-      <div><div style="font-family:'Fredoka';font-weight:600;font-size:21px;line-height:1;color:var(--ink)">TypTap</div><div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.03em;margin-top:3px">TOUCH-TYPING</div></div>
+      <div><div style="font-family:'Fredoka';font-weight:600;font-size:21px;line-height:1;color:var(--ink)">TypTap</div><div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.03em;margin-top:3px">{{ t.brandSub }}</div></div>
     </div>
     <sc-for list="{{ nav }}" as="item" hint-placeholder-count="6">
       <div onClick="{{ item.onClick }}" class="tt-navitem" style="{{ item.style }}">
@@ -123,13 +123,13 @@
     <div class="tt-profile" style="position:relative;margin-top:auto">
       <sc-if value="{{ profileMenu }}" hint-placeholder-val="{{ false }}">
         <div style="position:absolute;bottom:calc(100% + 8px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:6px;z-index:40">
-          <div style="padding:8px 12px;font-size:12px;color:var(--muted);font-weight:700">Профіль: <b style="color:var(--ink)">{{ nickname }}</b></div>
-          <div onClick="{{ logout }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;cursor:pointer;font-weight:800;font-size:14px;color:var(--error-ink)" style-hover="background:var(--error-bg)"><span style="width:26px;height:26px;border-radius:8px;background:var(--error-bg);color:var(--error-ink);display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-right-from-bracket"></i></span>Вийти з профілю</div>
+          <div style="padding:8px 12px;font-size:12px;color:var(--muted);font-weight:700">{{ t.profile }}: <b style="color:var(--ink)">{{ nickname }}</b></div>
+          <div onClick="{{ logout }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;cursor:pointer;font-weight:800;font-size:14px;color:var(--error-ink)" style-hover="background:var(--error-bg)"><span style="width:26px;height:26px;border-radius:8px;background:var(--error-bg);color:var(--error-ink);display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-right-from-bracket"></i></span>{{ t.logout }}</div>
         </div>
       </sc-if>
       <div onClick="{{ toggleProfileMenu }}" style="padding:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;gap:11px;cursor:pointer">
         <div style="width:40px;height:40px;border-radius:50%;background:var(--brand-bg);display:flex;align-items:center;justify-content:center;color:var(--brand-ink);font-weight:800;font-size:16px">{{ avatarInitial }}</div>
-        <div style="min-width:0;flex:1"><div style="font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nickname }}</div><div style="font-size:11px;color:var(--muted);font-weight:700"><i class="fa-solid fa-fire" style="color:var(--brand)"></i> {{ streak }}-day streak</div></div>
+        <div style="min-width:0;flex:1"><div style="font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nickname }}</div><div style="font-size:11px;color:var(--muted);font-weight:700"><i class="fa-solid fa-fire" style="color:var(--brand)"></i> {{ streak }} {{ t.dayStreak }}</div></div>
         <i class="fa-solid fa-ellipsis-vertical" style="color:var(--muted)"></i>
       </div>
     </div>
@@ -144,9 +144,15 @@
       <div style="flex:1"></div>
       <div style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-weight:800;font-size:13px"><i class="fa-solid fa-fire" style="color:var(--brand)"></i><span>{{ streak }}</span></div>
       <div style="display:flex;align-items:center;gap:6px;background:var(--accent-bg);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:20px;padding:6px 12px;font-weight:800;font-size:13px;color:var(--accent-ink)"><i class="fa-solid fa-bolt"></i><span>{{ xp }} XP</span></div>
-      <div style="display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px;gap:2px">
+      <div title="{{ layoutAutoHint }}" style="display:flex;align-items:center;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px 3px 3px 9px;gap:2px">
+        <i class="fa-solid fa-keyboard" style="font-size:12px;color:var(--muted);margin-right:1px"></i>
         <sc-for list="{{ langs }}" as="l" hint-placeholder-count="3">
           <button onClick="{{ l.onClick }}" style="{{ l.style }}">{{ l.short }}</button>
+        </sc-for>
+      </div>
+      <div style="display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px;gap:2px">
+        <sc-for list="{{ uiLangs }}" as="u" hint-placeholder-count="2">
+          <button onClick="{{ u.onClick }}" style="{{ u.style }}">{{ u.short }}</button>
         </sc-for>
       </div>
       <button onClick="{{ toggleTheme }}" title="Theme" style="width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center"><i class="{{ themeIcon }}"></i></button>
@@ -161,10 +167,10 @@
         <div class="tt-hero" style="display:grid;grid-template-columns:1.35fr 1fr;gap:22px;align-items:stretch">
           <div style="background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);border-radius:var(--r-xl);padding:34px 34px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow)">
             <div style="position:relative;z-index:2;max-width:62%">
-              <div style="font-size:13px;font-weight:800;letter-spacing:.05em;opacity:.9;text-transform:uppercase">Daily goal · {{ dailyDone }}/{{ dailyTotal }} min</div>
-              <h1 style="font-family:'Fredoka';font-weight:600;font-size:38px;line-height:1.05;margin:10px 0 8px">Ready to type,<br>{{ nickname }}?</h1>
-              <p style="font-size:15px;line-height:1.5;opacity:.95;margin:0 0 22px;font-weight:600">Pick up where you left off — {{ continueLabel }}.</p>
-              <button onClick="{{ goLesson }}" style="border:none;background:#fff;color:var(--brand-ink);font-family:'Fredoka';font-weight:600;font-size:17px;padding:13px 26px;border-radius:16px;box-shadow:0 4px 0 rgba(0,0,0,.14);cursor:pointer">Continue lesson <i class="fa-solid fa-arrow-right"></i></button>
+              <div style="font-size:13px;font-weight:800;letter-spacing:.05em;opacity:.9;text-transform:uppercase">{{ t.dailyGoal }} · {{ dailyDone }}/{{ dailyTotal }} {{ t.minUnit }}</div>
+              <h1 style="font-family:'Fredoka';font-weight:600;font-size:38px;line-height:1.05;margin:10px 0 8px">{{ t.heroReady }}<br>{{ nickname }}?</h1>
+              <p style="font-size:15px;line-height:1.5;opacity:.95;margin:0 0 22px;font-weight:600">{{ heroSub }}</p>
+              <button onClick="{{ goLesson }}" style="border:none;background:#fff;color:var(--brand-ink);font-family:'Fredoka';font-weight:600;font-size:17px;padding:13px 26px;border-radius:16px;box-shadow:0 4px 0 rgba(0,0,0,.14);cursor:pointer">{{ t.continueLessonBtn }} <i class="fa-solid fa-arrow-right"></i></button>
             </div>
             <div style="position:absolute;right:-8px;bottom:-14px;width:210px;height:210px;z-index:1;animation:tt-float 4s ease-in-out infinite">
               <dc-import name="Mascot" mood="happy" hint-size="210px,210px"></dc-import>
@@ -173,30 +179,30 @@
           </div>
           <div style="display:flex;flex-direction:column;gap:16px">
             <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow-sm)">
-              <div style="font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:14px">This week</div>
+              <div style="font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:14px">{{ t.thisWeek }}</div>
               <div style="display:flex;gap:18px">
-                <div><div style="font-family:'Fredoka';font-weight:600;font-size:30px;color:var(--brand)">{{ topWpm }}</div><div style="font-size:12px;color:var(--muted);font-weight:700">best WPM</div></div>
-                <div><div style="font-family:'Fredoka';font-weight:600;font-size:30px;color:var(--success)">{{ topAcc }}%</div><div style="font-size:12px;color:var(--muted);font-weight:700">accuracy</div></div>
+                <div><div style="font-family:'Fredoka';font-weight:600;font-size:30px;color:var(--brand)">{{ topWpm }}</div><div style="font-size:12px;color:var(--muted);font-weight:700">{{ t.bestWpmLc }}</div></div>
+                <div><div style="font-family:'Fredoka';font-weight:600;font-size:30px;color:var(--success)">{{ topAcc }}%</div><div style="font-size:12px;color:var(--muted);font-weight:700">{{ t.accuracyLc }}</div></div>
               </div>
               <div style="display:flex;gap:6px;margin-top:16px">
                 <sc-for list="{{ weekDots }}" as="d" hint-placeholder-count="7"><div title="{{ d.day }}" style="{{ d.style }}">{{ d.day }}</div></sc-for>
               </div>
               <sc-if value="{{ hubHasData }}" hint-placeholder-val="{{ true }}">
               <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
-                <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">All-time speed</div>
+                <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">{{ t.allTimeSpeed }}</div>
                 <svg viewBox="0 0 240 60" style="width:100%;height:42px;overflow:visible"><path d="{{ hubSparkArea }}" fill="var(--brand-bg)"></path><path d="{{ hubSpark }}" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
               </div>
               </sc-if>
             </div>
             <div onClick="{{ goOnboarding }}" style="background:var(--accent-bg);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--border));border-radius:var(--r-lg);padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:12px">
               <div style="{{ setupBadge }}"><i class="fa-solid fa-bullseye"></i></div>
-              <div style="flex:1"><div style="font-weight:800;font-size:15px">Set up your path</div><div style="font-size:12.5px;color:var(--ink-2);font-weight:600">Language & starting level</div></div>
+              <div style="flex:1"><div style="font-weight:800;font-size:15px">{{ t.setupPath }}</div><div style="font-size:12.5px;color:var(--ink-2);font-weight:600">{{ t.setupPathSub }}</div></div>
               <div style="color:var(--accent-ink);font-size:16px"><i class="fa-solid fa-arrow-right"></i></div>
             </div>
           </div>
         </div>
 
-        <div style="font-family:'Fredoka';font-weight:600;font-size:20px;margin:32px 0 14px">Jump back in</div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:20px;margin:32px 0 14px">{{ t.jumpBackIn }}</div>
         <div class="tt-cols4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
           <sc-for list="{{ modeCards }}" as="c" hint-placeholder-count="4">
             <div onClick="{{ c.onClick }}" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .12s" style-hover="transform:translateY(-3px)">
@@ -216,8 +222,8 @@
           <sc-for list="{{ onbSteps }}" as="s" hint-placeholder-count="3"><div style="{{ s.style }}"></div></sc-for>
         </div>
         <div style="width:110px;height:110px;margin:6px auto 4px;animation:tt-float 4s ease-in-out infinite"><dc-import name="Mascot" mood="encouraging" hint-size="110px,110px"></dc-import></div>
-        <h1 style="font-family:'Fredoka';font-weight:600;font-size:30px;text-align:center;margin:6px 0 4px">Which language?</h1>
-        <p style="text-align:center;color:var(--ink-2);font-weight:600;margin:0 0 24px">Interface and lessons — you can switch anytime.</p>
+        <h1 style="font-family:'Fredoka';font-weight:600;font-size:30px;text-align:center;margin:6px 0 4px">{{ t.whichLang }}</h1>
+        <p style="text-align:center;color:var(--ink-2);font-weight:600;margin:0 0 24px">{{ t.langSub }}</p>
         <div class="tt-cols3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:34px">
           <sc-for list="{{ onbLangs }}" as="l" hint-placeholder-count="3">
             <div onClick="{{ l.onClick }}" style="{{ l.style }}">
@@ -227,8 +233,8 @@
             </div>
           </sc-for>
         </div>
-        <h2 style="font-family:'Fredoka';font-weight:600;font-size:23px;text-align:center;margin:0 0 4px">Where are you starting?</h2>
-        <p style="text-align:center;color:var(--ink-2);font-weight:600;margin:0 0 18px">We'll tailor your first lessons.</p>
+        <h2 style="font-family:'Fredoka';font-weight:600;font-size:23px;text-align:center;margin:0 0 4px">{{ t.whereStart }}</h2>
+        <p style="text-align:center;color:var(--ink-2);font-weight:600;margin:0 0 18px">{{ t.tailorFirst }}</p>
         <div style="display:flex;flex-direction:column;gap:12px">
           <sc-for list="{{ onbGoals }}" as="g" hint-placeholder-count="3">
             <div onClick="{{ g.onClick }}" style="{{ g.style }}">
@@ -238,7 +244,7 @@
             </div>
           </sc-for>
         </div>
-        <button onClick="{{ goLesson }}" style="width:100%;margin-top:26px;border:none;background:var(--brand);color:#fff;font-family:'Fredoka';font-weight:600;font-size:19px;padding:16px;border-radius:18px;box-shadow:0 5px 0 var(--brand-ink);cursor:pointer">Start typing <i class="fa-solid fa-arrow-right"></i></button>
+        <button onClick="{{ goLesson }}" style="width:100%;margin-top:26px;border:none;background:var(--brand);color:#fff;font-family:'Fredoka';font-weight:600;font-size:19px;padding:16px;border-radius:18px;box-shadow:0 5px 0 var(--brand-ink);cursor:pointer">{{ t.startTyping }} <i class="fa-solid fa-arrow-right"></i></button>
       </div>
       </sc-if>
 
@@ -246,8 +252,8 @@
       <sc-if value="{{ isLessons }}" hint-placeholder-val="{{ true }}">
       <div style="max-width:1120px;margin:0 auto;padding:26px 40px 60px;animation:tt-fade .35s">
         <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:20px">
-          <div style="font-family:'Fredoka';font-weight:600;font-size:26px">Your typing path</div>
-          <div style="color:var(--ink-2);font-weight:600;font-size:14px">Beginner → pro · adapts to {{ langName }}</div>
+          <div style="font-family:'Fredoka';font-weight:600;font-size:26px">{{ t.yourPath }}</div>
+          <div style="color:var(--ink-2);font-weight:600;font-size:14px">{{ adaptsTo }}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:18px">
           <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="12">
@@ -273,7 +279,7 @@
             </div>
           </sc-for>
         </div>
-        <div style="margin-top:18px;text-align:center;padding:16px 20px;border:2px dashed var(--border-2);border-radius:var(--r-lg);color:var(--ink-2);font-weight:600;font-size:13px;line-height:1.5"><i class="fa-solid fa-dragon" style="color:var(--success)"></i> <b style="color:var(--ink)">Legend rank</b> {{ legendWpm }}+ WPM — a bonus above the human record. Real levels cap at world-class ≈150 WPM.</div>
+        <div style="margin-top:18px;text-align:center;padding:16px 20px;border:2px dashed var(--border-2);border-radius:var(--r-lg);color:var(--ink-2);font-weight:600;font-size:13px;line-height:1.5"><i class="fa-solid fa-dragon" style="color:var(--success)"></i> <b style="color:var(--ink)">{{ t.legendRank }}</b> {{ legendWpm }}{{ t.legendNote }}</div>
       </div>
       </sc-if>
 
@@ -286,8 +292,8 @@
           <div style="flex:1"><div style="font-family:'Fredoka';font-weight:600;font-size:20px">{{ sessionTitle }}</div><div style="font-size:13px;color:var(--ink-2);font-weight:600">{{ sessionSub }}</div></div>
           <div style="display:flex;gap:8px">
             <button onClick="{{ goBack }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer"><i class="fa-solid fa-arrow-left"></i> {{ backLabel }}</button>
-            <sc-if value="{{ showNext }}"><button onClick="{{ goNext }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer">Next <i class="fa-solid fa-arrow-right"></i></button></sc-if>
-            <button onClick="{{ restartSession }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer"><i class="fa-solid fa-rotate-left"></i> Restart</button>
+            <sc-if value="{{ showNext }}"><button onClick="{{ goNext }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer">{{ t.nextWord }} <i class="fa-solid fa-arrow-right"></i></button></sc-if>
+            <button onClick="{{ restartSession }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer"><i class="fa-solid fa-rotate-left"></i> {{ t.restartWord }}</button>
           </div>
         </div>
         <!-- lesson progress -->
@@ -327,7 +333,7 @@
             </sc-for>
           </div>
         </div>
-        <div style="text-align:center;margin-top:16px"><button onClick="{{ finishNow }}" style="border:none;background:var(--surface);border:1px solid var(--border);color:var(--ink-2);font-weight:800;font-size:13px;padding:10px 18px;border-radius:12px;cursor:pointer">See results <i class="fa-solid fa-arrow-right"></i></button></div>
+        <div style="text-align:center;margin-top:16px"><button onClick="{{ finishNow }}" style="border:none;background:var(--surface);border:1px solid var(--border);color:var(--ink-2);font-weight:800;font-size:13px;padding:10px 18px;border-radius:12px;cursor:pointer">{{ t.seeResults }} <i class="fa-solid fa-arrow-right"></i></button></div>
       </div>
       </sc-if>
 
@@ -351,7 +357,7 @@
           </sc-for>
         </div>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow-sm);margin-bottom:22px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="font-family:'Fredoka';font-weight:600;font-size:17px">Keyboard heatmap</div><div style="font-size:12px;color:var(--muted);font-weight:700">Redder = more misses</div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="font-family:'Fredoka';font-weight:600;font-size:17px">{{ t.heatmap }}</div><div style="font-size:12px;color:var(--muted);font-weight:700">{{ t.redderMore }}</div></div>
           <sc-for list="{{ heatRows }}" as="row" hint-placeholder-count="3">
             <div style="display:flex;gap:5px;justify-content:center;margin-bottom:5px">
               <sc-for list="{{ row.keys }}" as="k" hint-placeholder-count="10"><div style="{{ k.style }}">{{ k.label }}</div></sc-for>
@@ -359,8 +365,8 @@
           </sc-for>
         </div>
         <div style="display:flex;gap:12px">
-          <button onClick="{{ restartSession }}" style="flex:1;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:'Fredoka';font-weight:600;font-size:17px;padding:14px;border-radius:16px;cursor:pointer"><i class="fa-solid fa-rotate-left"></i> Retry</button>
-          <button onClick="{{ goDashboard }}" style="flex:1;border:none;background:var(--brand);color:#fff;font-family:'Fredoka';font-weight:600;font-size:17px;padding:14px;border-radius:16px;box-shadow:0 4px 0 var(--brand-ink);cursor:pointer">Continue <i class="fa-solid fa-arrow-right"></i></button>
+          <button onClick="{{ restartSession }}" style="flex:1;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:'Fredoka';font-weight:600;font-size:17px;padding:14px;border-radius:16px;cursor:pointer"><i class="fa-solid fa-rotate-left"></i> {{ t.retryWord }}</button>
+          <button onClick="{{ goDashboard }}" style="flex:1;border:none;background:var(--brand);color:#fff;font-family:'Fredoka';font-weight:600;font-size:17px;padding:14px;border-radius:16px;box-shadow:0 4px 0 var(--brand-ink);cursor:pointer">{{ t.continueWord }} <i class="fa-solid fa-arrow-right"></i></button>
         </div>
       </div>
       </sc-if>
@@ -369,9 +375,9 @@
       <sc-if value="{{ showProgress }}" hint-placeholder-val="{{ false }}">
       <div style="max-width:1320px;margin:0 auto;padding:8px 40px 60px;animation:tt-fade .4s">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-          <div style="flex:1"><div style="font-family:'Fredoka';font-weight:600;font-size:24px">All-time progress</div><div style="color:var(--ink-2);font-weight:600;font-size:13px">Saved on this device · accumulates every session</div></div>
-          <button onClick="{{ seedDemo }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink-2);font-weight:800;font-size:12px;padding:8px 14px;border-radius:11px;cursor:pointer">Seed demo</button>
-          <button onClick="{{ resetProgress }}" style="border:1px solid var(--border);background:var(--surface);color:var(--error-ink);font-weight:800;font-size:12px;padding:8px 14px;border-radius:11px;cursor:pointer"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+          <div style="flex:1"><div style="font-family:'Fredoka';font-weight:600;font-size:24px">{{ t.allTimeProgress }}</div><div style="color:var(--ink-2);font-weight:600;font-size:13px">{{ t.savedDevice }}</div></div>
+          <button onClick="{{ seedDemo }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink-2);font-weight:800;font-size:12px;padding:8px 14px;border-radius:11px;cursor:pointer">{{ t.seedDemo }}</button>
+          <button onClick="{{ resetProgress }}" style="border:1px solid var(--border);background:var(--surface);color:var(--error-ink);font-weight:800;font-size:12px;padding:8px 14px;border-radius:11px;cursor:pointer"><i class="fa-solid fa-rotate-left"></i> {{ t.resetWord }}</button>
         </div>
         <div class="tt-cols4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px">
           <sc-for list="{{ dashStats }}" as="s" hint-placeholder-count="4">
@@ -384,8 +390,8 @@
         </div>
         <div class="tt-cols2" style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-bottom:18px">
           <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow-sm)">
-            <div style="font-family:'Fredoka';font-weight:600;font-size:18px;margin-bottom:2px">Speed over time</div>
-            <div style="font-size:12.5px;color:var(--muted);font-weight:700;margin-bottom:14px">WPM · last 14 sessions</div>
+            <div style="font-family:'Fredoka';font-weight:600;font-size:18px;margin-bottom:2px">{{ t.speedOverTime }}</div>
+            <div style="font-size:12.5px;color:var(--muted);font-weight:700;margin-bottom:14px">{{ t.wpmLast14 }}</div>
             <div style="position:relative">
               <svg viewBox="0 0 520 200" style="width:100%;height:auto;overflow:visible">
                 <line x1="0" y1="50" x2="520" y2="50" stroke="var(--border)" stroke-width="1"></line>
@@ -398,7 +404,7 @@
             </div>
           </div>
           <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow-sm)">
-            <div style="font-family:'Fredoka';font-weight:600;font-size:18px;margin-bottom:14px">Weakest keys</div>
+            <div style="font-family:'Fredoka';font-weight:600;font-size:18px;margin-bottom:14px">{{ t.weakestKeys }}</div>
             <sc-for list="{{ weakKeys }}" as="w" hint-placeholder-count="5">
               <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
                 <div style="width:34px;height:34px;flex:none;border-radius:9px;background:var(--surface-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-weight:700;font-size:16px">{{ w.key }}</div>
@@ -409,7 +415,7 @@
           </div>
         </div>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow-sm)">
-          <div style="font-family:'Fredoka';font-weight:600;font-size:18px;margin-bottom:14px">Achievements</div>
+          <div style="font-family:'Fredoka';font-weight:600;font-size:18px;margin-bottom:14px">{{ t.achievements }}</div>
           <div class="tt-cols4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:22px 18px">
             <sc-for list="{{ badges }}" as="b" hint-placeholder-count="8">
               <div style="text-align:center;opacity:{{ b.opacity }}">
@@ -428,8 +434,8 @@
       <div style="max-width:1240px;margin:0 auto;padding:24px 30px 50px;animation:tt-fade .35s">
 
         <sc-if value="{{ gameHub }}" hint-placeholder-val="{{ true }}">
-        <div style="font-family:'Fredoka';font-weight:600;font-size:24px">Mini-games</div>
-        <div style="color:var(--ink-2);font-weight:600;font-size:14px;margin-bottom:20px">Practice speed and accuracy the fun way</div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:24px">{{ t.miniGames }}</div>
+        <div style="color:var(--ink-2);font-weight:600;font-size:14px;margin-bottom:20px">{{ t.practiceFun }}</div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px">
           <sc-for list="{{ gameCards }}" as="c" hint-placeholder-count="4">
             <div onClick="{{ c.onClick }}" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .12s" style-hover="transform:translateY(-3px)">
@@ -442,49 +448,49 @@
         </sc-if>
 
         <sc-if value="{{ gameOpen }}" hint-placeholder-val="{{ false }}">
-        <button onClick="{{ backToHub }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:9px 16px;border-radius:12px;cursor:pointer;margin-bottom:16px"><i class="fa-solid fa-arrow-left"></i> Games</button>
+        <button onClick="{{ backToHub }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:9px 16px;border-radius:12px;cursor:pointer;margin-bottom:16px"><i class="fa-solid fa-arrow-left"></i> {{ t.gamesBack }}</button>
         </sc-if>
 
         <sc-if value="{{ isBoss }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:14px;margin-bottom:14px;align-items:center">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Words </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ bScore }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_words }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ bScore }}</span></div>
             <div style="flex:1"></div>
             <button onClick="{{ bStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ bBtn }}</button>
           </div>
           <div style="{{ bArenaStyle }}">
             <div style="position:relative;display:flex;flex-direction:column;align-items:center"><div style="{{ bBossStyle }}"><i class="fa-solid fa-dragon"></i></div><div style="{{ bPlatformStyle }}"></div></div>
-            <div style="width:100%;max-width:460px"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--error-ink);margin-bottom:6px"><span>BOSS HP</span><span>{{ bHpPct }}%</span></div><div style="height:16px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;overflow:hidden"><div style="{{ bHpBarStyle }}"></div></div></div>
+            <div style="width:100%;max-width:460px"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--error-ink);margin-bottom:6px"><span>{{ t.bossHp }}</span><span>{{ bHpPct }}%</span></div><div style="height:16px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;overflow:hidden"><div style="{{ bHpBarStyle }}"></div></div></div>
             <sc-if value="{{ bShowField }}" hint-placeholder-val="{{ false }}"><div style="font-family:'JetBrains Mono';font-size:34px;font-weight:500;letter-spacing:1px"><sc-for list="{{ bWordChars }}" as="c" hint-placeholder-count="5"><span style="{{ c.style }}">{{ c.disp }}</span></sc-for></div></sc-if>
             <sc-if value="{{ bIdle }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:84px;height:84px"><dc-import name="Mascot" mood="{{ bMood }}" hint-size="84px,84px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:20px">{{ bOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:340px">{{ bOverlayText }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Type each word to strike the boss · a wrong key lets it heal a little</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_boss }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isCombo }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Score </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ cScore }}</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Mult </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--accent-ink)">{{ cMultLabel }}</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Best </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ cBest }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_score }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ cScore }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_mult }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--accent-ink)">{{ cMultLabel }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_best }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ cBest }}</span></div>
             <div style="flex:1"></div>
             <button onClick="{{ cStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ cBtn }}</button>
           </div>
           <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:32px;box-shadow:var(--shadow-sm);text-align:center;min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px">
-            <div><div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Streak</div><div style="{{ cStreakStyle }}">{{ cStreak }}</div></div>
+            <div><div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">{{ t.sc_streakLabel }}</div><div style="{{ cStreakStyle }}">{{ cStreak }}</div></div>
             <sc-if value="{{ cShowField }}" hint-placeholder-val="{{ false }}"><div style="font-family:'JetBrains Mono';font-size:36px;font-weight:500;letter-spacing:1px"><sc-for list="{{ cWordChars }}" as="c" hint-placeholder-count="5"><span style="{{ c.style }}">{{ c.disp }}</span></sc-for></div></sc-if>
-            <sc-if value="{{ cIdle }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:84px;height:84px"><dc-import name="Mascot" mood="happy" hint-size="84px,84px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:20px">Combo Streak</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:340px">Type each word right to grow your multiplier. One miss resets the streak. Ready?</div></div></sc-if>
+            <sc-if value="{{ cIdle }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:84px;height:84px"><dc-import name="Mascot" mood="happy" hint-size="84px,84px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:20px">{{ t.comboStreakTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:340px">{{ t.comboStreakIdle }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Every 5 correct words bumps your multiplier · a mistake sends the streak back to zero</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_combo }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isFalling }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:14px;margin-bottom:14px">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Score </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ fScore }}</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Lives </span><span style="display:flex;gap:4px;font-size:16px"><sc-for list="{{ fLivesArr }}" as="h" hint-placeholder-count="3"><i class="fa-solid fa-heart" style="{{ h.style }}"></i></sc-for></span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_score }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ fScore }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_lives }} </span><span style="display:flex;gap:4px;font-size:16px"><sc-for list="{{ fLivesArr }}" as="h" hint-placeholder-count="3"><i class="fa-solid fa-heart" style="{{ h.style }}"></i></sc-for></span></div>
             <div style="flex:1"></div>
             <button onClick="{{ startFalling }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ fBtnLabel }}</button>
           </div>
@@ -500,14 +506,14 @@
               </div>
             </sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">✦ Type the falling letter before it hits the line · bounce = hit, shake = miss</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_falling }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isRace }}" hint-placeholder-val="{{ true }}">
         <div>
           <div style="display:flex;gap:14px;margin-bottom:14px;align-items:center">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Your WPM </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ rWpm }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_yourWpm }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ rWpm }}</span></div>
             <div style="flex:1"></div>
             <button onClick="{{ startRace }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ rBtnLabel }}</button>
           </div>
@@ -527,7 +533,7 @@
               <sc-for list="{{ raceChars }}" as="c" hint-placeholder-count="30"><span style="{{ c.style }}">{{ c.disp }}</span></sc-for>
             </div>
           </div>
-          <sc-if value="{{ rIdle }}" hint-placeholder-val="{{ true }}"><p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Press Start, then type the sentence — beat your ghost from your best run 👻</p></sc-if>
+          <sc-if value="{{ rIdle }}" hint-placeholder-val="{{ true }}"><p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_race }}</p></sc-if>
           <sc-if value="{{ rOverlayShow }}" hint-placeholder-val="{{ false }}"><div style="text-align:center;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow-sm)"><div style="width:88px;height:88px;margin:0 auto"><dc-import name="Mascot" mood="{{ rMood }}" hint-size="88px,88px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:20px">{{ rOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600">{{ rOverlayText }}</div></div></sc-if>
         </div>
         </sc-if>
@@ -535,8 +541,8 @@
         <sc-if value="{{ isDefense }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Destroyed </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ dScore }}</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Wave </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--accent-ink)">{{ dWave }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_destroyed }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ dScore }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_wave }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--accent-ink)">{{ dWave }}</span></div>
             <div style="flex:1"></div>
             <button onClick="{{ dStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ dBtn }}</button>
           </div>
@@ -551,15 +557,15 @@
             <div style="position:absolute;left:0;right:0;bottom:0;height:44px;background:repeating-linear-gradient(45deg,var(--brand-bg),var(--brand-bg) 10px,var(--surface-2) 10px,var(--surface-2) 20px);border-top:3px dashed var(--brand)"></div>
             <sc-if value="{{ dIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;background:rgba(0,0,0,.05)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ dMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ dOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:340px">{{ dOverlayText }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Type a whole word to lock on and destroy that enemy · a wrong key drops your lock</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_defense }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isBalloon }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Popped </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ blScore }}</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Lives </span><span style="display:flex;gap:4px;font-size:16px"><sc-for list="{{ blLivesArr }}" as="h" hint-placeholder-count="3"><i class="fa-solid fa-heart" style="{{ h.style }}"></i></sc-for></span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_popped }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ blScore }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_lives }} </span><span style="display:flex;gap:4px;font-size:16px"><sc-for list="{{ blLivesArr }}" as="h" hint-placeholder-count="3"><i class="fa-solid fa-heart" style="{{ h.style }}"></i></sc-for></span></div>
             <div style="flex:1"></div>
             <button onClick="{{ blStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ blBtn }}</button>
           </div>
@@ -568,15 +574,15 @@
             <sc-for list="{{ blBursts }}" as="b" hint-placeholder-count="0"><div style="{{ b.style }}"></div></sc-for>
             <sc-if value="{{ blIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;background:rgba(0,0,0,.05)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ blMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ blOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:340px">{{ blOverlayText }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Type a word to pop its balloon before it drifts off the top · pop the highest ones first</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_balloon }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isClimber }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Height </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ clHeight }} m</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Best </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ clBest }} m</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_height }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ clHeight }} m</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_best }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ clBest }} m</span></div>
             <div style="flex:1"></div>
             <button onClick="{{ clStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ clBtn }}</button>
           </div>
@@ -589,16 +595,16 @@
             <sc-if value="{{ clShowField }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:50%;top:32px;transform:translateX(-50%);display:flex;gap:2px;background:var(--surface);padding:9px 15px;border-radius:12px;box-shadow:0 5px 14px rgba(0,0,0,.14)"><sc-for list="{{ clWordChars }}" as="c" hint-placeholder-count="5"><span style="{{ c.style }}">{{ c.disp }}</span></sc-for></div></sc-if>
             <sc-if value="{{ clIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;background:rgba(0,0,0,.05)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ clMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ clOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:340px">{{ clOverlayText }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Type each word to climb · gravity slowly pulls you down, a mistake slips you back</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_climber }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isPiano }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Score </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ pScore }}</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Combo </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--accent-ink)">&times;{{ pCombo }}</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Lives </span><span style="display:flex;gap:4px;font-size:16px"><sc-for list="{{ pLivesArr }}" as="h" hint-placeholder-count="3"><i class="fa-solid fa-heart" style="{{ h.style }}"></i></sc-for></span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_score }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ pScore }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_combo }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--accent-ink)">&times;{{ pCombo }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_lives }} </span><span style="display:flex;gap:4px;font-size:16px"><sc-for list="{{ pLivesArr }}" as="h" hint-placeholder-count="3"><i class="fa-solid fa-heart" style="{{ h.style }}"></i></sc-for></span></div>
             <div style="flex:1"></div>
             <button onClick="{{ pStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ pBtn }}</button>
           </div>
@@ -608,15 +614,15 @@
             <sc-for list="{{ pNotes }}" as="n" hint-placeholder-count="0"><div style="{{ n.style }}">{{ n.ch }}</div></sc-for>
             <sc-if value="{{ pIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;background:rgba(0,0,0,.05)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ pMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ pOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:340px">{{ pOverlayText }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Press D F J K as each note crosses the glowing line &middot; perfect timing scores double &middot; sound on</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_piano }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isMaze }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Junction </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ mzStep }}/{{ mzTotal }}</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Time </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ mzTime }}s</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_junction }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ mzStep }}/{{ mzTotal }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_time }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ mzTime }}s</span></div>
             <div style="flex:1"></div>
             <button onClick="{{ mzStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ mzBtn }}</button>
           </div>
@@ -627,15 +633,15 @@
             </div>
             <sc-if value="{{ mzIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;background:var(--surface);border-radius:var(--r-lg)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ mzMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ mzOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:360px">{{ mzOverlayText }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Type a doorway&rsquo;s word to head that direction &middot; a wrong key bumps you into the wall</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_maze }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isHorde }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Cleared </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ hdScore }}</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Lives </span><span style="display:flex;gap:4px;font-size:16px"><sc-for list="{{ hdLivesArr }}" as="h" hint-placeholder-count="3"><i class="fa-solid fa-heart" style="{{ h.style }}"></i></sc-for></span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_cleared }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ hdScore }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_lives }} </span><span style="display:flex;gap:4px;font-size:16px"><sc-for list="{{ hdLivesArr }}" as="h" hint-placeholder-count="3"><i class="fa-solid fa-heart" style="{{ h.style }}"></i></sc-for></span></div>
             <div style="flex:1"></div>
             <button onClick="{{ hdStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ hdBtn }}</button>
           </div>
@@ -644,15 +650,15 @@
             <sc-for list="{{ hdBursts }}" as="b" hint-placeholder-count="0"><div style="{{ b.style }}"></div></sc-for>
             <sc-if value="{{ hdIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;background:rgba(0,0,0,.05)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ hdMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ hdOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:340px">{{ hdOverlayText }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Type any word to clear it &middot; each fades on its timer &middot; the swarm speeds up as you score</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_horde }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isFlash }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Score </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ mfScore }}</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Lives </span><span style="display:flex;gap:4px;font-size:16px"><sc-for list="{{ mfLivesArr }}" as="h" hint-placeholder-count="3"><i class="fa-solid fa-heart" style="{{ h.style }}"></i></sc-for></span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_score }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ mfScore }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_lives }} </span><span style="display:flex;gap:4px;font-size:16px"><sc-for list="{{ mfLivesArr }}" as="h" hint-placeholder-count="3"><i class="fa-solid fa-heart" style="{{ h.style }}"></i></sc-for></span></div>
             <div style="flex:1"></div>
             <button onClick="{{ mfStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ mfBtn }}</button>
           </div>
@@ -661,32 +667,32 @@
             <div style="display:flex;gap:8px"><sc-for list="{{ mfSlots }}" as="sl" hint-placeholder-count="0"><div style="{{ sl.style }}">{{ sl.disp }}</div></sc-for></div>
             <sc-if value="{{ mfIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;background:var(--surface);border-radius:var(--r-lg)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ mfMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ mfOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:340px">{{ mfOverlayText }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">The word flashes, then hides &middot; type it back exactly from memory</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_flash }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isCipher }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Time </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ cphTime }}s</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Slips </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--error)">{{ cphErr }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_time }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ cphTime }}s</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_slips }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--error)">{{ cphErr }}</span></div>
             <div style="flex:1"></div>
             <button onClick="{{ cphStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ cphBtn }}</button>
           </div>
           <div style="{{ cphFieldStyle }}">
-            <div style="font-family:'Fredoka';font-weight:600;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Decrypt the string</div>
+            <div style="font-family:'Fredoka';font-weight:600;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">{{ t.decryptStr }}</div>
             <div style="display:flex;flex-wrap:wrap;justify-content:center;max-width:520px"><sc-for list="{{ cphChars }}" as="c" hint-placeholder-count="14"><span style="{{ c.style }}">{{ c.disp }}</span></sc-for></div>
             <sc-if value="{{ cphIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;background:var(--surface);border-radius:var(--r-lg)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ cphMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ cphOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:360px">{{ cphOverlayText }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Type every character exactly &middot; symbols and punctuation count &middot; Backspace to fix</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_cipher }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isChain }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Length </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ wcLen }}</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Best </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ wcBest }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_length }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ wcLen }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_best }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ wcBest }}</span></div>
             <div style="flex:1"></div>
             <button onClick="{{ wcStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ wcBtn }}</button>
           </div>
@@ -695,16 +701,16 @@
             <div style="display:flex;gap:1px;padding:10px 16px;background:var(--surface);border-radius:12px;box-shadow:var(--shadow-sm);border:1px solid var(--border)"><sc-for list="{{ wcChars }}" as="c" hint-placeholder-count="4"><span style="{{ c.style }}">{{ c.disp }}</span></sc-for></div>
             <sc-if value="{{ wcIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;background:var(--surface);border-radius:var(--r-lg)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ wcMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ wcOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:340px">{{ wcOverlayText }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Every correct word grows the chain &middot; one wrong key ends the run</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_chain }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isDuel }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="font-family:'Fredoka';font-weight:600;font-size:18px">Ghost Duel</div>
+            <div style="font-family:'Fredoka';font-weight:600;font-size:18px">{{ t.ghostDuelTitle }}</div>
             <div style="flex:1"></div>
-            <sc-if value="{{ gdRunning }}" hint-placeholder-val="{{ false }}"><button onClick="{{ gdStartAi }}" style="border:none;background:var(--surface-2);color:var(--ink);font-weight:800;font-size:13px;padding:10px 16px;border-radius:12px;border:1px solid var(--border);cursor:pointer">Restart</button></sc-if>
+            <sc-if value="{{ gdRunning }}" hint-placeholder-val="{{ false }}"><button onClick="{{ gdStartAi }}" style="border:none;background:var(--surface-2);color:var(--ink);font-weight:800;font-size:13px;padding:10px 16px;border-radius:12px;border:1px solid var(--border);cursor:pointer">{{ t.restartWordG }}</button></sc-if>
           </div>
           <div style="{{ gdFieldStyle }}">
             <div style="display:flex;flex-direction:column;gap:16px;width:100%;max-width:600px">
@@ -713,16 +719,16 @@
               <sc-if value="{{ gdShowGhost }}" hint-placeholder-val="{{ false }}"><div style="{{ gdGhostLaneStyle }}"><div style="{{ gdGhostStyle }}"><i class="fa-solid fa-ghost"></i></div></div></sc-if>
               <div style="display:flex;flex-wrap:wrap;justify-content:center;padding:14px;background:var(--surface);border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow-sm)"><sc-for list="{{ gdChars }}" as="c" hint-placeholder-count="0"><span style="{{ c.style }}">{{ c.disp }}</span></sc-for></div>
             </div>
-            <sc-if value="{{ gdIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;background:var(--surface);border-radius:var(--r-lg)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ gdMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ gdOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:360px">{{ gdOverlaySub }}</div><div style="display:flex;gap:10px;margin-top:8px"><button onClick="{{ gdStartAi }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:12px 20px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">vs Ghost (AI)</button><button onClick="{{ gdStart2p }}" style="border:2px solid var(--brand);background:var(--surface);color:var(--brand-ink);font-weight:800;font-size:14px;padding:11px 20px;border-radius:14px;cursor:pointer">2 Players</button></div></div></sc-if>
+            <sc-if value="{{ gdIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;background:var(--surface);border-radius:var(--r-lg)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ gdMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ gdOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:360px">{{ gdOverlaySub }}</div><div style="display:flex;gap:10px;margin-top:8px"><button onClick="{{ gdStartAi }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:12px 20px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ t.vsGhostBtn }}</button><button onClick="{{ gdStart2p }}" style="border:2px solid var(--brand);background:var(--surface);color:var(--brand-ink);font-weight:800;font-size:14px;padding:11px 20px;border-radius:14px;cursor:pointer">{{ t.players2 }}</button></div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Type the whole line first to win &middot; 2-player mode is pass-and-play (fastest time wins)</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_duel }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isGarden }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Blooms </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--success)">{{ grBlooms }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_blooms }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--success)">{{ grBlooms }}</span></div>
             <div style="flex:1"></div>
             <button onClick="{{ grStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ grBtn }}</button>
           </div>
@@ -731,15 +737,15 @@
             <div style="position:absolute;left:0;right:0;top:26px;display:flex;justify-content:center"><div style="display:flex;gap:1px;padding:10px 16px;background:rgba(255,255,255,.85);border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.1)"><sc-for list="{{ grChars }}" as="c" hint-placeholder-count="0"><span style="{{ c.style }}">{{ c.disp }}</span></sc-for></div></div>
             <sc-if value="{{ grIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;background:var(--surface);border-radius:var(--r-lg)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ grMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ grOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:360px">{{ grOverlayText }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">No timer, no pressure &middot; finish words to grow plants &middot; three finishes make one bloom</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_garden }}</p>
         </div>
         </sc-if>
 
         <sc-if value="{{ isLadder }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Score </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ wlScore }}</span></div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">Lives </span><span style="display:flex;gap:4px;font-size:16px"><sc-for list="{{ wlLivesArr }}" as="h" hint-placeholder-count="3"><i class="fa-solid fa-heart" style="{{ h.style }}"></i></sc-for></span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_score }} </span><span style="font-family:'Fredoka';font-weight:600;font-size:22px;color:var(--brand)">{{ wlScore }}</span></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 18px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase">{{ t.sc_lives }} </span><span style="display:flex;gap:4px;font-size:16px"><sc-for list="{{ wlLivesArr }}" as="h" hint-placeholder-count="3"><i class="fa-solid fa-heart" style="{{ h.style }}"></i></sc-for></span></div>
             <div style="flex:1"></div>
             <button onClick="{{ wlStart }}" style="border:none;background:var(--brand);color:#fff;font-weight:800;font-size:14px;padding:0 22px;border-radius:14px;box-shadow:0 3px 0 var(--brand-ink);cursor:pointer">{{ wlBtn }}</button>
           </div>
@@ -747,7 +753,7 @@
             <div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:10px;font-family:'Fredoka';font-weight:500;font-size:26px;color:var(--ink);max-width:600px;line-height:1.5"><span>{{ wlPre }}</span><span style="{{ wlSlotStyle }}">{{ wlBuffer }}</span><span>{{ wlPost }}</span></div>
             <sc-if value="{{ wlIdle }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;background:var(--surface);border-radius:var(--r-lg)"><div style="width:96px;height:96px"><dc-import name="Mascot" mood="{{ wlMood }}" hint-size="96px,96px"></dc-import></div><div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ wlOverlayTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px;max-width:360px">{{ wlOverlayText }}</div></div></sc-if>
           </div>
-          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">Type the word that fits the blank &middot; it locks in automatically when it matches</p>
+          <p style="text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:12px">{{ t.cap_ladder }}</p>
         </div>
         </sc-if>
 
@@ -949,10 +955,13 @@ class Component extends DCLogic {
     super(props);
     this.pdata = this._loadProfiles();
     this.store = this.pdata.current ? this.pdata.profiles[this.pdata.current] : null;
+    const prefs = this._loadPrefs();
     this.state = {
       screen: this.pdata.current ? (props.startScreen || 'hub') : 'login',
       theme: props.theme || 'light',
-      lang: 'en',
+      ui: prefs.ui,
+      lang: prefs.lang,
+      layoutAuto: prefs.layoutAuto,
       goal: 'beginner',
       game: 'falling',
       emptyTab: 'nolessons',
@@ -1017,6 +1026,13 @@ class Component extends DCLogic {
   // ---------- lifecycle ----------
   componentDidMount(){
     window.addEventListener('keydown', this._onKey);
+    // keyboard-layout auto-follow: detect now, on focus/visibility, and poll (OS layout switches fire no JS event)
+    this._layoutPoll = ()=>{ if(this.state.layoutAuto) this._pollLayout(); };
+    window.addEventListener('focus', this._layoutPoll);
+    document.addEventListener('visibilitychange', this._layoutPoll);
+    if(navigator.keyboard && navigator.keyboard.addEventListener){ try{ navigator.keyboard.addEventListener('layoutchange', this._layoutPoll); }catch(e){} }
+    this._layoutTimer = setInterval(this._layoutPoll, 1500);
+    this._pollLayout();
     const sc=this.state.screen;
     if(sc==='lesson'){ const n=this._nextLesson(); this._startLesson(n.tier,n.idx); }
     else if(sc==='drill'){ this._startDrill(); }
@@ -1024,6 +1040,9 @@ class Component extends DCLogic {
   }
   componentWillUnmount(){
     window.removeEventListener('keydown', this._onKey);
+    if(this._layoutPoll){ window.removeEventListener('focus', this._layoutPoll); document.removeEventListener('visibilitychange', this._layoutPoll);
+      if(navigator.keyboard && navigator.keyboard.removeEventListener){ try{ navigator.keyboard.removeEventListener('layoutchange', this._layoutPoll); }catch(e){} } }
+    if(this._layoutTimer) clearInterval(this._layoutTimer);
     this._stopLoop();
   }
   _isTypingScreen(s){ return s==='lesson'||s==='drill'; }
@@ -1031,7 +1050,8 @@ class Component extends DCLogic {
   // ---------- persistence (nickname profiles) ----------
   _loadProfiles(){
     try{ const raw=localStorage.getItem('typtap_v2'); if(raw){ const o=JSON.parse(raw); if(o&&o.profiles) return o; } }catch(e){}
-    return { current:'Maria', profiles:{ Maria:this._seed() } };
+    // Fresh device: no demo account — go straight to registration (login screen).
+    return { current:null, profiles:{} };
   }
   _seed(){
     const today=new Date(); const base=[26,29,28,33,31,37,39,36,43,45,44,49,52,56];
@@ -1047,6 +1067,69 @@ class Component extends DCLogic {
   _login(nick){ nick=(nick||'').trim().slice(0,20); if(!nick) return; const exists=!!this.pdata.profiles[nick]; if(!exists) this.pdata.profiles[nick]=this._blank(); this.pdata.current=nick; this.store=this.pdata.profiles[nick]; this._save(); this.setState({screen: exists?'hub':'onboarding', loginName:'', profileMenu:false, lbModal:true}); }
   _logout(){ this.pdata.current=null; this.store=null; this._save(); this._stopLoop(); this.setState({screen:'login', profileMenu:false}); }
   _addXp(n){ if(this.store) this.store.xp=(this.store.xp||0)+n; }
+
+  // ---------- device prefs (UI language + typing layout) ----------
+  _loadPrefs(){
+    // layoutAuto always starts true: auto-follow is the default; a manual chip override
+    // only lasts the current page session (not persisted) so accidental clicks self-heal on reload.
+    let ui=null, lang=null;
+    try{ const raw=localStorage.getItem('typtap_prefs'); if(raw){ const o=JSON.parse(raw)||{}; if(o.ui) ui=o.ui; if(o.lang) lang=o.lang; } }catch(e){}
+    if(!ui){ try{ const nav=(navigator.language||'en').toLowerCase(); ui = nav.indexOf('uk')===0 ? 'uk' : (nav.indexOf('ru')===0?'uk':'en'); }catch(e){ ui='en'; } }
+    if(ui!=='uk'&&ui!=='en') ui='en';
+    if(!lang) lang='en';
+    return { ui, lang, layoutAuto:true };
+  }
+  _savePrefs(){ try{ localStorage.setItem('typtap_prefs', JSON.stringify({ui:this.state.ui, lang:this.state.lang})); }catch(e){} }
+  _setUi(code){ if(code!=='uk'&&code!=='en') return; this.setState({ui:code}, ()=>this._savePrefs()); }
+
+  // ---------- keyboard layout auto-detection ----------
+  // Map a KeyboardLayoutMap (navigator.keyboard) to a lesson layout code.
+  _layoutFromMap(map){
+    const g=(c)=>{ try{ return ((map.get(c)||'')+'').toLowerCase(); }catch(e){ return ''; } };
+    const sample = g('KeyF')+g('KeyS')+g('KeyD')+g('KeyA')+g('KeyQ')+g('KeyW')+g('KeyR')+g('KeyP')+g('BracketR')+g('Quote')+g('Backslash');
+    if(/[іїєґ]/.test(sample)) return 'uk';
+    if(/[ыэъё]/.test(sample)) return 'ru';
+    if(/[Ѐ-ӿ]/.test(sample)) return 'uk'; // generic Cyrillic → default Ukrainian
+    if(/[a-z]/.test(sample)) return 'en';
+    return null;
+  }
+  // Classify a single produced character (KeyboardEvent.key) into a layout, when unambiguous.
+  _layoutFromChar(ch){
+    if(!ch || ch.length!==1) return null;
+    const c=ch.toLowerCase();
+    if(/[іїєґ]/.test(c)) return 'uk';
+    if(/[ыэъё]/.test(c)) return 'ru';
+    if(/[а-я]/.test(c)) return 'cyr';       // ambiguous uk/ru
+    if(/[a-z]/.test(c)) return 'en';
+    return null;
+  }
+  async _pollLayout(){
+    try{
+      if(navigator.keyboard && navigator.keyboard.getLayoutMap){
+        const map = await navigator.keyboard.getLayoutMap();
+        const L = this._layoutFromMap(map);
+        if(L) this._applyLayout(L);
+      }
+    }catch(e){}
+  }
+  // Apply a detected layout: switch typing content and rebuild the current typing screen.
+  _applyLayout(code){
+    if(!this.state.layoutAuto) return false;
+    if(code==='cyr') code = (this.state.lang==='ru')?'ru':'uk';
+    if(!code || code===this.state.lang) return false;
+    this.setState({lang:code}, ()=>{ this._savePrefs(); this._rebuildForLayout(); });
+    return true;
+  }
+  _rebuildForLayout(){
+    const sc=this.state.screen;
+    if(sc==='lesson'){ const n=this._nextLesson(); this._startLesson(n.tier,n.idx); }
+    else if(sc==='drill'){ this._startDrill(); }
+    else if(sc==='game' && this.state.game){ this._startGame(this.state.game); }
+  }
+  // Manual override from the header chips.
+  _setLayoutManual(code){
+    this.setState({lang:code, layoutAuto:false}, ()=>{ this._savePrefs(); this._rebuildForLayout(); });
+  }
 
   // ---------- leaderboard (seed data, all-time) ----------
   _lbSeed(){ return [
@@ -1065,18 +1148,18 @@ class Component extends DCLogic {
   ]; }
   _ini(n){ const c=(n||'').replace(/[^0-9A-Za-z\u0410-\u042f\u0430-\u044f\u0406\u0407\u0404\u0490\u0456\u0457\u0454\u0491]/g,''); return (c.slice(0,2)||'?').toUpperCase(); }
   LB(lang){ const M={
-    en:{title:'Leaderboard',sub:'The fastest typists in the world \u2014 climb the ranks.',scope:'Global \u00b7 All-time',wpm:'WPM',acc:'Accuracy',streak:'Streak',you:'YOU',your:'Your place',hint:'Finish a lesson or drill to post your first score and claim a rank.',uDays:'days',mTitle:'Top typists right now',mSub:'See who leads the global board today.',mCta:'Open leaderboard',mClose:'Maybe later'},
-    uk:{title:'\u0422\u0430\u0431\u043b\u0438\u0446\u044f \u043b\u0456\u0434\u0435\u0440\u0456\u0432',sub:'\u041d\u0430\u0439\u0448\u0432\u0438\u0434\u0448\u0456 \u0434\u0440\u0443\u043a\u0430\u0440\u0456 \u0441\u0432\u0456\u0442\u0443 \u2014 \u043f\u0456\u0434\u0456\u0439\u043c\u0430\u0439\u0441\u044f \u0432 \u0440\u0435\u0439\u0442\u0438\u043d\u0433\u0443.',scope:'\u0413\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u043e \u00b7 \u0417\u0430 \u0432\u0435\u0441\u044c \u0447\u0430\u0441',wpm:'\u0417\u043d\u0430\u043a/\u0445\u0432',acc:'\u0422\u043e\u0447\u043d\u0456\u0441\u0442\u044c',streak:'\u0421\u0435\u0440\u0456\u044f',you:'\u0422\u0418',your:'\u0422\u0432\u043e\u0454 \u043c\u0456\u0441\u0446\u0435',hint:'\u041f\u0440\u043e\u0439\u0434\u0438 \u0443\u0440\u043e\u043a \u0430\u0431\u043e \u0442\u0440\u0435\u043d\u0443\u0432\u0430\u043d\u043d\u044f, \u0449\u043e\u0431 \u043e\u0442\u0440\u0438\u043c\u0430\u0442\u0438 \u043f\u0435\u0440\u0448\u0438\u0439 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u0456 \u043c\u0456\u0441\u0446\u0435.',uDays:'\u0434\u043d',mTitle:'\u041d\u0430\u0439\u043a\u0440\u0430\u0449\u0456 \u0434\u0440\u0443\u043a\u0430\u0440\u0456 \u0437\u0430\u0440\u0430\u0437',mSub:'\u041f\u043e\u0434\u0438\u0432\u0438\u0441\u044c, \u0445\u0442\u043e \u043e\u0447\u043e\u043b\u044e\u0454 \u0441\u0432\u0456\u0442\u043e\u0432\u0443 \u0442\u0430\u0431\u043b\u0438\u0446\u044e \u0441\u044c\u043e\u0433\u043e\u0434\u043d\u0456.',mCta:'\u0412\u0456\u0434\u043a\u0440\u0438\u0442\u0438 \u0442\u0430\u0431\u043b\u0438\u0446\u044e',mClose:'\u041f\u0456\u0437\u043d\u0456\u0448\u0435'},
-    ru:{title:'\u0422\u0430\u0431\u043b\u0438\u0446\u0430 \u043b\u0438\u0434\u0435\u0440\u043e\u0432',sub:'\u0421\u0430\u043c\u044b\u0435 \u0431\u044b\u0441\u0442\u0440\u044b\u0435 \u043c\u0430\u0448\u0438\u043d\u0438\u0441\u0442\u044b \u043c\u0438\u0440\u0430 \u2014 \u043f\u043e\u0434\u043d\u0438\u043c\u0430\u0439\u0441\u044f \u0432 \u0440\u0435\u0439\u0442\u0438\u043d\u0433\u0435.',scope:'\u0413\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u043e \u00b7 \u0417\u0430 \u0432\u0441\u0451 \u0432\u0440\u0435\u043c\u044f',wpm:'\u0417\u043d\u0430\u043a/\u043c\u0438\u043d',acc:'\u0422\u043e\u0447\u043d\u043e\u0441\u0442\u044c',streak:'\u0421\u0435\u0440\u0438\u044f',you:'\u0422\u042b',your:'\u0422\u0432\u043e\u0451 \u043c\u0435\u0441\u0442\u043e',hint:'\u041f\u0440\u043e\u0439\u0434\u0438 \u0443\u0440\u043e\u043a \u0438\u043b\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0443, \u0447\u0442\u043e\u0431\u044b \u043f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u043f\u0435\u0440\u0432\u044b\u0439 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u0438 \u043c\u0435\u0441\u0442\u043e.',uDays:'\u0434\u043d',mTitle:'\u041b\u0443\u0447\u0448\u0438\u0435 \u043c\u0430\u0448\u0438\u043d\u0438\u0441\u0442\u044b \u0441\u0435\u0439\u0447\u0430\u0441',mSub:'\u0421\u043c\u043e\u0442\u0440\u0438, \u043a\u0442\u043e \u0432\u043e\u0437\u0433\u043b\u0430\u0432\u043b\u044f\u0435\u0442 \u043c\u0438\u0440\u043e\u0432\u0443\u044e \u0442\u0430\u0431\u043b\u0438\u0446\u0443 \u0441\u0435\u0433\u043e\u0434\u043d\u044f.',mCta:'\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0442\u0430\u0431\u043b\u0438\u0446\u0443',mClose:'\u041f\u043e\u0437\u0436\u0435'}
+    en:{title:'Leaderboard',sub:'The fastest typists in the world \u2014 climb the ranks.',scope:'Global \u00b7 All-time',wpm:'WPM',acc:'Accuracy',streak:'Streak',you:'YOU',your:'Your place',hint:'Finish a lesson or drill to post your first score and claim a rank.',uDays:'days',uWpm:'wpm',mTitle:'Top typists right now',mSub:'See who leads the global board today.',mCta:'Open leaderboard',mClose:'Maybe later'},
+    uk:{title:'\u0422\u0430\u0431\u043b\u0438\u0446\u044f \u043b\u0456\u0434\u0435\u0440\u0456\u0432',sub:'\u041d\u0430\u0439\u0448\u0432\u0438\u0434\u0448\u0456 \u0434\u0440\u0443\u043a\u0430\u0440\u0456 \u0441\u0432\u0456\u0442\u0443 \u2014 \u043f\u0456\u0434\u0456\u0439\u043c\u0430\u0439\u0441\u044f \u0432 \u0440\u0435\u0439\u0442\u0438\u043d\u0433\u0443.',scope:'\u0413\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u043e \u00b7 \u0417\u0430 \u0432\u0435\u0441\u044c \u0447\u0430\u0441',wpm:'\u0417\u043d\u0430\u043a/\u0445\u0432',acc:'\u0422\u043e\u0447\u043d\u0456\u0441\u0442\u044c',streak:'\u0421\u0435\u0440\u0456\u044f',you:'\u0422\u0418',your:'\u0422\u0432\u043e\u0454 \u043c\u0456\u0441\u0446\u0435',hint:'\u041f\u0440\u043e\u0439\u0434\u0438 \u0443\u0440\u043e\u043a \u0430\u0431\u043e \u0442\u0440\u0435\u043d\u0443\u0432\u0430\u043d\u043d\u044f, \u0449\u043e\u0431 \u043e\u0442\u0440\u0438\u043c\u0430\u0442\u0438 \u043f\u0435\u0440\u0448\u0438\u0439 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u0456 \u043c\u0456\u0441\u0446\u0435.',uDays:'\u0434\u043d',uWpm:'\u0437\u043d/\u0445\u0432',mTitle:'\u041d\u0430\u0439\u043a\u0440\u0430\u0449\u0456 \u0434\u0440\u0443\u043a\u0430\u0440\u0456 \u0437\u0430\u0440\u0430\u0437',mSub:'\u041f\u043e\u0434\u0438\u0432\u0438\u0441\u044c, \u0445\u0442\u043e \u043e\u0447\u043e\u043b\u044e\u0454 \u0441\u0432\u0456\u0442\u043e\u0432\u0443 \u0442\u0430\u0431\u043b\u0438\u0446\u044e \u0441\u044c\u043e\u0433\u043e\u0434\u043d\u0456.',mCta:'\u0412\u0456\u0434\u043a\u0440\u0438\u0442\u0438 \u0442\u0430\u0431\u043b\u0438\u0446\u044e',mClose:'\u041f\u0456\u0437\u043d\u0456\u0448\u0435'},
+    ru:{title:'\u0422\u0430\u0431\u043b\u0438\u0446\u0430 \u043b\u0438\u0434\u0435\u0440\u043e\u0432',sub:'\u0421\u0430\u043c\u044b\u0435 \u0431\u044b\u0441\u0442\u0440\u044b\u0435 \u043c\u0430\u0448\u0438\u043d\u0438\u0441\u0442\u044b \u043c\u0438\u0440\u0430 \u2014 \u043f\u043e\u0434\u043d\u0438\u043c\u0430\u0439\u0441\u044f \u0432 \u0440\u0435\u0439\u0442\u0438\u043d\u0433\u0435.',scope:'\u0413\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u043e \u00b7 \u0417\u0430 \u0432\u0441\u0451 \u0432\u0440\u0435\u043c\u044f',wpm:'\u0417\u043d\u0430\u043a/\u043c\u0438\u043d',acc:'\u0422\u043e\u0447\u043d\u043e\u0441\u0442\u044c',streak:'\u0421\u0435\u0440\u0438\u044f',you:'\u0422\u042b',your:'\u0422\u0432\u043e\u0451 \u043c\u0435\u0441\u0442\u043e',hint:'\u041f\u0440\u043e\u0439\u0434\u0438 \u0443\u0440\u043e\u043a \u0438\u043b\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0443, \u0447\u0442\u043e\u0431\u044b \u043f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u043f\u0435\u0440\u0432\u044b\u0439 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u0438 \u043c\u0435\u0441\u0442\u043e.',uDays:'\u0434\u043d',uWpm:'\u0437\u043d/\u0445\u0432',mTitle:'\u041b\u0443\u0447\u0448\u0438\u0435 \u043c\u0430\u0448\u0438\u043d\u0438\u0441\u0442\u044b \u0441\u0435\u0439\u0447\u0430\u0441',mSub:'\u0421\u043c\u043e\u0442\u0440\u0438, \u043a\u0442\u043e \u0432\u043e\u0437\u0433\u043b\u0430\u0432\u043b\u044f\u0435\u0442 \u043c\u0438\u0440\u043e\u0432\u0443\u044e \u0442\u0430\u0431\u043b\u0438\u0446\u0443 \u0441\u0435\u0433\u043e\u0434\u043d\u044f.',mCta:'\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0442\u0430\u0431\u043b\u0438\u0446\u0443',mClose:'\u041f\u043e\u0437\u0436\u0435'}
   }; return M[lang]||M.en; }
   _lbView(){
-    const s=this.state; const metric=s.lbMetric||'wpm'; const L=this.LB(s.lang);
+    const s=this.state; const metric=s.lbMetric||'wpm'; const L=this.LB(s.ui);
     const hist=(this.store&&this.store.sessions)||[];
     const bestWpm=hist.length?Math.max(...hist.map(x=>x.wpm)):0;
     const bestAcc=hist.length?Math.max(...hist.map(x=>x.acc)):0;
     const streakCount=(this.store&&this.store.streak&&this.store.streak.count)||0;
     const disp=(v)=> metric==='acc'?(v.toFixed(1)+'%'):String(v);
-    const unit=()=> metric==='acc'?'':(metric==='wpm'?'wpm':L.uDays);
+    const unit=()=> metric==='acc'?'':(metric==='wpm'?(L.uWpm||'wpm'):L.uDays);
     const sorted=this._lbSeed().slice().sort((a,b)=>b[metric]-a[metric]);
     const rows=sorted.map((p,i)=>({rank:i+1,name:p.name,av:this._ini(p.name),val:disp(p[metric]),unit:unit()}));
     const uv=metric==='wpm'?bestWpm:metric==='acc'?bestAcc:streakCount;
@@ -1132,6 +1215,129 @@ class Component extends DCLogic {
     {t:11,name:'Pro',icon:'fa-solid fa-dragon',color:'var(--success)',lessons:6,desc:'world-class bursts',speed:[90,110,130,150,170,200]}
   ];
   LEGEND_WPM = 250;
+  // ---------- UI localization (interface language, independent of typing layout) ----------
+  I18N = {
+    en: {
+      // nav + shell
+      nav_home:'Home', nav_lessons:'Lessons', nav_drills:'Drills', nav_games:'Games', nav_leaderboard:'Leaderboard',
+      brandSub:'TOUCH-TYPING', profile:'Profile', logout:'Log out', dayStreak:'day streak',
+      layoutAutoHint:'Lessons follow your system keyboard layout',
+      // page titles
+      t_hub:'Home', t_onboarding:'Get started', t_lessons:'Lessons', t_lesson:'Structured lesson', t_drill:'Adaptive drill', t_results:'Your results', t_dashboard:'Progress', t_game:'Mini-games', t_leaderboard:'Leaderboard', t_system:'Design system', t_empty:'States',
+      // login
+      loginWelcome:'Welcome!', loginNamePh:'Your nickname', loginNoPass:'No password. Progress is saved on this device.',
+      loginSubReturn:'Welcome back, %! All your progress is here.', loginSubNew:'A new profile — Typo is already waiting for you!', loginSubDefault:'Enter a nickname to start or continue.',
+      loginBtnLogin:'Log in', loginBtnCreate:'Create profile', loginBtnContinue:'Continue',
+      // hub
+      dailyGoal:'Daily goal', minUnit:'min', heroReady:'Ready to type,', heroSub:'Pick up where you left off — %.', continueLessonBtn:'Continue lesson',
+      thisWeek:'This week', bestWpmLc:'best WPM', accuracyLc:'accuracy', allTimeSpeed:'All-time speed', setupPath:'Set up your path', setupPathSub:'Interface language & starting level', jumpBackIn:'Jump back in', lessonWord:'lesson',
+      mc_lessons_t:'Lessons', mc_lessons_d:'Structured course, step by step', mc_drills_t:'Drills', mc_drills_d:'Adaptive weak-key practice',
+      // onboarding
+      whichLang:'Which language?', langSub:'Interface language — lessons follow your system keyboard layout automatically.', whereStart:'Where are you starting?', tailorFirst:"We'll tailor your first lessons.", startTyping:'Start typing',
+      g_beginner_t:'Complete beginner', g_beginner_d:"I've never learned touch typing", g_homerow_t:'I know the home row', g_homerow_d:'Ready to build past asdf jkl;', g_speed_t:'Just want speed', g_speed_d:'Polish my WPM and accuracy',
+      // lessons ladder
+      yourPath:'Your typing path', adaptsTo:'Beginner → pro · adapts to %', levelWord:'LEVEL', speedGated:'SPEED-GATED', statusCompleted:'Completed', statusNotStarted:'Not started', lessonN:'Lesson', targetWord:'target',
+      legendRank:'Legend rank', legendNote:'+ WPM — a bonus above the human record. Real levels cap at world-class ≈150 WPM.',
+      // typing
+      badgeDrill:'🎯 DRILL', badgeLesson:'📖 LESSON', backWord:'Back', prevWord:'Prev', levelsWord:'Levels', nextWord:'Next', restartWord:'Restart', seeResults:'See results',
+      st_speed:'Speed', st_accuracy:'Accuracy', st_errors:'Errors', wpmUnit:' wpm',
+      courseMode:'Course mode', adaptivePractice:'Adaptive practice', weakKeyPractice:'Weak-key practice: ', adaptiveFrom:'Adaptive · pulled from your recent misses', adaptiveType:'Adaptive · type more to personalise this', targetWpmSuffix:' · target % wpm', lessonWordCap:'Lesson', lessonDash:' — lesson ',
+      // results
+      h_pb:'New personal best!', h_brilliant:'Brilliant!', h_nice:'Nicely done!', h_good:'Good progress!',
+      msg_needTarget:'You need % WPM to clear this level — you hit %. So close, run it again!', msg_pb:'Your fastest run yet at % WPM. Typo is proud of you.', msg_flawless:'Almost flawless — that muscle memory is really setting in.', msg_keepGoing:"Keep going — a little more practice on your weak keys and you’ll fly.",
+      r_wpm:'WPM', r_accuracy:'Accuracy', r_errors:'Errors', r_time:'Time', heatmap:'Keyboard heatmap', redderMore:'Redder = more misses', retryWord:'Retry', continueWord:'Continue',
+      // dashboard
+      allTimeProgress:'All-time progress', savedDevice:'Saved on this device · accumulates every session', seedDemo:'Seed demo', resetWord:'Reset',
+      ds_avgWpm:'Avg WPM', ds_accuracy:'Accuracy', ds_streak:'Streak', ds_lessons:'Lessons', recentWord:'recent', bestWord:'best', daysWord:'days', ofWord:'of',
+      speedOverTime:'Speed over time', wpmLast14:'WPM · last 14 sessions', weakestKeys:'Weakest keys', achievements:'Achievements',
+      b_firststeps_n:'First steps', b_firststeps_s:'1 lesson', b_gettinggoing_n:'Getting going', b_gettinggoing_s:'6 lessons', b_committed_n:'Committed', b_committed_s:'18 lessons', b_halfway_n:'Halfway', b_halfway_s:'half the path', b_graduate_n:'Graduate', b_graduate_s:'all lessons', b_explorer_n:'Explorer', b_explorer_s:'finish a tier', b_speedster_n:'Speedster', b_speedster_s:'40 WPM', b_fastfingers_n:'Fast fingers', b_fastfingers_s:'60 WPM', b_speeddemon_n:'Speed demon', b_speeddemon_s:'80 WPM', b_century_n:'Century', b_century_s:'100 WPM', b_legend_n:'Legend', b_legend_s:'150 WPM', b_sharp_n:'Sharp', b_sharp_s:'95% acc', b_flawless_n:'Flawless', b_flawless_s:'100% acc', b_steady_n:'Steady', b_steady_s:'3-day streak', b_onfire_n:'On fire', b_onfire_s:'7-day streak', b_unstoppable_n:'Unstoppable', b_unstoppable_s:'30-day streak', b_combomaster_n:'Combo master', b_combomaster_s:'15 streak', b_combolegend_n:'Combo legend', b_combolegend_s:'30 streak', b_bossslayer_n:'Boss slayer', b_bossslayer_s:'beat a boss', b_regular_n:'Regular', b_regular_s:'20 sessions', b_marathon_n:'Marathon', b_marathon_s:'50 sessions', b_risingstar_n:'Rising star', b_risingstar_s:'1000 XP', b_champion_n:'Champion', b_champion_s:'5000 XP', b_polyglot_n:'Polyglot', b_polyglot_s:'3 langs',
+      // games hub + shared
+      miniGames:'Mini-games', practiceFun:'Practice speed and accuracy the fun way', startWord:'Start',
+      sc_score:'Score', sc_lives:'Lives', sc_words:'Words', sc_mult:'Mult', sc_best:'Best', sc_wave:'Wave', sc_destroyed:'Destroyed', sc_popped:'Popped', sc_height:'Height', sc_combo:'Combo', sc_cleared:'Cleared', sc_time:'Time', sc_slips:'Slips', sc_length:'Length', sc_junction:'Junction', sc_blooms:'Blooms', sc_yourWpm:'Your WPM', sc_streakLabel:'Streak',
+      // per-game name/desc
+      g_falling_t:'Falling Letters', g_falling_d:'Catch them before they land', g_race_t:'Race', g_race_d:'Beat your ghost run', g_boss_t:'Boss Battle', g_boss_d:'Type words to damage the boss', g_combo_t:'Combo Streak', g_combo_d:'Chain correct words for a multiplier', g_defense_t:'Word Defense', g_defense_d:'Type words to stop the enemy waves', g_balloon_t:'Balloon Pop', g_balloon_d:'Pop the rising balloons in time', g_climber_t:'Sky Climber', g_climber_d:'Climb as high as you can', g_piano_t:'Typing Piano', g_piano_d:'Hit the notes in rhythm', g_maze_t:'Maze Runner', g_maze_d:'Type a doorway to pick your path', g_horde_t:'Survival Horde', g_horde_d:'Clear the swarm before it grows', g_flash_t:'Memory Flash', g_flash_d:'Memorize the word, then type it', g_cipher_t:'Cipher', g_cipher_d:'Crack the code exactly', g_chain_t:'Word Chain', g_chain_d:'Grow the snake, don’t slip', g_duel_t:'Ghost Duel', g_duel_d:'Race a rival to the finish', g_garden_t:'Typing Garden', g_garden_d:'Grow a calm garden, no timer', g_ladder_t:'Word Ladder', g_ladder_d:'Fill in the missing word',
+      // game captions
+      cap_boss:'Type each word to strike the boss · a wrong key lets it heal a little', cap_combo:'Every 5 correct words bumps your multiplier · a mistake sends the streak back to zero', cap_falling:'✦ Type the falling letter before it hits the line · bounce = hit, shake = miss', cap_race:'Press Start, then type the sentence — beat your ghost from your best run 👻', cap_defense:'Type a whole word to lock on and destroy that enemy · a wrong key drops your lock', cap_balloon:'Type a word to pop its balloon before it drifts off the top · pop the highest ones first', cap_climber:'Type each word to climb · gravity slowly pulls you down, a mistake slips you back', cap_piano:'Press D F J K as each note crosses the glowing line · perfect timing scores double · sound on', cap_maze:'Type a doorway’s word to head that direction · a wrong key bumps you into the wall', cap_horde:'Type any word to clear it · each fades on its timer · the swarm speeds up as you score', cap_flash:'The word flashes, then hides · type it back exactly from memory', cap_cipher:'Type every character exactly · symbols and punctuation count · Backspace to fix', cap_chain:'Every correct word grows the chain · one wrong key ends the run', cap_duel:'Type the whole line first to win · 2-player mode is pass-and-play (fastest time wins)', cap_garden:'No timer, no pressure · finish words to grow plants · three finishes make one bloom', cap_ladder:'Type the word that fits the blank · it locks in automatically when it matches',
+      // game misc
+      bossHp:'BOSS HP', comboStreakTitle:'Combo Streak', comboStreakIdle:'Type each word right to grow your multiplier. One miss resets the streak. Ready?', decryptStr:'Decrypt the string', memorize:'Memorize!', typeFromMem:'Type it from memory', ghostDuelTitle:'Ghost Duel', p1turn:'Player 1’s turn', p2turn:'Player 2’s turn', youWord:'You', vsGhostBtn:'vs Ghost (AI)', players2:'2 Players', restartWordG:'Restart', gamesBack:'Games',
+      // game overlay titles/texts (dynamic bits use %)
+      ov_gameOver:'Game over — score %', ov_falling_over:'Nice reflexes! The letters speed up as you score. Try again?', ov_falling_idle:'Type each letter before it reaches the dashed line. Ready?',
+      ov_race_rec:'New record — % WPM!', ov_race_fin:'Finished at % WPM', ov_race_lost:'The ghost won this time', ov_race_won_txt:'Your ghost just got faster. Race it again?', ov_race_lost_txt:'So close! Type a little steadier and you’ll catch it.',
+      ov_boss_def:'Boss defeated!', ov_boss_def_txt:'You landed % clean words — nice work!',
+      ov_defense_over:'Base overrun — score %', ov_defense_over_txt:'The horde broke through! Type faster to hold the line. Retry?', ov_defense_idle_txt:'Type the whole word above each enemy to blast it before it reaches your base.',
+      ov_balloon_over:'All out — score %', ov_balloon_over_txt:'A few floated away! Pop the top ones first. Another round?', ov_balloon_idle_txt:'Balloons drift up — type a word to pop it before it leaves the top. Calmer pace, no rush.',
+      ov_climber_rec:'New record — % m!', ov_climber_reach:'You reached % m', ov_climber_over_txt:'Gravity caught up! Keep a steady rhythm to climb higher. Again?', ov_climber_idle_txt:'Type each word to climb. A wrong key slips you back, and gravity keeps pulling — how high can you get?',
+      ov_piano_over:'Out of hearts — score %', ov_piano_over_txt:'Feel the rhythm! Hit each key as its note crosses the line. Again?', ov_piano_idle_txt:'Notes fall down four lanes — press D F J K as each crosses the glowing line. Perfect timing scores double.',
+      ov_maze_esc:'Escaped in %s!', ov_maze_over_txt:'You found the way out! Faster next time?', ov_maze_idle_txt:'Type a doorway’s word to head that way. Reach the exit before the clock runs away.',
+      ov_horde_over:'Overwhelmed — score %', ov_horde_over_txt:'The horde won this time. Clear the words about to fade first!', ov_horde_idle_txt:'Words swarm in, each fading on a timer — clear them before they vanish. It only speeds up.',
+      ov_flash_over:'Nice memory — score %', ov_flash_over_txt:'Words flash for a moment, then you type them back. Again?', ov_flash_idle_txt:'A word flashes for a moment — memorize it, then type it from memory once it hides.',
+      ov_cipher_dec:'Decrypted in %s!', ov_cipher_slips:'Decoded with % slips', ov_cipher_over_txt:'Retype the code exactly — symbols count. Again?', ov_cipher_idle_txt:'Retype the coded string exactly, symbols and all, as fast as you can. Errors leave traces.',
+      ov_chain_of:'Chain of %!', ov_chain_over_txt:'Each correct word grew the chain — one slip ended it. Beat your best?', ov_chain_idle_txt:'Type each word to grow the chain. A single wrong key ends the run — how long can you go?',
+      ov_duel_2pwin:'% wins!', ov_duel_youwin:'You beat the ghost!', ov_duel_lost:'The ghost won — rematch?', ov_duel_sub_vs:'% vs %', ov_duel_idle_sub:'Race a rival to type the whole line first — pick a mode:',
+      ov_garden_title:'Typing Garden', ov_garden_idle_txt:'A calm, no-timer garden. Each word you finish helps a plant grow — fill three to make it bloom.',
+      ov_ladder_score:'Score %', ov_ladder_over_txt:'Fill the blank with the word that fits. Play again?', ov_ladder_idle_txt:'Read the sentence and type the missing word, then it locks in. Light reading practice on top of typing.',
+      raceGhostBest:'Ghost · best % wpm', raceGhostPacer:'Ghost · pacer',
+      // empty states
+      tab_nolessons:'No lessons yet', tab_offline:'Offline', e_nolessons_t:'No lessons completed yet', e_nolessons_x:'Your journey starts with a single keystroke. Pick a lesson and Typo will guide your fingers.', e_nolessons_b:'Start your first lesson', e_notfound_t:'This page slipped off the keyboard', e_notfound_x:'We couldn’t find what you were looking for. Let’s get you back to solid ground.', e_notfound_b:'Back to home', e_offline_t:'You’re offline', e_offline_x:'Typo is taking a nap until your connection is back. Your progress is saved safely.', e_offline_b:'Try again',
+      // design system
+      sys_title:'TypTap design system', sys_colors:'Color palette', sys_type:'Typography', sys_mascot:'Mascot — Typo the keycap', sys_buttons:'Buttons', sys_components:'Components',
+      // tiers (names + descs)
+      tier0_n:'Orientation', tier0_d:'Find home keys, first fingers', tier1_n:'Home row', tier1_d:'asdf jkl; — the anchor row', tier2_n:'Top row', tier2_d:'qwerty and up', tier3_n:'Bottom row', tier3_d:'zxcv and reaches', tier4_n:'Number row', tier4_d:'digits and stretch', tier5_n:'Punctuation', tier5_d:'symbols and marks', tier6_n:'Capitals & Shift', tier6_d:'Shift combos', tier7_n:'Words & bigrams', tier7_d:'real words, common pairs', tier8_n:'Sentences', tier8_d:'connected text', tier9_n:'Speed building', tier9_d:'hit the WPM target', tier10_n:'Advanced', tier10_d:'dense punctuation & numbers', tier11_n:'Pro', tier11_d:'world-class bursts'
+    },
+    uk: {
+      nav_home:'Головна', nav_lessons:'Уроки', nav_drills:'Тренування', nav_games:'Ігри', nav_leaderboard:'Лідери',
+      brandSub:'СЛІПИЙ ДРУК', profile:'Профіль', logout:'Вийти з профілю', dayStreak:'дн. поспіль',
+      layoutAutoHint:'Уроки підлаштовуються під розкладку системної клавіатури',
+      t_hub:'Головна', t_onboarding:'Початок', t_lessons:'Уроки', t_lesson:'Структурований урок', t_drill:'Адаптивне тренування', t_results:'Твій результат', t_dashboard:'Прогрес', t_game:'Міні-ігри', t_leaderboard:'Лідери', t_system:'Дизайн-система', t_empty:'Стани',
+      loginWelcome:'Ласкаво просимо!', loginNamePh:'Твій нік', loginNoPass:'Без пароля. Прогрес зберігається на цьому пристрої.',
+      loginSubReturn:'З поверненням, %! Весь твій прогрес на місці.', loginSubNew:'Новий профіль — Typo вже чекає на тебе!', loginSubDefault:'Введи нік, щоб почати або продовжити.',
+      loginBtnLogin:'Увійти', loginBtnCreate:'Створити профіль', loginBtnContinue:'Продовжити',
+      dailyGoal:'Ціль на день', minUnit:'хв', heroReady:'Готовий друкувати,', heroSub:'Продовжуй з місця, де зупинився — %.', continueLessonBtn:'Продовжити урок',
+      thisWeek:'Цього тижня', bestWpmLc:'найкращий ЗН/ХВ', accuracyLc:'точність', allTimeSpeed:'Швидкість за весь час', setupPath:'Налаштуй свій шлях', setupPathSub:'Мова інтерфейсу та стартовий рівень', jumpBackIn:'Повернутися до навчання', lessonWord:'урок',
+      mc_lessons_t:'Уроки', mc_lessons_d:'Структурований курс, крок за кроком', mc_drills_t:'Тренування', mc_drills_d:'Адаптивна практика слабких клавіш',
+      whichLang:'Яка мова?', langSub:'Мова інтерфейсу — уроки автоматично підлаштовуються під розкладку системної клавіатури.', whereStart:'Звідки починаєш?', tailorFirst:'Ми підберемо твої перші уроки.', startTyping:'Почати друкувати',
+      g_beginner_t:'Повний початківець', g_beginner_d:'Я ніколи не вчив сліпий друк', g_homerow_t:'Знаю основний ряд', g_homerow_d:'Готовий іти далі за asdf jkl;', g_speed_t:'Хочу лише швидкість', g_speed_d:'Відшліфувати ЗН/ХВ і точність',
+      yourPath:'Твій шлях друку', adaptsTo:'Початківець → профі · адаптується до %', levelWord:'РІВЕНЬ', speedGated:'НА ШВИДКІСТЬ', statusCompleted:'Пройдено', statusNotStarted:'Не розпочато', lessonN:'Урок', targetWord:'ціль',
+      legendRank:'Ранг легенди', legendNote:'+ ЗН/ХВ — бонус понад людський рекорд. Реальні рівні — до світового класу ≈150 ЗН/ХВ.',
+      badgeDrill:'🎯 ТРЕНУВАННЯ', badgeLesson:'📖 УРОК', backWord:'Назад', prevWord:'Попередній', levelsWord:'Рівні', nextWord:'Далі', restartWord:'Заново', seeResults:'Побачити результат',
+      st_speed:'Швидкість', st_accuracy:'Точність', st_errors:'Помилки', wpmUnit:' зн/хв',
+      courseMode:'Курс', adaptivePractice:'Адаптивна практика', weakKeyPractice:'Слабкі клавіші: ', adaptiveFrom:'Адаптивно · за твоїми останніми помилками', adaptiveType:'Адаптивно · друкуй більше, щоб персоналізувати', targetWpmSuffix:' · ціль % зн/хв', lessonWordCap:'Урок', lessonDash:' — урок ',
+      h_pb:'Новий особистий рекорд!', h_brilliant:'Блискуче!', h_nice:'Гарно вийшло!', h_good:'Гарний прогрес!',
+      msg_needTarget:'Потрібно % ЗН/ХВ, щоб пройти рівень — у тебе %. Зовсім близько, спробуй ще!', msg_pb:'Твій найшвидший забіг — % ЗН/ХВ. Typo пишається тобою.', msg_flawless:'Майже бездоганно — м’язова пам’ять уже закріплюється.', msg_keepGoing:'Продовжуй — ще трохи практики над слабкими клавішами, і ти полетиш.',
+      r_wpm:'ЗН/ХВ', r_accuracy:'Точність', r_errors:'Помилки', r_time:'Час', heatmap:'Теплокарта клавіатури', redderMore:'Червоніше = більше промахів', retryWord:'Ще раз', continueWord:'Далі',
+      allTimeProgress:'Прогрес за весь час', savedDevice:'Збережено на цьому пристрої · накопичується щосесії', seedDemo:'Демо-дані', resetWord:'Скинути',
+      ds_avgWpm:'Сер. ЗН/ХВ', ds_accuracy:'Точність', ds_streak:'Серія', ds_lessons:'Уроки', recentWord:'останні', bestWord:'кращий', daysWord:'дн.', ofWord:'з',
+      speedOverTime:'Швидкість у часі', wpmLast14:'ЗН/ХВ · останні 14 сесій', weakestKeys:'Найслабші клавіші', achievements:'Досягнення',
+      b_firststeps_n:'Перші кроки', b_firststeps_s:'1 урок', b_gettinggoing_n:'Набираєш хід', b_gettinggoing_s:'6 уроків', b_committed_n:'Наполегливий', b_committed_s:'18 уроків', b_halfway_n:'Половина шляху', b_halfway_s:'половина шляху', b_graduate_n:'Випускник', b_graduate_s:'усі уроки', b_explorer_n:'Дослідник', b_explorer_s:'завершити рівень', b_speedster_n:'Швидкий', b_speedster_s:'40 ЗН/ХВ', b_fastfingers_n:'Спритні пальці', b_fastfingers_s:'60 ЗН/ХВ', b_speeddemon_n:'Демон швидкості', b_speeddemon_s:'80 ЗН/ХВ', b_century_n:'Сотня', b_century_s:'100 ЗН/ХВ', b_legend_n:'Легенда', b_legend_s:'150 ЗН/ХВ', b_sharp_n:'Влучний', b_sharp_s:'95% точн.', b_flawless_n:'Бездоганний', b_flawless_s:'100% точн.', b_steady_n:'Стабільний', b_steady_s:'серія 3 дні', b_onfire_n:'У вогні', b_onfire_s:'серія 7 днів', b_unstoppable_n:'Нестримний', b_unstoppable_s:'серія 30 днів', b_combomaster_n:'Майстер комбо', b_combomaster_s:'серія 15', b_combolegend_n:'Легенда комбо', b_combolegend_s:'серія 30', b_bossslayer_n:'Переможець боса', b_bossslayer_s:'здолати боса', b_regular_n:'Постійний', b_regular_s:'20 сесій', b_marathon_n:'Марафонець', b_marathon_s:'50 сесій', b_risingstar_n:'Висхідна зірка', b_risingstar_s:'1000 XP', b_champion_n:'Чемпіон', b_champion_s:'5000 XP', b_polyglot_n:'Поліглот', b_polyglot_s:'3 мови',
+      miniGames:'Міні-ігри', practiceFun:'Тренуй швидкість і точність із задоволенням', startWord:'Старт',
+      sc_score:'Рахунок', sc_lives:'Життя', sc_words:'Слова', sc_mult:'Множник', sc_best:'Рекорд', sc_wave:'Хвиля', sc_destroyed:'Знищено', sc_popped:'Лопнуто', sc_height:'Висота', sc_combo:'Комбо', sc_cleared:'Очищено', sc_time:'Час', sc_slips:'Промахи', sc_length:'Довжина', sc_junction:'Розвилка', sc_blooms:'Квіти', sc_yourWpm:'Твій ЗН/ХВ', sc_streakLabel:'Серія',
+      g_falling_t:'Літери-краплі', g_falling_d:'Лови їх, поки не впали', g_race_t:'Перегони', g_race_d:'Обжени свого привида', g_boss_t:'Бій з босом', g_boss_d:'Друкуй слова, щоб шкодити босу', g_combo_t:'Серія комбо', g_combo_d:'Збирай слова поспіль для множника', g_defense_t:'Захист слів', g_defense_d:'Друкуй слова, щоб спинити хвилі ворогів', g_balloon_t:'Лусни кульку', g_balloon_d:'Лопай кульки, що злітають, вчасно', g_climber_t:'Небесний скелелаз', g_climber_d:'Піднімайся якомога вище', g_piano_t:'Друкопіаніно', g_piano_d:'Влучай у ноти в ритмі', g_maze_t:'Біг лабіринтом', g_maze_d:'Друкуй двері, щоб обрати шлях', g_horde_t:'Виживання в орді', g_horde_d:'Очищай рій, поки він не виріс', g_flash_t:'Спалах памʼяті', g_flash_d:'Запамʼятай слово, потім надрукуй', g_cipher_t:'Шифр', g_cipher_d:'Розкодуй точно', g_chain_t:'Ланцюг слів', g_chain_d:'Нарощуй змійку, не схибни', g_duel_t:'Дуель з привидом', g_duel_d:'Змагайся із суперником до фінішу', g_garden_t:'Сад друку', g_garden_d:'Вирощуй спокійний сад, без таймера', g_ladder_t:'Драбина слів', g_ladder_d:'Впиши пропущене слово',
+      cap_boss:'Друкуй кожне слово, щоб вдарити боса · хибна клавіша дає йому трохи зцілитися', cap_combo:'Кожні 5 правильних слів підвищують множник · помилка скидає серію до нуля', cap_falling:'✦ Друкуй літеру-краплю, поки вона не досягла лінії · відскок = влучив, тряска = промах', cap_race:'Натисни Старт, потім друкуй речення — обжени привида свого найкращого забігу 👻', cap_defense:'Надрукуй ціле слово, щоб націлитися й знищити ворога · хибна клавіша скидає ціль', cap_balloon:'Друкуй слово, щоб лопнути кульку, поки вона не полетіла вгору · лопай найвищі першими', cap_climber:'Друкуй кожне слово, щоб піднятися · гравітація тягне вниз, помилка зісковзує назад', cap_piano:'Натискай D F J K, коли нота перетинає світну лінію · ідеальний тайминг — подвійні очки · звук увімкни', cap_maze:'Друкуй слово дверей, щоб піти в той бік · хибна клавіша штовхає в стіну', cap_horde:'Друкуй будь-яке слово, щоб очистити його · кожне зникає за таймером · рій прискорюється', cap_flash:'Слово спалахує, тоді ховається · надрукуй його точно з памʼяті', cap_cipher:'Друкуй кожен символ точно · символи й пунктуація рахуються · Backspace виправляє', cap_chain:'Кожне правильне слово нарощує ланцюг · одна хибна клавіша завершує забіг', cap_duel:'Надрукуй увесь рядок першим, щоб перемогти · режим на 2 гравців — по черзі (виграє найшвидший)', cap_garden:'Без таймера, без тиску · завершуй слова, щоб рослини росли · три завершення — одна квітка', cap_ladder:'Друкуй слово, що пасує в пропуск · воно фіксується автоматично при збігу',
+      bossHp:'ЗДОРОВʼЯ БОСА', comboStreakTitle:'Серія комбо', comboStreakIdle:'Друкуй кожне слово правильно, щоб зростав множник. Одна помилка скидає серію. Готовий?', decryptStr:'Розшифруй рядок', memorize:'Запамʼятай!', typeFromMem:'Друкуй з памʼяті', ghostDuelTitle:'Дуель з привидом', p1turn:'Хід гравця 1', p2turn:'Хід гравця 2', youWord:'Ти', vsGhostBtn:'проти привида (AI)', players2:'2 гравці', restartWordG:'Заново', gamesBack:'Ігри',
+      ov_gameOver:'Гру завершено — рахунок %', ov_falling_over:'Гарна реакція! Літери прискорюються з рахунком. Ще раз?', ov_falling_idle:'Друкуй кожну літеру, поки вона не досягла пунктирної лінії. Готовий?',
+      ov_race_rec:'Новий рекорд — % ЗН/ХВ!', ov_race_fin:'Фініш на % ЗН/ХВ', ov_race_lost:'Цього разу привид переміг', ov_race_won_txt:'Твій привид став швидшим. Ще забіг?', ov_race_lost_txt:'Зовсім близько! Друкуй трохи рівніше — і наздоженеш.',
+      ov_boss_def:'Боса переможено!', ov_boss_def_txt:'Ти влучив % чистих слів — чудова робота!',
+      ov_defense_over:'Базу прорвано — рахунок %', ov_defense_over_txt:'Орда прорвалася! Друкуй швидше, щоб тримати лінію. Ще раз?', ov_defense_idle_txt:'Друкуй ціле слово над кожним ворогом, щоб знищити його до бази.',
+      ov_balloon_over:'Усі полетіли — рахунок %', ov_balloon_over_txt:'Кілька полетіли! Лопай верхні першими. Ще раунд?', ov_balloon_idle_txt:'Кульки злітають — друкуй слово, щоб лопнути її до верху. Спокійний темп, без поспіху.',
+      ov_climber_rec:'Новий рекорд — % м!', ov_climber_reach:'Ти досяг % м', ov_climber_over_txt:'Гравітація наздогнала! Тримай рівний ритм, щоб піднятися вище. Ще раз?', ov_climber_idle_txt:'Друкуй кожне слово, щоб піднятися. Помилка зісковзує назад, а гравітація тягне — як високо зможеш?',
+      ov_piano_over:'Життя скінчились — рахунок %', ov_piano_over_txt:'Відчуй ритм! Влучай у клавішу, коли нота перетинає лінію. Ще раз?', ov_piano_idle_txt:'Ноти падають чотирма доріжками — натискай D F J K, коли кожна перетинає світну лінію. Ідеальний тайминг — подвійні очки.',
+      ov_maze_esc:'Вихід за %s!', ov_maze_over_txt:'Ти знайшов вихід! Наступного разу швидше?', ov_maze_idle_txt:'Друкуй слово дверей, щоб піти туди. Дійди до виходу, поки час не втік.',
+      ov_horde_over:'Переможено — рахунок %', ov_horde_over_txt:'Цього разу орда перемогла. Спершу очищай слова, що ось-ось зникнуть!', ov_horde_idle_txt:'Слова напливають, кожне зникає за таймером — очищай їх, поки не щезли. Темп лише зростає.',
+      ov_flash_over:'Гарна памʼять — рахунок %', ov_flash_over_txt:'Слова спалахують на мить, потім друкуй їх назад. Ще раз?', ov_flash_idle_txt:'Слово спалахує на мить — запамʼятай його, потім надрукуй з памʼяті, коли сховається.',
+      ov_cipher_dec:'Розшифровано за %s!', ov_cipher_slips:'Розкодовано з % промахами', ov_cipher_over_txt:'Передрукуй код точно — символи рахуються. Ще раз?', ov_cipher_idle_txt:'Передрукуй закодований рядок точно, із символами, якнайшвидше. Помилки лишають сліди.',
+      ov_chain_of:'Ланцюг із %!', ov_chain_over_txt:'Кожне правильне слово нарощувало ланцюг — один промах завершив його. Поб’єш рекорд?', ov_chain_idle_txt:'Друкуй кожне слово, щоб нарощувати ланцюг. Одна хибна клавіша завершує забіг — наскільки довго протримаєшся?',
+      ov_duel_2pwin:'% переміг!', ov_duel_youwin:'Ти переміг привида!', ov_duel_lost:'Привид переміг — реванш?', ov_duel_sub_vs:'% проти %', ov_duel_idle_sub:'Змагайся із суперником, хто першим надрукує рядок — обери режим:',
+      ov_garden_title:'Сад друку', ov_garden_idle_txt:'Спокійний сад без таймера. Кожне завершене слово допомагає рослині рости — заповни три, щоб зацвіла.',
+      ov_ladder_score:'Рахунок %', ov_ladder_over_txt:'Впиши в пропуск слово, що пасує. Зіграти ще?', ov_ladder_idle_txt:'Прочитай речення й надрукуй пропущене слово, тоді воно зафіксується. Легка практика читання разом із друком.',
+      raceGhostBest:'Привид · рекорд % зн/хв', raceGhostPacer:'Привид · темп',
+      tab_nolessons:'Ще немає уроків', tab_offline:'Офлайн', e_nolessons_t:'Ще жодного пройденого уроку', e_nolessons_x:'Твоя подорож починається з одного натискання. Обери урок, і Typo поведе твої пальці.', e_nolessons_b:'Почати перший урок', e_notfound_t:'Ця сторінка зісковзнула з клавіатури', e_notfound_x:'Ми не знайшли те, що ти шукав. Повернімося на твердий ґрунт.', e_notfound_b:'На головну', e_offline_t:'Ти офлайн', e_offline_x:'Typo дрімає, поки не відновиться зʼєднання. Твій прогрес у безпеці.', e_offline_b:'Спробувати ще',
+      sys_title:'Дизайн-система TypTap', sys_colors:'Палітра кольорів', sys_type:'Типографіка', sys_mascot:'Маскот — Typo-клавіша', sys_buttons:'Кнопки', sys_components:'Компоненти',
+      tier0_n:'Орієнтація', tier0_d:'Знайти основні клавіші, перші пальці', tier1_n:'Основний ряд', tier1_d:'asdf jkl; — опорний ряд', tier2_n:'Верхній ряд', tier2_d:'qwerty і вище', tier3_n:'Нижній ряд', tier3_d:'zxcv і розтяжки', tier4_n:'Ряд цифр', tier4_d:'цифри й розтяжка', tier5_n:'Пунктуація', tier5_d:'символи й знаки', tier6_n:'Великі літери та Shift', tier6_d:'комбінації з Shift', tier7_n:'Слова й біграми', tier7_d:'реальні слова, часті пари', tier8_n:'Речення', tier8_d:'зв’язний текст', tier9_n:'Нарощення швидкості', tier9_d:'досягни цілі ЗН/ХВ', tier10_n:'Просунутий', tier10_d:'щільна пунктуація та цифри', tier11_n:'Профі', tier11_d:'сплески світового класу'
+    }
+  };
+  _t(){ return Object.assign({}, this.I18N.en, this.I18N[this.state.ui]||{}); }
+  _fmt(str){ const a=[].slice.call(arguments,1); let i=0; return String(str==null?'':str).replace(/%/g,()=>a[i++]); }
+
   LANGDATA = {
     en:{ home:'asdfjkl', top:'qwertyuiop', bottom:'zxcvbnm',
       words:['the','and','for','you','are','with','that','this','have','from','they','word','type','hand','fast','home','keys','over','they','when','make','time','good','work','play','learn','focus','speed','light','right','write','again','world','sound','value','quick','brown','jumps','lazy'],
@@ -1223,6 +1429,13 @@ class Component extends DCLogic {
 
   _onKey(e){
     const s = this.state;
+    // auto-follow the system keyboard layout from the character actually produced
+    if(s.layoutAuto && e.key && e.key.length===1 && (this._isTypingScreen(s.screen) || s.screen==='game')){
+      const L=this._layoutFromChar(e.key);
+      if(L && L!==s.lang && !(L==='cyr' && /^(uk|ru)$/.test(s.lang))){
+        if(this._applyLayout(L)){ e.preventDefault(); return; }
+      }
+    }
     if(s.screen==='game' && e.key.length===1){ this._gkey=e.key.toLowerCase(); this._gkeyT=Date.now(); }
     if(this._isTypingScreen(s.screen)){ this._typeKey(e); return; }
     if(s.screen==='game' && s.game==='falling' && s.falling && s.falling.running){ this._fallingKey(e); return; }
@@ -1652,6 +1865,7 @@ class Component extends DCLogic {
 
   renderVals(){
     const s=this.state;
+    const T=this._t();
     const screen=s.screen;
     const isTyping=this._isTypingScreen(screen);
     const brand='var(--brand)';
@@ -1666,11 +1880,11 @@ class Component extends DCLogic {
     const totalLessons=this.TIERS.reduce((a,t)=>a+t.lessons,0);
     const mk=(screen,label,icon,badge)=>({label,icon,badge,onClick:()=>this.go(screen),active:s.screen===screen});
     const navDefs=[
-      {sc:'hub',label:'Home',icon:'fa-solid fa-house'},
-      {sc:'lessons',label:'Lessons',icon:'fa-solid fa-book-open'},
-      {sc:'drill',label:'Drills',icon:'fa-solid fa-bullseye'},
-      {sc:'game',label:'Games',icon:'fa-solid fa-gamepad'},
-      {sc:'leaderboard',label:'Leaderboard',icon:'fa-solid fa-ranking-star'}
+      {sc:'hub',label:T.nav_home,icon:'fa-solid fa-house'},
+      {sc:'lessons',label:T.nav_lessons,icon:'fa-solid fa-book-open'},
+      {sc:'drill',label:T.nav_drills,icon:'fa-solid fa-bullseye'},
+      {sc:'game',label:T.nav_games,icon:'fa-solid fa-gamepad'},
+      {sc:'leaderboard',label:T.nav_leaderboard,icon:'fa-solid fa-ranking-star'}
     ];
     const navActive=(k)=> (k===s.screen) || (k==='lessons'&&(s.screen==='lesson'||s.screen==='results')) || (k==='game'&&s.screen==='game');
     const nav=navDefs.map(n=>{
@@ -1680,17 +1894,22 @@ class Component extends DCLogic {
         style:`display:flex;align-items:center;gap:12px;padding:9px 11px;border-radius:13px;cursor:pointer;font-weight:800;font-size:14.5px;transition:background .12s;`+(act?`background:var(--brand-bg);color:var(--brand-ink);`:`color:var(--ink-2);background:transparent;`) };
     });
 
+    // typing layout chips (auto-follows system keyboard; click = manual override)
     const langDefs=[['en','EN'],['uk','УК'],['ru','РУ']];
-    const langs=langDefs.map(([code,short])=>({short,onClick:()=>this.setState({lang:code}, ()=>{ const sc=this.state.screen; if(sc==='lesson'){ const n=this._nextLesson(); this._startLesson(n.tier,n.idx);} else if(sc==='drill'){ this._startDrill(); } }),
+    const langs=langDefs.map(([code,short])=>({short,onClick:()=>this._setLayoutManual(code),
       style:`border:none;cursor:pointer;font-weight:800;font-size:12.5px;padding:6px 12px;border-radius:16px;`+(s.lang===code?`background:var(--brand);color:#fff;`:`background:transparent;color:var(--ink-2);`)}));
+    // UI language toggle (interface language, independent of typing layout)
+    const uiDefs=[['uk','UA'],['en','EN']];
+    const uiLangs=uiDefs.map(([code,short])=>({short,onClick:()=>this._setUi(code),
+      style:`border:none;cursor:pointer;font-weight:800;font-size:12.5px;padding:6px 11px;border-radius:14px;`+(s.ui===code?`background:var(--ink);color:var(--surface);`:`background:transparent;color:var(--ink-2);`)}));
 
-    const titles={hub:'Home',onboarding:'Get started',lessons:'Lessons',lesson:'Structured lesson',drill:'Adaptive drill',results:'Your results',dashboard:'Progress',game:'Mini-games',leaderboard:'Leaderboard',system:'Design system',empty:'States'};
+    const titles={hub:T.t_hub,onboarding:T.t_onboarding,lessons:T.t_lessons,lesson:T.t_lesson,drill:T.t_drill,results:T.t_results,dashboard:T.t_dashboard,game:T.t_game,leaderboard:T.t_leaderboard,system:T.t_system,empty:T.t_empty};
 
     const vals={
       theme:s.theme, themeIcon: s.theme==='light'?'fa-solid fa-moon':'fa-solid fa-sun',
       toggleTheme:()=>this.setState({theme:s.theme==='light'?'dark':'light'}),
       pageTitle:titles[screen]||'TypTap',
-      nav, langs,
+      nav, langs, uiLangs, t:T, layoutAutoHint:T.layoutAutoHint,
       goHome:()=>this.go('hub'), goLesson:()=>this.go('lesson'), goDrill:()=>this.go('drill'),
       goLessons:()=>this.go('lessons'),
       goOnboarding:()=>this.go('onboarding'), goDashboard:()=>this.go('hub'),
@@ -1707,8 +1926,8 @@ class Component extends DCLogic {
       submitLogin:()=>this._login(s.loginName),
       loginExists: !!(s.loginName.trim() && this.pdata.profiles[s.loginName.trim()]),
       loginMood: s.loginName.trim()? (this.pdata.profiles[s.loginName.trim()]?'happy':'celebrate') : 'encouraging',
-      loginSub: s.loginName.trim()? (this.pdata.profiles[s.loginName.trim()]? ('З поверненням, '+s.loginName.trim()+'! Весь твій прогрес на місці.') : ('Новий профіль — Typo вже чекає на тебе!')) : 'Введи нік, щоб почати або продовжити.',
-      loginBtn: s.loginName.trim()? (this.pdata.profiles[s.loginName.trim()]?'Увійти':'Створити профіль'):'Продовжити',
+      loginSub: s.loginName.trim()? (this.pdata.profiles[s.loginName.trim()]? this._fmt(T.loginSubReturn, s.loginName.trim()) : T.loginSubNew) : T.loginSubDefault,
+      loginBtn: s.loginName.trim()? (this.pdata.profiles[s.loginName.trim()]?T.loginBtnLogin:T.loginBtnCreate):T.loginBtnContinue,
       isHub:screen==='hub', isOnboarding:screen==='onboarding', isTyping, isResults:screen==='results',
       isLessons:screen==='lessons',
       isDashboard:screen==='dashboard', isGame:screen==='game', isSystem:screen==='system', isEmpty:screen==='empty',
@@ -1737,8 +1956,9 @@ class Component extends DCLogic {
       return {day:dayNames[d.getDay()], style:`width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;`+(on?`background:var(--brand);color:#fff;`:isToday?`background:var(--brand-bg);color:var(--brand-ink);border:1px dashed var(--brand);`:`background:var(--surface-2);color:var(--muted);border:1px solid var(--border);`)}; });
     // hub — next lesson + mini sparkline
     const nl=this._nextLesson(); const nlTier=this.TIERS[nl.tier];
-    vals.continueLabel=`${nlTier.name} · lesson ${nl.idx+1}`;
-    vals.continueTier=nlTier.name;
+    vals.continueLabel=`${T['tier'+nl.tier+'_n']} · ${T.lessonWord} ${nl.idx+1}`;
+    vals.continueTier=T['tier'+nl.tier+'_n'];
+    vals.heroSub=this._fmt(T.heroSub, vals.continueLabel);
     {
       const d=hist.slice(-12).map(x=>x.wpm); const W=240,H=60;
       if(d.length>=2){ const mn=Math.min(...d),mx=Math.max(...d); const rng=(mx-mn)||1;
@@ -1751,53 +1971,55 @@ class Component extends DCLogic {
     const cardIcon=(bg)=>this._rb(bg,'#fff',46,13)+'font-size:20px;';
     vals.setupBadge=this._rb('var(--accent)','#fff',46,13)+'font-size:20px;';
     vals.modeCards=[
-      {title:'Lessons',desc:'Structured course, step by step',icon:'fa-solid fa-book-open',iconStyle:cardIcon('var(--brand)'),onClick:()=>this.go('lessons')},
-      {title:'Drills',desc:'Adaptive weak-key practice',icon:'fa-solid fa-bullseye',iconStyle:cardIcon('var(--accent)'),onClick:()=>this.go('drill')},
-      {title:'Falling Letters',desc:'Catch them before they land',icon:'fa-solid fa-gamepad',iconStyle:cardIcon('var(--f4)'),onClick:()=>this._openGame('falling')},
-      {title:'Race',desc:'Beat your ghost run',icon:'fa-solid fa-flag-checkered',iconStyle:cardIcon('var(--f6)'),onClick:()=>this._openGame('race')}
+      {title:T.mc_lessons_t,desc:T.mc_lessons_d,icon:'fa-solid fa-book-open',iconStyle:cardIcon('var(--brand)'),onClick:()=>this.go('lessons')},
+      {title:T.mc_drills_t,desc:T.mc_drills_d,icon:'fa-solid fa-bullseye',iconStyle:cardIcon('var(--accent)'),onClick:()=>this.go('drill')},
+      {title:T.g_falling_t,desc:T.g_falling_d,icon:'fa-solid fa-gamepad',iconStyle:cardIcon('var(--f4)'),onClick:()=>this._openGame('falling')},
+      {title:T.g_race_t,desc:T.g_race_d,icon:'fa-solid fa-flag-checkered',iconStyle:cardIcon('var(--f6)'),onClick:()=>this._openGame('race')}
     ];
 
     // ladder (Lessons overview) — stacked tier blocks
     if(screen==='lessons'){
       const comp=(this.store&&this.store.completed)||{}; const lang=s.lang;
       let foundCurrent=false;
-      vals.tiers=this.TIERS.map(T=>{
+      vals.tiers=this.TIERS.map(Tr=>{
         let dd=0; const nodes=[];
-        for(let i=0;i<T.lessons;i++){ const isDone=!!comp[lang+'-'+T.t+'-'+i]; if(isDone) dd++;
+        for(let i=0;i<Tr.lessons;i++){ const isDone=!!comp[lang+'-'+Tr.t+'-'+i]; if(isDone) dd++;
           let state=isDone?'done':(!foundCurrent?'current':'todo'); if(state==='current') foundCurrent=true;
-          const target=T.speed?T.speed[i]:0; const xp=80+T.t*8+i*4;
-          nodes.push({ n:i+1, title:'Lesson '+(i+1), sub: target?('target '+target):('+'+xp+' XP'),
+          const target=Tr.speed?Tr.speed[i]:0; const xp=80+Tr.t*8+i*4;
+          nodes.push({ n:i+1, title:T.lessonN+' '+(i+1), sub: target?(T.targetWord+' '+target):('+'+xp+' XP'),
             showNum: state==='todo', mark: state==='done'?'fa-solid fa-check':(state==='current'?'fa-solid fa-play':''),
-            onClick:()=>this._startLesson(T.t,i),
-            cardStyle:`display:flex;flex-direction:column;align-items:center;gap:3px;padding:20px 14px;border-radius:16px;cursor:pointer;transition:transform .12s;border:2px solid ${state==='done'?'var(--success)':state==='current'?T.color:'var(--border)'};background:${state==='current'?'color-mix(in srgb,'+T.color+' 9%,var(--surface))':'var(--surface)'};`,
-            nodeStyle:this._rb(state==='todo'?'var(--surface-2)':T.color, state==='todo'?'var(--muted)':'#fff', 54, 27)+`font-size:20px;`+(state==='todo'?'border:2px solid var(--border);':''),
+            onClick:()=>this._startLesson(Tr.t,i),
+            cardStyle:`display:flex;flex-direction:column;align-items:center;gap:3px;padding:20px 14px;border-radius:16px;cursor:pointer;transition:transform .12s;border:2px solid ${state==='done'?'var(--success)':state==='current'?Tr.color:'var(--border)'};background:${state==='current'?'color-mix(in srgb,'+Tr.color+' 9%,var(--surface))':'var(--surface)'};`,
+            nodeStyle:this._rb(state==='todo'?'var(--surface-2)':Tr.color, state==='todo'?'var(--muted)':'#fff', 54, 27)+`font-size:20px;`+(state==='todo'?'border:2px solid var(--border);':''),
             titleStyle:`font-weight:800;font-size:12.5px;margin-top:11px;color:var(--ink)`,
             subStyle:`font-size:11px;font-weight:800;margin-top:2px;color:${isDone?'var(--success-ink)':target?'var(--accent-ink)':'var(--muted)'}` });
         }
-        const allDone=dd===T.lessons;
-        return { eyebrow:'LEVEL '+(T.t+1)+(T.speed?' · SPEED-GATED · ':' · ')+T.desc.toUpperCase(),
-          name:T.name, icon:T.icon, headStyle:this._rb(T.color,'#fff',50,15)+'font-size:22px;',
-          pct:Math.round(dd/T.lessons*100), barColor:T.color, nodes,
-          statusLabel: allDone?'Completed':(dd>0?dd+'/'+T.lessons:'Not started'),
+        const allDone=dd===Tr.lessons;
+        return { eyebrow:T.levelWord+' '+(Tr.t+1)+(Tr.speed?' · '+T.speedGated+' · ':' · ')+(T['tier'+Tr.t+'_d']||'').toUpperCase(),
+          name:T['tier'+Tr.t+'_n'], icon:Tr.icon, headStyle:this._rb(Tr.color,'#fff',50,15)+'font-size:22px;',
+          pct:Math.round(dd/Tr.lessons*100), barColor:Tr.color, nodes,
+          statusLabel: allDone?T.statusCompleted:(dd>0?dd+'/'+Tr.lessons:T.statusNotStarted),
           statusIcon: allDone?'fa-solid fa-check':(dd>0?'fa-solid fa-hourglass-half':'fa-solid fa-circle-dot'),
           statusStyle:`display:flex;align-items:center;gap:7px;font-weight:800;font-size:12.5px;padding:6px 13px;border-radius:20px;flex:none;`+(allDone?`background:var(--success-bg);color:var(--success-ink);`:`background:var(--brand-bg);color:var(--brand-ink);`) };
       });
       vals.legendWpm=this.LEGEND_WPM;
       vals.langName=s.lang==='uk'?'Українська':s.lang==='ru'?'Русский':'English';
+      vals.adaptsTo=this._fmt(T.adaptsTo, vals.langName);
     }
 
     // onboarding
     vals.onbSteps=[0,1,2].map(i=>({style:`width:${i===0?'26px':'8px'};height:8px;border-radius:20px;background:${i===0?'var(--brand)':'var(--border-2)'};transition:all .2s`}));
-    const langCard=(code,flag,name,sample)=>({flag,name,sample,onClick:()=>this.setState({lang:code}),
-      style:`background:var(--surface);border:2px solid ${s.lang===code?'var(--brand)':'var(--border)'};border-radius:var(--r-lg);padding:20px 12px;text-align:center;cursor:pointer;transition:all .15s;box-shadow:${s.lang===code?'0 4px 0 var(--brand-ink)':'var(--shadow-sm)'}`});
-    vals.onbLangs=[langCard('en','🇬🇧','English','the quick fox'),langCard('uk','🇺🇦','Українська','швидка лисиця'),langCard('ru','🇷🇺','Русский','быстрый лис')];
+    // onboarding language cards pick the INTERFACE language (typing layout auto-follows the system keyboard)
+    const langCard=(code,flag,name,sample)=>({flag,name,sample,onClick:()=>this._setUi(code),
+      style:`background:var(--surface);border:2px solid ${s.ui===code?'var(--brand)':'var(--border)'};border-radius:var(--r-lg);padding:20px 12px;text-align:center;cursor:pointer;transition:all .15s;box-shadow:${s.ui===code?'0 4px 0 var(--brand-ink)':'var(--shadow-sm)'}`});
+    vals.onbLangs=[langCard('uk','🇺🇦','Українська','швидка лисиця'),langCard('en','🇬🇧','English','the quick fox')];
     const goalCard=(id,icon,title,desc)=>({icon,title,desc,onClick:()=>this.setState({goal:id}),
       style:`display:flex;align-items:center;gap:14px;background:var(--surface);border:2px solid ${s.goal===id?'var(--brand)':'var(--border)'};border-radius:var(--r-lg);padding:14px 18px;cursor:pointer;transition:all .15s`,
       checkStyle:`width:26px;height:26px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;${s.goal===id?'background:var(--brand);color:#fff':'background:var(--surface-2);color:transparent;border:1px solid var(--border)'}`});
     vals.onbGoals=[
-      goalCard('beginner','fa-solid fa-seedling','Complete beginner',"I've never learned touch typing"),
-      goalCard('homerow','fa-solid fa-hand','I know the home row','Ready to build past asdf jkl;'),
-      goalCard('speed','fa-solid fa-bolt','Just want speed','Polish my WPM and accuracy')
+      goalCard('beginner','fa-solid fa-seedling',T.g_beginner_t,T.g_beginner_d),
+      goalCard('homerow','fa-solid fa-hand',T.g_homerow_t,T.g_homerow_d),
+      goalCard('speed','fa-solid fa-bolt',T.g_speed_t,T.g_speed_d)
     ];
 
     // typing (lesson/drill)
@@ -1807,24 +2029,24 @@ class Component extends DCLogic {
         const isDrill=ses.mode==='drill';
         const stat=this._stats();
         vals.modeColor=isDrill?'var(--accent)':'var(--brand)';
-        vals.modeBadge=isDrill?'🎯 DRILL':'📖 LESSON';
+        vals.modeBadge=isDrill?T.badgeDrill:T.badgeLesson;
         vals.modeBadgeStyle=`font-family:'Fredoka';font-weight:600;font-size:13px;letter-spacing:.03em;padding:7px 14px;border-radius:12px;color:#fff;background:${isDrill?'var(--accent)':'var(--brand)'};box-shadow:0 3px 0 ${isDrill?'var(--accent-ink)':'var(--brand-ink)'}`;
         const cl=s.currentLesson; const clTier=cl?this.TIERS[cl.tier]:null;
         vals.showNext = !isDrill && !!cl;
         vals.goBack = ()=>{ if(isDrill){ this.go('hub'); return; } if(cl && cl.idx>0){ this._startLesson(cl.tier, cl.idx-1); } else { this.go('lessons'); } };
         vals.goNext = ()=>{ if(!cl) return; const TT=this.TIERS[cl.tier]; if(cl.idx < TT.lessons-1){ this._startLesson(cl.tier, cl.idx+1); } else if(cl.tier < this.TIERS.length-1){ this._startLesson(cl.tier+1, 0); } };
-        vals.backLabel = isDrill ? 'Back' : (cl && cl.idx>0 ? 'Prev' : 'Levels');
+        vals.backLabel = isDrill ? T.backWord : (cl && cl.idx>0 ? T.prevWord : T.levelsWord);
         const focusKeys=(ses.focus||[]).filter(k=>k&&k.trim());
-        vals.sessionTitle=isDrill?(focusKeys.length?('Weak-key practice: '+focusKeys.join(' · ')):'Adaptive practice'):(clTier?(clTier.name+' — lesson '+(cl.idx+1)):'Lesson');
-        vals.sessionSub=isDrill?(focusKeys.length?'Adaptive · pulled from your recent misses':'Adaptive · type more to personalise this'):'Course mode · '+(s.lang==='uk'?'Українська':s.lang==='ru'?'Русский':'English')+(cl&&cl.target?(' · target '+cl.target+' wpm'):'');
+        vals.sessionTitle=isDrill?(focusKeys.length?(T.weakKeyPractice+focusKeys.join(' · ')):T.adaptivePractice):(clTier?(T['tier'+cl.tier+'_n']+T.lessonDash+(cl.idx+1)):T.lessonWordCap);
+        vals.sessionSub=isDrill?(focusKeys.length?T.adaptiveFrom:T.adaptiveType):T.courseMode+' · '+(s.lang==='uk'?'Українська':s.lang==='ru'?'Русский':'English')+(cl&&cl.target?this._fmt(T.targetWpmSuffix,cl.target):'');
         vals.progressPct=Math.round(ses.i/ses.text.length*100);
         vals.restartSession=()=>this._restart();
         vals.finishNow=()=>this._finishNow();
         const flashOn = ses.flash && (Date.now()-ses.flash<320);
         vals.liveStats=[
-          {label:'Speed',value:stat.wpm,unit:' wpm',color:'var(--brand)'},
-          {label:'Accuracy',value:stat.acc,unit:'%',color:stat.acc>=95?'var(--success)':'var(--warning)'},
-          {label:'Errors',value:stat.err,unit:'',color:stat.err>0?'var(--error)':'var(--ink)'}
+          {label:T.st_speed,value:stat.wpm,unit:T.wpmUnit,color:'var(--brand)'},
+          {label:T.st_accuracy,value:stat.acc,unit:'%',color:stat.acc>=95?'var(--success)':'var(--warning)'},
+          {label:T.st_errors,value:stat.err,unit:'',color:stat.err>0?'var(--error)':'var(--ink)'}
         ];
         vals.chars=[...ses.text].map((ch,i)=>{
           let st;
@@ -1868,13 +2090,13 @@ class Component extends DCLogic {
       const hitTarget = target? wpm>=target : true;
       const isPB = played && wpm>0 && wpm>=bestWpm;
       vals.resultMood = (acc<85||err>8)?'puzzled' : isPB?'celebrate' : acc>=97?'happy' : 'encouraging';
-      vals.resultHeadline= isPB?'New personal best!' : acc>=97?'Brilliant!' : acc>=88?'Nicely done!' : 'Good progress!';
-      vals.resultMessage= target&&!hitTarget ? `You need ${target} WPM to clear this level — you hit ${wpm}. So close, run it again!` : isPB? `Your fastest run yet at ${wpm} WPM. Typo is proud of you.` : acc>=97?'Almost flawless — that muscle memory is really setting in.' : 'Keep going — a little more practice on your weak keys and you\u2019ll fly.';
+      vals.resultHeadline= isPB?T.h_pb : acc>=97?T.h_brilliant : acc>=88?T.h_nice : T.h_good;
+      vals.resultMessage= target&&!hitTarget ? this._fmt(T.msg_needTarget,target,wpm) : isPB? this._fmt(T.msg_pb,wpm) : acc>=97?T.msg_flawless : T.msg_keepGoing;
       vals.resultStats=[
-        {value:wpm,label:'WPM',color:'var(--brand)'},
-        {value:acc+'%',label:'Accuracy',color:'var(--success)'},
-        {value:err,label:'Errors',color:'var(--error)'},
-        {value:time+'s',label:'Time',color:'var(--ink)'}
+        {value:wpm,label:T.r_wpm,color:'var(--brand)'},
+        {value:acc+'%',label:T.r_accuracy,color:'var(--success)'},
+        {value:err,label:T.r_errors,color:'var(--error)'},
+        {value:time+'s',label:T.r_time,color:'var(--ink)'}
       ];
       vals.restartSession=vals.restartSession||(()=>this._restart());
       // heatmap
@@ -1901,10 +2123,10 @@ class Component extends DCLogic {
       const prevAvg = hist.length>10?Math.round(hist.slice(-20,-10).reduce((a,x)=>a+x.wpm,0)/Math.max(1,Math.min(10,hist.length-10))):avgWpm;
       const dAvg=avgWpm-prevAvg;
       vals.dashStats=[
-        {label:'Avg WPM',value:String(avgWpm),delta:(dAvg>=0?'▲ ':'▼ ')+Math.abs(dAvg)+' recent',color:'var(--brand)'},
-        {label:'Accuracy',value:(lastAcc||bestAcc)+'%',delta:'best '+bestAcc+'%',color:'var(--success)'},
-        {label:'Streak',value:String(streakCount),delta:'days 🔥',color:'var(--accent-ink)'},
-        {label:'Lessons',value:String(completedCount),delta:'of '+totalLessons,color:'var(--ink)'}
+        {label:T.ds_avgWpm,value:String(avgWpm),delta:(dAvg>=0?'▲ ':'▼ ')+Math.abs(dAvg)+' '+T.recentWord,color:'var(--brand)'},
+        {label:T.ds_accuracy,value:(lastAcc||bestAcc)+'%',delta:T.bestWord+' '+bestAcc+'%',color:'var(--success)'},
+        {label:T.ds_streak,value:String(streakCount),delta:T.daysWord+' 🔥',color:'var(--accent-ink)'},
+        {label:T.ds_lessons,value:String(completedCount),delta:T.ofWord+' '+totalLessons,color:'var(--ink)'}
       ];
       const data=hist.slice(-14).map(x=>x.wpm); if(data.length<2) data.unshift(...(data.length?[data[0]]:[0,0]));
       const W=520,H=200,pad=8; const min=Math.max(0,Math.min(...data)-6),max=Math.max(...data)+6||60;
@@ -1921,30 +2143,30 @@ class Component extends DCLogic {
       const bestCombo=(this.store&&this.store.bestCombo)||0; const totalSessions=hist.length; const half=Math.ceil(totalLessons/2);
       const xpT=(this.store&&this.store.xp)||0; const bossWins=(this.store&&this.store.bossWins)||0;
       vals.badges=[
-        badge('fa-solid fa-shoe-prints','First steps','1 lesson', completedCount>=1?'1':''),
-        badge('fa-solid fa-seedling','Getting going','6 lessons', completedCount>=6?'1':''),
-        badge('fa-solid fa-book-open','Committed','18 lessons', completedCount>=18?'1':''),
-        badge('fa-solid fa-flag-checkered','Halfway','half the path', completedCount>=half?'1':''),
-        badge('fa-solid fa-graduation-cap','Graduate','all lessons', completedCount>=totalLessons?'1':''),
-        badge('fa-solid fa-compass','Explorer','finish a tier', tier0Done?'1':''),
-        badge('fa-solid fa-bolt','Speedster','40 WPM', bestWpm>=40?'1':''),
-        badge('fa-solid fa-gauge-high','Fast fingers','60 WPM', bestWpm>=60?'1':''),
-        badge('fa-solid fa-rocket','Speed demon','80 WPM', bestWpm>=80?'1':''),
-        badge('fa-solid fa-trophy','Century','100 WPM', bestWpm>=100?'1':''),
-        badge('fa-solid fa-dragon','Legend','150 WPM', bestWpm>=150?'1':''),
-        badge('fa-solid fa-bullseye','Sharp','95% acc', bestAcc>=95?'1':''),
-        badge('fa-solid fa-crosshairs','Flawless','100% acc', bestAcc>=100?'1':''),
-        badge('fa-solid fa-heart-pulse','Steady','3-day streak', streakCount>=3?'1':''),
-        badge('fa-solid fa-fire','On fire','7-day streak', streakCount>=7?'1':''),
-        badge('fa-solid fa-fire-flame-curved','Unstoppable','30-day streak', streakCount>=30?'1':''),
-        badge('fa-solid fa-link','Combo master','15 streak', bestCombo>=15?'1':''),
-        badge('fa-solid fa-bahai','Combo legend','30 streak', bestCombo>=30?'1':''),
-        badge('fa-solid fa-skull','Boss slayer','beat a boss', bossWins>=1?'1':''),
-        badge('fa-solid fa-calendar-check','Regular','20 sessions', totalSessions>=20?'1':''),
-        badge('fa-solid fa-person-running','Marathon','50 sessions', totalSessions>=50?'1':''),
-        badge('fa-solid fa-star','Rising star','1000 XP', xpT>=1000?'1':''),
-        badge('fa-solid fa-medal','Champion','5000 XP', xpT>=5000?'1':''),
-        badge('fa-solid fa-globe','Polyglot','3 langs', langsUsed>=3?'1':'')
+        badge('fa-solid fa-shoe-prints',T.b_firststeps_n,T.b_firststeps_s, completedCount>=1?'1':''),
+        badge('fa-solid fa-seedling',T.b_gettinggoing_n,T.b_gettinggoing_s, completedCount>=6?'1':''),
+        badge('fa-solid fa-book-open',T.b_committed_n,T.b_committed_s, completedCount>=18?'1':''),
+        badge('fa-solid fa-flag-checkered',T.b_halfway_n,T.b_halfway_s, completedCount>=half?'1':''),
+        badge('fa-solid fa-graduation-cap',T.b_graduate_n,T.b_graduate_s, completedCount>=totalLessons?'1':''),
+        badge('fa-solid fa-compass',T.b_explorer_n,T.b_explorer_s, tier0Done?'1':''),
+        badge('fa-solid fa-bolt',T.b_speedster_n,T.b_speedster_s, bestWpm>=40?'1':''),
+        badge('fa-solid fa-gauge-high',T.b_fastfingers_n,T.b_fastfingers_s, bestWpm>=60?'1':''),
+        badge('fa-solid fa-rocket',T.b_speeddemon_n,T.b_speeddemon_s, bestWpm>=80?'1':''),
+        badge('fa-solid fa-trophy',T.b_century_n,T.b_century_s, bestWpm>=100?'1':''),
+        badge('fa-solid fa-dragon',T.b_legend_n,T.b_legend_s, bestWpm>=150?'1':''),
+        badge('fa-solid fa-bullseye',T.b_sharp_n,T.b_sharp_s, bestAcc>=95?'1':''),
+        badge('fa-solid fa-crosshairs',T.b_flawless_n,T.b_flawless_s, bestAcc>=100?'1':''),
+        badge('fa-solid fa-heart-pulse',T.b_steady_n,T.b_steady_s, streakCount>=3?'1':''),
+        badge('fa-solid fa-fire',T.b_onfire_n,T.b_onfire_s, streakCount>=7?'1':''),
+        badge('fa-solid fa-fire-flame-curved',T.b_unstoppable_n,T.b_unstoppable_s, streakCount>=30?'1':''),
+        badge('fa-solid fa-link',T.b_combomaster_n,T.b_combomaster_s, bestCombo>=15?'1':''),
+        badge('fa-solid fa-bahai',T.b_combolegend_n,T.b_combolegend_s, bestCombo>=30?'1':''),
+        badge('fa-solid fa-skull',T.b_bossslayer_n,T.b_bossslayer_s, bossWins>=1?'1':''),
+        badge('fa-solid fa-calendar-check',T.b_regular_n,T.b_regular_s, totalSessions>=20?'1':''),
+        badge('fa-solid fa-person-running',T.b_marathon_n,T.b_marathon_s, totalSessions>=50?'1':''),
+        badge('fa-solid fa-star',T.b_risingstar_n,T.b_risingstar_s, xpT>=1000?'1':''),
+        badge('fa-solid fa-medal',T.b_champion_n,T.b_champion_s, xpT>=5000?'1':''),
+        badge('fa-solid fa-globe',T.b_polyglot_n,T.b_polyglot_s, langsUsed>=3?'1':'')
       ];
     }
 
@@ -1956,35 +2178,35 @@ class Component extends DCLogic {
       vals.backToHub=()=>this._backToHub();
       const gcard=(bg)=>this._rb(bg,'#fff',52,15)+'font-size:22px;';
       vals.gameCards=[
-        {title:'Falling Letters',desc:'Catch them before they land',icon:'fa-solid fa-gamepad',iconStyle:gcard('var(--f4)'),onClick:()=>this._openGame('falling')},
-        {title:'Race',desc:'Beat your ghost run',icon:'fa-solid fa-flag-checkered',iconStyle:gcard('var(--f6)'),onClick:()=>this._openGame('race')},
-        {title:'Boss Battle',desc:'Type words to damage the boss',icon:'fa-solid fa-dragon',iconStyle:gcard('var(--error)'),onClick:()=>this._openGame('boss')},
-        {title:'Combo Streak',desc:'Chain correct words for a multiplier',icon:'fa-solid fa-bolt',iconStyle:gcard('var(--accent)'),onClick:()=>this._openGame('combo')},
-        {title:'Word Defense',desc:'Type words to stop the enemy waves',icon:'fa-solid fa-shield-halved',iconStyle:gcard('var(--error)'),onClick:()=>this._openGame('defense')},
-        {title:'Balloon Pop',desc:'Pop the rising balloons in time',icon:'fa-solid fa-circle-up',iconStyle:gcard('var(--f5)'),onClick:()=>this._openGame('balloon')},
-        {title:'Sky Climber',desc:'Climb as high as you can',icon:'fa-solid fa-person-hiking',iconStyle:gcard('var(--f6)'),onClick:()=>this._openGame('climber')},
-        {title:'Typing Piano',desc:'Hit the notes in rhythm',icon:'fa-solid fa-music',iconStyle:gcard('var(--f3)'),onClick:()=>this._openGame('piano')},
-        {title:'Maze Runner',desc:'Type a doorway to pick your path',icon:'fa-solid fa-route',iconStyle:gcard('var(--f7)'),onClick:()=>this._openGame('maze')},
-        {title:'Survival Horde',desc:'Clear the swarm before it grows',icon:'fa-solid fa-skull-crossbones',iconStyle:gcard('var(--error)'),onClick:()=>this._openGame('horde')},
-        {title:'Memory Flash',desc:'Memorize the word, then type it',icon:'fa-solid fa-bolt',iconStyle:gcard('var(--f4)'),onClick:()=>this._openGame('flash')},
-        {title:'Cipher',desc:'Crack the code exactly',icon:'fa-solid fa-lock',iconStyle:gcard('var(--f1)'),onClick:()=>this._openGame('cipher')},
-        {title:'Word Chain',desc:'Grow the snake, don\u2019t slip',icon:'fa-solid fa-link',iconStyle:gcard('var(--f5)'),onClick:()=>this._openGame('chain')},
-        {title:'Ghost Duel',desc:'Race a rival to the finish',icon:'fa-solid fa-ghost',iconStyle:gcard('var(--f6)'),onClick:()=>this._openGame('duel')},
-        {title:'Typing Garden',desc:'Grow a calm garden, no timer',icon:'fa-solid fa-seedling',iconStyle:gcard('var(--success)'),onClick:()=>this._openGame('garden')},
-        {title:'Word Ladder',desc:'Fill in the missing word',icon:'fa-solid fa-list-ol',iconStyle:gcard('var(--f3)'),onClick:()=>this._openGame('ladder')}
+        {title:T.g_falling_t,desc:T.g_falling_d,icon:'fa-solid fa-gamepad',iconStyle:gcard('var(--f4)'),onClick:()=>this._openGame('falling')},
+        {title:T.g_race_t,desc:T.g_race_d,icon:'fa-solid fa-flag-checkered',iconStyle:gcard('var(--f6)'),onClick:()=>this._openGame('race')},
+        {title:T.g_boss_t,desc:T.g_boss_d,icon:'fa-solid fa-dragon',iconStyle:gcard('var(--error)'),onClick:()=>this._openGame('boss')},
+        {title:T.g_combo_t,desc:T.g_combo_d,icon:'fa-solid fa-bolt',iconStyle:gcard('var(--accent)'),onClick:()=>this._openGame('combo')},
+        {title:T.g_defense_t,desc:T.g_defense_d,icon:'fa-solid fa-shield-halved',iconStyle:gcard('var(--error)'),onClick:()=>this._openGame('defense')},
+        {title:T.g_balloon_t,desc:T.g_balloon_d,icon:'fa-solid fa-circle-up',iconStyle:gcard('var(--f5)'),onClick:()=>this._openGame('balloon')},
+        {title:T.g_climber_t,desc:T.g_climber_d,icon:'fa-solid fa-person-hiking',iconStyle:gcard('var(--f6)'),onClick:()=>this._openGame('climber')},
+        {title:T.g_piano_t,desc:T.g_piano_d,icon:'fa-solid fa-music',iconStyle:gcard('var(--f3)'),onClick:()=>this._openGame('piano')},
+        {title:T.g_maze_t,desc:T.g_maze_d,icon:'fa-solid fa-route',iconStyle:gcard('var(--f7)'),onClick:()=>this._openGame('maze')},
+        {title:T.g_horde_t,desc:T.g_horde_d,icon:'fa-solid fa-skull-crossbones',iconStyle:gcard('var(--error)'),onClick:()=>this._openGame('horde')},
+        {title:T.g_flash_t,desc:T.g_flash_d,icon:'fa-solid fa-bolt',iconStyle:gcard('var(--f4)'),onClick:()=>this._openGame('flash')},
+        {title:T.g_cipher_t,desc:T.g_cipher_d,icon:'fa-solid fa-lock',iconStyle:gcard('var(--f1)'),onClick:()=>this._openGame('cipher')},
+        {title:T.g_chain_t,desc:T.g_chain_d,icon:'fa-solid fa-link',iconStyle:gcard('var(--f5)'),onClick:()=>this._openGame('chain')},
+        {title:T.g_duel_t,desc:T.g_duel_d,icon:'fa-solid fa-ghost',iconStyle:gcard('var(--f6)'),onClick:()=>this._openGame('duel')},
+        {title:T.g_garden_t,desc:T.g_garden_d,icon:'fa-solid fa-seedling',iconStyle:gcard('var(--success)'),onClick:()=>this._openGame('garden')},
+        {title:T.g_ladder_t,desc:T.g_ladder_d,icon:'fa-solid fa-list-ol',iconStyle:gcard('var(--f3)'),onClick:()=>this._openGame('ladder')}
       ];
       const f=s.falling;
       vals.fScore=f?f.score:0; vals.fLivesArr=[0,1,2].map(i=>{ const on= f? i<f.lives : true; return {on, style: on?'color:var(--error)':'color:var(--border-2)'}; });
-      vals.fIdle=!f||!f.running; vals.fBtnLabel=(f&&f.running)?'Restart':'Start';
+      vals.fIdle=!f||!f.running; vals.fBtnLabel=(f&&f.running)?T.restartWordG:T.startWord;
       vals.fMood=(f&&f.over)?'encouraging':'happy';
-      vals.fOverlayTitle=(f&&f.over)?`Game over — score ${f.score}`:'Falling Letters';
-      vals.fOverlayText=(f&&f.over)?'Nice reflexes! The letters speed up as you score. Try again?':'Type each letter before it reaches the dashed line. Ready?';
+      vals.fOverlayTitle=(f&&f.over)?this._fmt(T.ov_gameOver,f.score):T.g_falling_t;
+      vals.fOverlayText=(f&&f.over)?T.ov_falling_over:T.ov_falling_idle;
       vals.startFalling=()=>this._startFalling(false);
       vals.fBgStyle=f?`position:absolute;left:-5%;right:-5%;bottom:44px;height:120px;background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--brand) 12%,transparent) 0 46px,transparent 46px 92px);transform:translateX(${-(f.off||0)%92}px);opacity:.5`:'';
       vals.fItems=(f&&f.running?f.items:[]).map(it=>({ch:it.ch, style:`position:absolute;left:${it.x}%;top:${it.y}%;transform:translateX(-50%);width:46px;height:46px;border-radius:13px;background:linear-gradient(160deg,color-mix(in srgb,var(--brand) 14%,#fff),var(--brand));box-shadow:0 7px 14px rgba(0,0,0,.22),inset 0 3px 0 rgba(255,255,255,.6),inset 0 -4px 6px rgba(0,0,0,.18);border:1px solid var(--brand-ink);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-weight:800;font-size:22px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)`}));
       // race
       const r=s.race;
-      vals.rIdle=!r||!r.running; vals.rBtnLabel=(r&&r.running)?'Restart':'Start ▶';
+      vals.rIdle=!r||!r.running; vals.rBtnLabel=(r&&r.running)?T.restartWordG:(T.startWord+' ▶');
       vals.startRace=()=>this._startRace(false);
       let rWpm=0; if(r&&r.startAt){ const el=(Date.now()-r.startAt)/1000; const corr=r.marks.filter(Boolean).length; rWpm= el>0?Math.round((corr/5)/(el/60)):0; }
       vals.rWpm=rWpm;
@@ -1992,16 +2214,16 @@ class Component extends DCLogic {
       const ghostPct = r? Math.round(r.ghost):0;
       const car=(pct,color)=>`position:absolute;top:50%;left:${Math.min(92,pct)}%;transform:translate(-50%,-50%);font-size:22px;transition:left .12s;color:${color};filter:drop-shadow(0 4px 4px rgba(0,0,0,.28))`;
       const bestR=(this.store&&this.store.bestRace)||0;
-      vals.raceGhostLabel = bestR>0 ? ('Ghost · your best '+bestR+' wpm') : 'Ghost · pacer 30 wpm';
+      vals.raceGhostLabel = bestR>0 ? this._fmt(T.raceGhostBest,bestR) : (T.raceGhostPacer+' 30 wpm');
       vals.raceLanes=[
-        {name:'You',pctLabel:playerPct+'%',icon:'fa-solid fa-car-side',carStyle:car(playerPct,'var(--brand)')},
-        {name: bestR>0?('Ghost · best '+bestR+' wpm'):'Ghost · pacer',pctLabel:ghostPct+'%',icon:'fa-solid fa-ghost',carStyle:car(ghostPct,'var(--muted)')}
+        {name:T.youWord,pctLabel:playerPct+'%',icon:'fa-solid fa-car-side',carStyle:car(playerPct,'var(--brand)')},
+        {name: bestR>0?this._fmt(T.raceGhostBest,bestR):T.raceGhostPacer,pctLabel:ghostPct+'%',icon:'fa-solid fa-ghost',carStyle:car(ghostPct,'var(--muted)')}
       ];
       vals.rIdle=!r||!r.running;
       vals.rOverlayShow = !!(r&&r.over);
       vals.rMood = r&&r.won?(r.newBest?'celebrate':'happy'):'encouraging';
-      vals.rOverlayTitle = r&&r.over ? (r.won?(r.newBest?`New record — ${r.result} WPM!`:`Finished at ${r.result} WPM`):'The ghost won this time') : '';
-      vals.rOverlayText = r&&r.over ? (r.won?'Your ghost just got faster. Race it again?':'So close! Type a little steadier and you\u2019ll catch it.') : '';
+      vals.rOverlayTitle = r&&r.over ? (r.won?(r.newBest?this._fmt(T.ov_race_rec,r.result):this._fmt(T.ov_race_fin,r.result)):T.ov_race_lost) : '';
+      vals.rOverlayText = r&&r.over ? (r.won?T.ov_race_won_txt:T.ov_race_lost_txt) : '';
       vals.raceChars=r?[...r.text].map((ch,i)=>{
         let style='padding:1px 0;';
         if(i<r.i) style+= r.marks[i]?'color:var(--ink);':'color:var(--error);text-decoration:underline;text-decoration-style:wavy;';
@@ -2011,12 +2233,12 @@ class Component extends DCLogic {
       }):[];
       // boss battle
       const b=s.boss;
-      vals.bIdle=!b||!b.running; vals.bBtn=(b&&b.running)?'Restart':'Start'; vals.bStart=()=>this._startBoss(false);
+      vals.bIdle=!b||!b.running; vals.bBtn=(b&&b.running)?T.restartWordG:T.startWord; vals.bStart=()=>this._startBoss(false);
       vals.bScore=b?b.score:0; vals.bHpPct=b?Math.round(b.bossHp/b.bossMax*100):100;
       const bflash=b&&b.hitFlash&&(Date.now()-b.hitFlash<300);
       vals.bShowField=!!(b&&b.running); vals.bOverlayShow=!!(b&&b.over);
       vals.bMood=(b&&b.over)?'celebrate':'puzzled';
-      vals.bOverlayTitle=b&&b.over?'Boss defeated!':''; vals.bOverlayText=b&&b.over?('You landed '+b.score+' clean words — nice work!'):'';
+      vals.bOverlayTitle=b&&b.over?T.ov_boss_def:''; vals.bOverlayText=b&&b.over?this._fmt(T.ov_boss_def_txt,b.score):'';
       vals.bBossStyle=`font-size:76px;color:var(--error);transition:transform .12s;filter:drop-shadow(0 8px 10px rgba(0,0,0,.3));`+(bflash?'transform:scale(.86) rotate(-6deg);':'');
       vals.bPlatformStyle=`width:130px;height:24px;margin-top:2px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(0,0,0,.28),transparent 70%)`;
       vals.bArenaStyle=`background:radial-gradient(circle at 50% 26%,color-mix(in srgb,var(--error) 13%,var(--surface)),var(--surface) 70%);border:1px solid var(--border);border-radius:var(--r-lg);padding:32px;box-shadow:var(--shadow-sm);text-align:center;min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;`+(bflash?'animation:tt-shake .3s;':'');
@@ -2025,7 +2247,7 @@ class Component extends DCLogic {
       vals.bWordChars= bw? [...bw].map((ch,i)=>({disp:ch, style:'padding:0 1px;'+(i<b.buffer.length?'color:var(--success);':i===b.buffer.length?'color:var(--brand-ink);background:var(--brand-bg);border-radius:4px;':'color:var(--muted);')})):[];
       // combo streak
       const cm=s.combo;
-      vals.cIdle=!cm||!cm.running; vals.cBtn=(cm&&cm.running)?'Restart':'Start'; vals.cStart=()=>this._startCombo(false);
+      vals.cIdle=!cm||!cm.running; vals.cBtn=(cm&&cm.running)?T.restartWordG:T.startWord; vals.cStart=()=>this._startCombo(false);
       vals.cScore=cm?cm.score:0; vals.cStreak=cm?cm.streak:0; vals.cMultLabel='\u00d7'+(cm?cm.mult:1); vals.cBest=cm?cm.best:((this.store&&this.store.bestCombo)||0);
       const cflash=cm&&cm.flash&&(Date.now()-cm.flash<300);
       vals.cShowField=!!(cm&&cm.running);
@@ -2035,7 +2257,7 @@ class Component extends DCLogic {
       // word defense
       const d=s.defense;
       vals.isDefense=s.game==='defense';
-      vals.dIdle=!d||!d.running; vals.dBtn=(d&&d.running)?'Restart':'Start'; vals.dStart=()=>this._startDefense(false);
+      vals.dIdle=!d||!d.running; vals.dBtn=(d&&d.running)?T.restartWordG:T.startWord; vals.dStart=()=>this._startDefense(false);
       vals.dScore=d?d.score:0; vals.dWave=d?d.wave:1; vals.dHpPct=d?Math.round(d.baseHp):100;
       const dshake=d&&d.shake&&(Date.now()-d.shake<300);
       vals.dArenaStyle=`position:relative;height:440px;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow-sm);background:linear-gradient(180deg,color-mix(in srgb,var(--f5) 26%,var(--surface)),color-mix(in srgb,var(--f2) 14%,var(--surface)) 62%,color-mix(in srgb,var(--success) 16%,var(--surface)));`+(dshake?'animation:tt-shake .3s;':'');
@@ -2048,13 +2270,13 @@ class Component extends DCLogic {
           chars:[...en.word].map((ch,i)=>({disp:ch,style:`font-family:'JetBrains Mono';font-weight:700;font-size:16px;`+(i<en.buffer?'color:var(--success);':(targeted&&i===en.buffer)?'color:var(--brand-ink);background:var(--brand-bg);border-radius:3px;':'color:var(--ink);')})) }; });
       vals.dBursts=((d&&d.bursts)||[]).map(b=>({style:`position:absolute;left:${b.x}%;top:${18+b.lane*26}%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;border:3px solid var(--accent);animation:tt-burst .42s ease-out forwards`}));
       vals.dMood=(d&&d.over)?'encouraging':'happy';
-      vals.dOverlayTitle=(d&&d.over)?`Base overrun — score ${d.score}`:'Word Defense';
-      vals.dOverlayText=(d&&d.over)?'The horde broke through! Type faster to hold the line. Retry?':'Type the whole word above each enemy to blast it before it reaches your base.';
+      vals.dOverlayTitle=(d&&d.over)?this._fmt(T.ov_defense_over,d.score):T.g_defense_t;
+      vals.dOverlayText=(d&&d.over)?T.ov_defense_over_txt:T.ov_defense_idle_txt;
 
       // balloon pop
       const bl=s.balloon;
       vals.isBalloon=s.game==='balloon';
-      vals.blIdle=!bl||!bl.running; vals.blBtn=(bl&&bl.running)?'Restart':'Start'; vals.blStart=()=>this._startBalloon(false);
+      vals.blIdle=!bl||!bl.running; vals.blBtn=(bl&&bl.running)?T.restartWordG:T.startWord; vals.blStart=()=>this._startBalloon(false);
       vals.blScore=bl?bl.score:0; vals.blLivesArr=[0,1,2].map(i=>({style:(bl?i<bl.lives:true)?'color:var(--error)':'color:var(--border-2)'}));
       const HUES=['--f0','--f1','--f2','--f3','--f4','--f5','--f6','--f7'];
       vals.blFieldStyle=`position:relative;height:440px;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow-sm);background:linear-gradient(180deg,color-mix(in srgb,var(--f5) 22%,var(--surface)),var(--surface))`;
@@ -2067,13 +2289,13 @@ class Component extends DCLogic {
           chars:[...it.word].map((ch,i)=>({disp:ch,style:`font-family:'JetBrains Mono';font-weight:700;font-size:16px;`+(i<it.buffer?'color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);':(targeted&&i===it.buffer)?'color:var(--ink);background:#fff;border-radius:3px;':'color:rgba(20,15,10,.72);')})) }; });
       vals.blBursts=((bl&&bl.bursts)||[]).map(b=>({style:`position:absolute;left:${b.x}%;top:${b.y}%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;border:3px solid var(${HUES[b.hue%8]});animation:tt-burst .42s ease-out forwards`}));
       vals.blMood=(bl&&bl.over)?'encouraging':'happy';
-      vals.blOverlayTitle=(bl&&bl.over)?`All out — score ${bl.score}`:'Balloon Pop';
-      vals.blOverlayText=(bl&&bl.over)?'A few floated away! Pop the top ones first. Another round?':'Balloons drift up — type a word to pop it before it leaves the top. Calmer pace, no rush.';
+      vals.blOverlayTitle=(bl&&bl.over)?this._fmt(T.ov_balloon_over,bl.score):T.g_balloon_t;
+      vals.blOverlayText=(bl&&bl.over)?T.ov_balloon_over_txt:T.ov_balloon_idle_txt;
 
       // sky climber
       const cl=s.climber;
       vals.isClimber=s.game==='climber';
-      vals.clIdle=!cl||!cl.running; vals.clBtn=(cl&&cl.running)?'Restart':'Start'; vals.clStart=()=>this._startClimber(false);
+      vals.clIdle=!cl||!cl.running; vals.clBtn=(cl&&cl.running)?T.restartWordG:T.startWord; vals.clStart=()=>this._startClimber(false);
       vals.clHeight=cl?Math.round(cl.height):0;
       vals.clBest=cl?(cl.newBest?cl.result:cl.best):((this.store&&this.store.bestClimb)||0);
       const clflash=cl&&cl.flash&&(Date.now()-cl.flash<250); const clboost=cl&&cl.boost&&(Date.now()-cl.boost<300);
@@ -2087,13 +2309,13 @@ class Component extends DCLogic {
       vals.clShowField=!!(cl&&cl.running);
       vals.clMeterFill=`position:absolute;left:0;right:0;bottom:0;height:${Math.min(100,ch2/3)}%;background:linear-gradient(180deg,var(--brand),var(--accent));transition:height .18s`;
       vals.clMood=(cl&&cl.over)?'encouraging':'happy';
-      vals.clOverlayTitle=(cl&&cl.over)?(cl.newBest?`New record — ${cl.result} m!`:`You reached ${cl.result} m`):'Sky Climber';
-      vals.clOverlayText=(cl&&cl.over)?'Gravity caught up! Keep a steady rhythm to climb higher. Again?':'Type each word to climb. A wrong key slips you back, and gravity keeps pulling — how high can you get?';
+      vals.clOverlayTitle=(cl&&cl.over)?(cl.newBest?this._fmt(T.ov_climber_rec,cl.result):this._fmt(T.ov_climber_reach,cl.result)):T.g_climber_t;
+      vals.clOverlayText=(cl&&cl.over)?T.ov_climber_over_txt:T.ov_climber_idle_txt;
 
       // typing piano
       const p=s.piano;
       vals.isPiano=s.game==='piano';
-      vals.pIdle=!p||!p.running; vals.pBtn=(p&&p.running)?'Restart':'Start'; vals.pStart=()=>this._startPiano(false);
+      vals.pIdle=!p||!p.running; vals.pBtn=(p&&p.running)?T.restartWordG:T.startWord; vals.pStart=()=>this._startPiano(false);
       vals.pScore=p?p.score:0; vals.pCombo=p?p.combo:0;
       vals.pLivesArr=[0,1,2].map(i=>({style:(p?i<p.lives:true)?'color:var(--error)':'color:var(--border-2)'}));
       const PLC=['--f2','--f3','--f4','--f5']; const PKEYS=['D','F','J','K'];
@@ -2102,13 +2324,13 @@ class Component extends DCLogic {
       vals.pNotes=(p&&p.running?p.notes:[]).map(n=>({ style:`position:absolute;left:${12.5+n.lane*25}%;top:${n.y}%;transform:translate(-50%,-50%);width:52px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-weight:800;font-size:18px;color:#fff;background:linear-gradient(180deg,color-mix(in srgb,var(${PLC[n.lane]}) 55%,#fff),var(${PLC[n.lane]}));box-shadow:0 5px 10px rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.5)`, ch:n.ch.toUpperCase() }));
       vals.pHitLineStyle=`position:absolute;left:0;right:0;top:86%;height:4px;background:var(--brand);box-shadow:0 0 14px var(--brand);opacity:.75`;
       vals.pMood=(p&&p.over)?'encouraging':'happy';
-      vals.pOverlayTitle=(p&&p.over)?`Out of hearts — score ${p.score}`:'Typing Piano';
-      vals.pOverlayText=(p&&p.over)?'Feel the rhythm! Hit each key as its note crosses the line. Again?':'Notes fall down four lanes — press D F J K as each crosses the glowing line. Perfect timing scores double.';
+      vals.pOverlayTitle=(p&&p.over)?this._fmt(T.ov_piano_over,p.score):T.g_piano_t;
+      vals.pOverlayText=(p&&p.over)?T.ov_piano_over_txt:T.ov_piano_idle_txt;
 
       // maze runner
       const mz=s.maze;
       vals.isMaze=s.game==='maze';
-      vals.mzIdle=!mz||!mz.running; vals.mzBtn=(mz&&mz.running)?'Restart':'Start'; vals.mzStart=()=>this._startMaze(false);
+      vals.mzIdle=!mz||!mz.running; vals.mzBtn=(mz&&mz.running)?T.restartWordG:T.startWord; vals.mzStart=()=>this._startMaze(false);
       vals.mzStep=mz?mz.step:0; vals.mzTotal=mz?mz.total:8; vals.mzTime=mz?mz.time.toFixed(1):'0.0'; vals.mzPct=mz?Math.round(mz.step/mz.total*100):0;
       const mzshake=mz&&mz.shake&&(Date.now()-mz.shake<300);
       vals.mzBarStyle=`height:100%;width:${vals.mzPct}%;background:linear-gradient(90deg,var(--brand),var(--accent));border-radius:20px;transition:width .25s`;
@@ -2118,13 +2340,13 @@ class Component extends DCLogic {
         iconStyle:`font-size:28px;color:var(--brand);filter:drop-shadow(0 3px 3px rgba(0,0,0,.2))`,
         chars:[...d.word].map((ch,i)=>({disp:ch,style:`font-family:'JetBrains Mono';font-weight:700;font-size:18px;`+(i<d.buffer?'color:var(--success);':(targeted&&i===d.buffer)?'color:var(--brand-ink);background:var(--brand-bg);border-radius:3px;':'color:var(--ink);')})) }; });
       vals.mzMood=(mz&&mz.over)?'celebrate':'happy';
-      vals.mzOverlayTitle=(mz&&mz.over)?`Escaped in ${mz.time.toFixed(1)}s!`:'Maze Runner';
-      vals.mzOverlayText=(mz&&mz.over)?'You found the way out! Faster next time?':'Type a doorway\u2019s word to head that way. Reach the exit before the clock runs away.';
+      vals.mzOverlayTitle=(mz&&mz.over)?this._fmt(T.ov_maze_esc,mz.time.toFixed(1)):T.g_maze_t;
+      vals.mzOverlayText=(mz&&mz.over)?T.ov_maze_over_txt:T.ov_maze_idle_txt;
 
       // survival horde
       const hd=s.horde;
       vals.isHorde=s.game==='horde';
-      vals.hdIdle=!hd||!hd.running; vals.hdBtn=(hd&&hd.running)?'Restart':'Start'; vals.hdStart=()=>this._startHorde(false);
+      vals.hdIdle=!hd||!hd.running; vals.hdBtn=(hd&&hd.running)?T.restartWordG:T.startWord; vals.hdStart=()=>this._startHorde(false);
       vals.hdScore=hd?hd.score:0;
       vals.hdLivesArr=[0,1,2].map(i=>({style:(hd?i<hd.lives:true)?'color:var(--error)':'color:var(--border-2)'}));
       const hdlow=hd&&hd.running&&hd.lives<=1; const hdshake=hd&&hd.shake&&(Date.now()-hd.shake<300);
@@ -2137,44 +2359,44 @@ class Component extends DCLogic {
         fillStyle:`height:100%;width:${Math.round(rem*100)}%;background:${rem<0.35?'var(--error)':'var(--success)'};border-radius:3px;transition:width .1s linear` }; });
       vals.hdBursts=((hd&&hd.bursts)||[]).map(b=>({style:`position:absolute;left:${b.x}%;top:${b.y}%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;border:3px solid var(--accent);animation:tt-burst .42s ease-out forwards`}));
       vals.hdMood=(hd&&hd.over)?'encouraging':'happy';
-      vals.hdOverlayTitle=(hd&&hd.over)?`Overwhelmed — score ${hd.score}`:'Survival Horde';
-      vals.hdOverlayText=(hd&&hd.over)?'The horde won this time. Clear the words about to fade first!':'Words swarm in, each fading on a timer — clear them before they vanish. It only speeds up.';
+      vals.hdOverlayTitle=(hd&&hd.over)?this._fmt(T.ov_horde_over,hd.score):T.g_horde_t;
+      vals.hdOverlayText=(hd&&hd.over)?T.ov_horde_over_txt:T.ov_horde_idle_txt;
 
       // memory flash
       const mf=s.flash;
       vals.isFlash=s.game==='flash';
-      vals.mfIdle=!mf||!mf.running; vals.mfBtn=(mf&&mf.running)?'Restart':'Start'; vals.mfStart=()=>this._startFlash(false);
+      vals.mfIdle=!mf||!mf.running; vals.mfBtn=(mf&&mf.running)?T.restartWordG:T.startWord; vals.mfStart=()=>this._startFlash(false);
       vals.mfScore=mf?mf.score:0;
       vals.mfLivesArr=[0,1,2].map(i=>({style:(mf?i<mf.lives:true)?'color:var(--error)':'color:var(--border-2)'}));
-      vals.mfHint=(mf&&mf.running)?(mf.phase==='show'?'Memorize!':'Type it from memory'):'';
+      vals.mfHint=(mf&&mf.running)?(mf.phase==='show'?T.memorize:T.typeFromMem):'';
       vals.mfSlots=(mf&&mf.running)?[...mf.word].map((ch,i)=>({disp:mf.phase==='show'?ch:(mf.buffer[i]||''), style:`width:38px;height:52px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono';font-weight:800;font-size:24px;color:${mf.phase==='show'?'#fff':'var(--ink)'};background:${mf.phase==='show'?'linear-gradient(180deg,var(--brand-2),var(--brand))':'var(--surface)'};border:2px solid ${mf.phase==='show'?'transparent':'var(--border)'};box-shadow:${mf.phase==='show'?'0 6px 12px rgba(0,0,0,.2)':'inset 0 2px 4px rgba(0,0,0,.05)'}`})):[];
       vals.mfFieldStyle=`position:relative;min-height:300px;border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--f4) 18%,var(--surface)),var(--surface) 70%)`;
       vals.mfMood=(mf&&mf.over)?'encouraging':'happy';
-      vals.mfOverlayTitle=(mf&&mf.over)?`Nice memory \u2014 score ${mf.score}`:'Memory Flash';
-      vals.mfOverlayText=(mf&&mf.over)?'Words flash for a moment, then you type them back. Again?':'A word flashes for a moment \u2014 memorize it, then type it from memory once it hides.';
+      vals.mfOverlayTitle=(mf&&mf.over)?this._fmt(T.ov_flash_over,mf.score):T.g_flash_t;
+      vals.mfOverlayText=(mf&&mf.over)?T.ov_flash_over_txt:T.ov_flash_idle_txt;
 
       // cipher
       const cph=s.cipher;
       vals.isCipher=s.game==='cipher';
-      vals.cphIdle=!cph||!cph.running; vals.cphStart=()=>this._startCipher(false); vals.cphBtn=(cph&&cph.running)?'Restart':'Start';
+      vals.cphIdle=!cph||!cph.running; vals.cphStart=()=>this._startCipher(false); vals.cphBtn=(cph&&cph.running)?T.restartWordG:T.startWord;
       vals.cphTime=(cph&&typeof cph.time==='number')?cph.time.toFixed(1):'0.0'; vals.cphErr=(cph&&cph.errors)||0;
       vals.cphChars=(cph&&(cph.running||cph.over))?[...cph.text].map((ch,i)=>{ let st; if(i<cph.typed.length) st=(cph.typed[i]===ch)?'ok':'bad'; else if(i===cph.i) st='cur'; else st='pend'; return {disp:ch===' '?'\u00b7':ch, style:`font-family:'JetBrains Mono';font-weight:700;font-size:26px;padding:2px 1px;`+(st==='ok'?'color:var(--success);':st==='bad'?'color:#fff;background:var(--error);border-radius:4px;':st==='cur'?'color:var(--brand-ink);background:var(--brand-bg);border-radius:4px;border-bottom:3px solid var(--brand);':'color:var(--ink-2);')}; }):[];
       vals.cphFieldStyle=`position:relative;min-height:280px;border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:34px;background:linear-gradient(180deg,color-mix(in srgb,var(--f1) 14%,var(--surface)),var(--surface))`;
       vals.cphMood=(cph&&cph.over)?(cph.win?'celebrate':'encouraging'):'happy';
       vals.cphOverlayTitle=(cph&&cph.over)?(cph.win?`Decrypted in ${cph.time.toFixed(1)}s!`:`Decoded with ${cph.errors} slips`):'Cipher';
-      vals.cphOverlayText=(cph&&cph.over)?'Retype the code exactly \u2014 symbols count. Again?':'Retype the coded string exactly, symbols and all, as fast as you can. Errors leave traces.';
+      vals.cphOverlayText=(cph&&cph.over)?T.ov_cipher_over_txt:T.ov_cipher_idle_txt;
 
       // word chain
       const wc=s.chain;
       vals.isChain=s.game==='chain';
-      vals.wcIdle=!wc||!wc.running; vals.wcStart=()=>this._startChain(false); vals.wcBtn=(wc&&wc.running)?'Restart':'Start';
+      vals.wcIdle=!wc||!wc.running; vals.wcStart=()=>this._startChain(false); vals.wcBtn=(wc&&wc.running)?T.restartWordG:T.startWord;
       vals.wcLen=wc?wc.len:0; vals.wcBest=(this.store&&this.store.bestChain)||0;
       vals.wcSegs=(wc&&wc.running)?Array.from({length:Math.min(wc.len,40)}).map((_,i)=>{ const d=Math.max(14,22-i*0.2); return {style:`width:${d}px;height:${d}px;border-radius:50%;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--f5) 50%,#fff),var(--f5));box-shadow:0 3px 5px rgba(0,0,0,.18)`}; }):[];
       vals.wcChars=(wc&&wc.running)?[...wc.word].map((ch,i)=>({disp:ch,style:`font-family:'JetBrains Mono';font-weight:700;font-size:22px;`+(i<wc.buffer?'color:var(--success);':i===wc.buffer?'color:var(--brand-ink);background:var(--brand-bg);border-radius:4px;':'color:var(--ink);')})):[];
       vals.wcFieldStyle=`position:relative;min-height:300px;border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:34px;background:radial-gradient(circle at 50% 20%,color-mix(in srgb,var(--f5) 16%,var(--surface)),var(--surface) 72%)`;
       vals.wcMood=(wc&&wc.over)?'encouraging':'happy';
-      vals.wcOverlayTitle=(wc&&wc.over)?`Chain of ${wc.len}!`:'Word Chain';
-      vals.wcOverlayText=(wc&&wc.over)?'Each correct word grew the chain \u2014 one slip ended it. Beat your best?':'Type each word to grow the chain. A single wrong key ends the run \u2014 how long can you go?';
+      vals.wcOverlayTitle=(wc&&wc.over)?this._fmt(T.ov_chain_of,wc.len):T.g_chain_t;
+      vals.wcOverlayText=(wc&&wc.over)?T.ov_chain_over_txt:T.ov_chain_idle_txt;
 
       // ghost duel
       const gd=s.duel;
@@ -2190,28 +2412,28 @@ class Component extends DCLogic {
       vals.gdLaneStyle=`position:relative;height:56px;border-radius:14px;background:linear-gradient(180deg,color-mix(in srgb,var(--f6) 14%,var(--surface)),var(--surface));border:1px solid var(--border);box-shadow:inset 0 2px 6px rgba(0,0,0,.06)`;
       vals.gdGhostLaneStyle=`position:relative;height:56px;border-radius:14px;background:linear-gradient(180deg,color-mix(in srgb,var(--muted) 12%,var(--surface)),var(--surface));border:1px solid var(--border);box-shadow:inset 0 2px 6px rgba(0,0,0,.06)`;
       vals.gdRunning=!!(gd&&gd.running);
-      vals.gdLabel=vals.gd2p?((gd&&gd.phase==='p1')?'Player 1\u2019s turn':'Player 2\u2019s turn'):'You';
+      vals.gdLabel=vals.gd2p?((gd&&gd.phase==='p1')?T.p1turn:T.p2turn):T.youWord;
       vals.gdFieldStyle=`position:relative;min-height:320px;border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;padding:34px;background:radial-gradient(circle at 50% 12%,color-mix(in srgb,var(--f6) 16%,var(--surface)),var(--surface) 72%)`;
       vals.gdMood=(gd&&gd.over)?((gd.winner==='ghost')?'encouraging':'celebrate'):'happy';
-      vals.gdOverlayTitle=(gd&&gd.over)?(gd.mode==='2p'?`${gd.winner} wins!`:(gd.winner==='you'?'You beat the ghost!':'The ghost won \u2014 rematch?')):'Ghost Duel';
-      vals.gdOverlaySub=(gd&&gd.over&&gd.mode==='2p')?`${gd.p1time.toFixed(1)}s vs ${gd.p2time.toFixed(1)}s`:'Race a rival to type the whole line first \u2014 pick a mode:';
+      vals.gdOverlayTitle=(gd&&gd.over)?(gd.mode==='2p'?this._fmt(T.ov_duel_2pwin,gd.winner):(gd.winner==='you'?T.ov_duel_youwin:T.ov_duel_lost)):T.ghostDuelTitle;
+      vals.gdOverlaySub=(gd&&gd.over&&gd.mode==='2p')?this._fmt(T.ov_duel_sub_vs,gd.p1time.toFixed(1)+'s',gd.p2time.toFixed(1)+'s'):T.ov_duel_idle_sub;
 
       // typing garden
       const gr=s.garden;
       vals.isGarden=s.game==='garden';
-      vals.grIdle=!gr||!gr.running; vals.grStart=()=>this._startGarden(false); vals.grBtn=(gr&&gr.running)?'Restart':'Start';
+      vals.grIdle=!gr||!gr.running; vals.grStart=()=>this._startGarden(false); vals.grBtn=(gr&&gr.running)?T.restartWordG:T.startWord;
       vals.grBlooms=gr?gr.blooms:0;
       vals.grChars=(gr&&gr.running)?[...gr.word].map((ch,i)=>({disp:ch,style:`font-family:'JetBrains Mono';font-weight:700;font-size:24px;`+(i<gr.buffer?'color:var(--success);':i===gr.buffer?'color:var(--brand-ink);background:var(--brand-bg);border-radius:4px;':'color:var(--ink);')})):[];
       vals.grPlants=(gr&&gr.running)?Array.from({length:Math.min(gr.blooms+1,10)}).map((_,i)=>{ const bloomed=i<gr.blooms; const cur=i===gr.blooms; const fs=bloomed?30:(cur&&gr.stage>=2?22:0); const h=bloomed?64:(cur?24+gr.stage*14:0); return { stemStyle:`width:6px;height:${h}px;background:linear-gradient(90deg,var(--success),color-mix(in srgb,var(--success) 55%,#fff));border-radius:3px;transition:height .3s`, flowerStyle:`width:${fs}px;height:${fs}px;border-radius:50%;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--accent) 55%,#fff),var(--brand));box-shadow:0 4px 8px rgba(0,0,0,.15);transition:all .3s;margin-bottom:-3px` }; }):[];
       vals.grFieldStyle=`position:relative;min-height:340px;border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;background:linear-gradient(180deg,#dff0ff 0%,#eafaf0 55%,#eaddc6 55%,#eaddc6 100%)`;
       vals.grMood='happy';
-      vals.grOverlayTitle='Typing Garden';
-      vals.grOverlayText='A calm, no-timer garden. Each word you finish helps a plant grow \u2014 fill three to make it bloom.';
+      vals.grOverlayTitle=T.ov_garden_title;
+      vals.grOverlayText=T.ov_garden_idle_txt;
 
       // word ladder
       const wl=s.ladder;
       vals.isLadder=s.game==='ladder';
-      vals.wlIdle=!wl||!wl.running; vals.wlStart=()=>this._startLadder(false); vals.wlBtn=(wl&&wl.running)?'Restart':'Start';
+      vals.wlIdle=!wl||!wl.running; vals.wlStart=()=>this._startLadder(false); vals.wlBtn=(wl&&wl.running)?T.restartWordG:T.startWord;
       vals.wlScore=wl?wl.score:0;
       vals.wlLivesArr=[0,1,2].map(i=>({style:(wl?i<wl.lives:true)?'color:var(--error)':'color:var(--border-2)'}));
       const wlit=(wl&&wl.running)?wl.items[wl.ci%wl.items.length]:null;
@@ -2219,8 +2441,8 @@ class Component extends DCLogic {
       vals.wlSlotStyle=`min-width:${wlit?Math.max(wlit.ans.length*18,60):60}px;padding:4px 12px;border-bottom:3px solid var(--brand);font-family:'JetBrains Mono';font-weight:800;font-size:26px;color:var(--brand-ink);text-align:center`;
       vals.wlFieldStyle=`position:relative;min-height:300px;border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:44px;background:radial-gradient(circle at 50% 20%,color-mix(in srgb,var(--f3) 16%,var(--surface)),var(--surface) 72%)`;
       vals.wlMood=(wl&&wl.over)?'encouraging':'happy';
-      vals.wlOverlayTitle=(wl&&wl.over)?`Score ${wl.score}`:'Word Ladder';
-      vals.wlOverlayText=(wl&&wl.over)?'Fill the blank with the word that fits. Play again?':'Read the sentence and type the missing word, then it locks in. Light reading practice on top of typing.';
+      vals.wlOverlayTitle=(wl&&wl.over)?this._fmt(T.ov_ladder_score,wl.score):T.g_ladder_t;
+      vals.wlOverlayText=(wl&&wl.over)?T.ov_ladder_over_txt:T.ov_ladder_idle_txt;
 
       // games keyboard (reacts to keypresses)
       let gAct=null;
@@ -2272,12 +2494,12 @@ class Component extends DCLogic {
     // empty states
     {
       const et=s.emptyTab;
-      vals.emptyTabs=[['nolessons','No lessons yet'],['notfound','404'],['offline','Offline']].map(([id,label])=>({label,onClick:()=>this.setState({emptyTab:id}),
+      vals.emptyTabs=[['nolessons',T.tab_nolessons],['notfound','404'],['offline',T.tab_offline]].map(([id,label])=>({label,onClick:()=>this.setState({emptyTab:id}),
         style:`border:none;cursor:pointer;font-family:'Fredoka';font-weight:600;font-size:13.5px;padding:8px 16px;border-radius:12px;${et===id?'background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)':'background:transparent;color:var(--ink-2)'}`}));
       const conf={
-        nolessons:{mood:'encouraging',code:'',big:'0',title:'No lessons completed yet',text:'Your journey starts with a single keystroke. Pick a lesson and Typo will guide your fingers.',btn:'Start your first lesson',cta:()=>this.go('lesson')},
-        notfound:{mood:'sleepy',code:'404',big:'64px',title:'This page slipped off the keyboard',text:'We couldn\u2019t find what you were looking for. Let\u2019s get you back to solid ground.',btn:'Back to home',cta:()=>this.go('hub')},
-        offline:{mood:'sleepy',code:'',big:'0',title:'You\u2019re offline',text:'Typo is taking a nap until your connection is back. Your progress is saved safely.',btn:'Try again',cta:()=>this.setState({emptyTab:'nolessons'})}
+        nolessons:{mood:'encouraging',code:'',big:'0',title:T.e_nolessons_t,text:T.e_nolessons_x,btn:T.e_nolessons_b,cta:()=>this.go('lesson')},
+        notfound:{mood:'sleepy',code:'404',big:'64px',title:T.e_notfound_t,text:T.e_notfound_x,btn:T.e_notfound_b,cta:()=>this.go('hub')},
+        offline:{mood:'sleepy',code:'',big:'0',title:T.e_offline_t,text:T.e_offline_x,btn:T.e_offline_b,cta:()=>this.setState({emptyTab:'nolessons'})}
       }[et];
       vals.emptyMood=conf.mood; vals.emptyCode=conf.code; vals.emptyBig=conf.big;
       vals.emptyTitle=conf.title; vals.emptyText=conf.text; vals.emptyBtn=conf.btn; vals.emptyCta=conf.cta;
