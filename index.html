@@ -1112,10 +1112,15 @@ class Component extends DCLogic {
       if(navigator.keyboard && navigator.keyboard.getLayoutMap){
         const map = await navigator.keyboard.getLayoutMap();
         const L = this._layoutFromMap(map);
-        if(L) this._applyLayout(L);
+        // Act ONLY when getLayoutMap's reading actually changes. On Windows it often
+        // returns the layout that was active at page load and never updates — if we
+        // acted on every poll it would keep reverting to that stale layout and fight
+        // the produced-character detection (the "typing Cyrillic kicks me to English" bug).
+        if(L && L!==this._lastMapLayout){ this._lastMapLayout=L; this._applyLayout(L,'map'); }
       }
     }catch(e){}
   }
+  _sameScript(a,b){ const cyr=x=>x==='uk'||x==='ru'; return a===b || (cyr(a)&&cyr(b)); }
   // getLayoutMap() usually only refreshes right after the page processes a keyboard
   // event, so a plain OS layout switch (Shift+Alt / ⌘+Space) with no typing is invisible
   // to the interval poll. Fire a short burst of polls right after a modifier keyup —
@@ -1125,10 +1130,15 @@ class Component extends DCLogic {
     [0,120,300,600,1000].forEach(d=>setTimeout(()=>{ if(this.state.layoutAuto) this._pollLayout(); }, d));
   }
   // Apply a detected layout: switch typing content and rebuild the current typing screen.
-  _applyLayout(code){
+  // src: 'key' = derived from a character the user actually typed (ground truth);
+  //      'map' = derived from navigator.keyboard.getLayoutMap() (best-effort, can be stale).
+  _applyLayout(code, src){
     if(!this.state.layoutAuto) return false;
     if(code==='cyr') code = (this.state.lang==='ru')?'ru':'uk';
     if(!code || code===this.state.lang) return false;
+    // The layout map must never override what the user is actively typing: if a keystroke
+    // set a different-script layout in the last few seconds, ignore a conflicting map reading.
+    if(src==='map' && this._lastKeyAt && (Date.now()-this._lastKeyAt < 4000) && !this._sameScript(code, this.state.lang)) return false;
     this.setState({lang:code}, ()=>{ this._savePrefs(); this._rebuildForLayout(); });
     return true;
   }
@@ -1441,11 +1451,14 @@ class Component extends DCLogic {
 
   _onKey(e){
     const s = this.state;
-    // auto-follow the system keyboard layout from the character actually produced
+    // auto-follow the system keyboard layout from the character actually produced.
+    // This is ground truth (it's literally what the user typed) and wins over getLayoutMap.
     if(s.layoutAuto && e.key && e.key.length===1 && (this._isTypingScreen(s.screen) || s.screen==='game')){
-      const L=this._layoutFromChar(e.key);
-      if(L && L!==s.lang && !(L==='cyr' && /^(uk|ru)$/.test(s.lang))){
-        if(this._applyLayout(L)){ e.preventDefault(); return; }
+      let L=this._layoutFromChar(e.key);
+      if(L){
+        if(L==='cyr') L=(s.lang==='ru')?'ru':'uk'; // ambiguous Cyrillic → keep current Cyrillic (default uk)
+        this._lastKeyAt=Date.now();
+        if(L!==s.lang){ if(this._applyLayout(L,'key')){ e.preventDefault(); return; } }
       }
     }
     if(s.screen==='game' && e.key.length===1){ this._gkey=e.key.toLowerCase(); this._gkeyT=Date.now(); }
