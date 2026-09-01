@@ -75,6 +75,91 @@
     }
   });
 })();
+/* First-run guided tour with the Typo mascot. Self-contained overlay engine; the DC app
+   calls window.TypTapTour.start(steps, opts). Targets are located via [data-tour] selectors
+   and positioned with getBoundingClientRect, so it is decoupled from the DC template. */
+(function(){
+  var MASCOT='<svg viewBox="0 0 120 120" width="52" height="52" xmlns="http://www.w3.org/2000/svg"><rect x="52" y="12" width="16" height="22" rx="6" fill="#FB7A2A"/><rect x="18" y="30" width="84" height="74" rx="24" fill="#FB7A2A"/><circle cx="45" cy="62" r="7" fill="#241E1B"/><circle cx="75" cy="62" r="7" fill="#241E1B"/><path d="M45 80 q15 13 30 0" stroke="#241E1B" stroke-width="5" fill="none" stroke-linecap="round"/></svg>';
+  var root=null, steps=[], idx=0, opts=null, onKey=null, onResize=null;
+  function q(s){ return root.querySelector(s); }
+  function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+  function render(){
+    var step=steps[idx], vw=window.innerWidth, vh=window.innerHeight;
+    var target=step.sel?document.querySelector(step.sel):null;
+    var rect=target?target.getBoundingClientRect():null;
+    if(rect && (rect.width<=0||rect.height<=0)) rect=null;
+    q('.tt-tour-dim').style.background = rect?'transparent':'rgba(0,0,0,.55)';
+    var spot=q('.tt-tour-spot');
+    if(rect){ var p=8; spot.style.display='block'; spot.style.left=(rect.left-p)+'px'; spot.style.top=(rect.top-p)+'px'; spot.style.width=(rect.width+p*2)+'px'; spot.style.height=(rect.height+p*2)+'px'; }
+    else spot.style.display='none';
+    q('.tt-tour-title').textContent=step.title||'';
+    q('.tt-tour-body').textContent=step.body||'';
+    q('.tt-tour-count').textContent=(idx+1)+' / '+steps.length;
+    q('.tt-tour-back').style.visibility=idx>0?'visible':'hidden';
+    q('.tt-tour-next').textContent=(idx===steps.length-1)?(opts.labels.done||'Done'):(opts.labels.next||'Next');
+    var card=q('.tt-tour-card'); card.style.visibility='hidden';
+    requestAnimationFrame(function(){
+      var cw=card.offsetWidth, ch=card.offsetHeight, m=16, left, top;
+      if(rect){
+        if((vw-rect.right)>cw+m+8 && rect.width<vw*0.5){ left=rect.right+m; top=clamp(rect.top,m,vh-ch-m); }
+        else if((vh-rect.bottom)>ch+m){ top=rect.bottom+m; left=clamp(rect.left,m,vw-cw-m); }
+        else { top=clamp(rect.top-ch-m,m,vh-ch-m); left=clamp(rect.left,m,vw-cw-m); }
+      } else { left=(vw-cw)/2; top=(vh-ch)/2; }
+      card.style.left=left+'px'; card.style.top=top+'px'; card.style.visibility='visible';
+    });
+  }
+  function next(){ if(idx<steps.length-1){ idx++; render(); } else finish(true); }
+  function back(){ if(idx>0){ idx--; render(); } }
+  function stop(){
+    if(onKey) window.removeEventListener('keydown', onKey, true);
+    if(onResize){ window.removeEventListener('resize', onResize); window.removeEventListener('scroll', onResize, true); }
+    if(root && root.parentNode) root.parentNode.removeChild(root); root=null;
+  }
+  function finish(done){ var cb=opts&&opts.onDone; stop(); if(cb) cb(!!done); }
+  window.TypTapTour={
+    start:function(s,o){
+      if(root) stop();
+      steps=s||[]; idx=0; opts=o||{}; opts.labels=opts.labels||{};
+      if(!steps.length) return;
+      root=document.createElement('div');
+      root.className='tt-tour';
+      root.style.cssText='position:fixed;inset:0;z-index:9999;font-family:Nunito,system-ui,sans-serif';
+      root.innerHTML=
+        '<div class="tt-tour-dim" style="position:fixed;inset:0;pointer-events:auto"></div>'+
+        '<div class="tt-tour-spot" style="position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(0,0,0,.55);pointer-events:none"></div>'+
+        '<div class="tt-tour-card" style="position:fixed;width:320px;max-width:calc(100vw - 32px);background:var(--surface,#fff);color:var(--ink,#241e1b);border:1px solid var(--border,#eee);border-radius:18px;box-shadow:0 14px 44px rgba(0,0,0,.28);padding:18px">'+
+          '<div style="display:flex;gap:12px;align-items:flex-start">'+
+            '<div style="flex:none">'+MASCOT+'</div>'+
+            '<div style="flex:1;min-width:0">'+
+              '<div class="tt-tour-title" style="font-family:Fredoka,sans-serif;font-weight:600;font-size:18px;line-height:1.2"></div>'+
+              '<div class="tt-tour-body" style="font-size:13.5px;color:var(--ink-2,#555);font-weight:600;line-height:1.5;margin-top:6px"></div>'+
+            '</div>'+
+          '</div>'+
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px">'+
+            '<span class="tt-tour-count" style="font-size:12px;font-weight:800;color:var(--muted,#999)"></span>'+
+            '<div style="display:flex;gap:8px">'+
+              '<button class="tt-tour-skip" style="border:none;background:transparent;color:var(--muted,#999);font-weight:800;font-size:13px;cursor:pointer;padding:8px 10px;border-radius:11px"></button>'+
+              '<button class="tt-tour-back" style="border:1px solid var(--border,#ddd);background:var(--surface,#fff);color:var(--ink,#222);font-weight:800;font-size:13px;cursor:pointer;padding:8px 12px;border-radius:11px"></button>'+
+              '<button class="tt-tour-next" style="border:none;background:var(--brand,#FB7A2A);color:#fff;font-weight:800;font-size:13px;cursor:pointer;padding:8px 16px;border-radius:11px;box-shadow:0 3px 0 var(--brand-ink,#c85a15)"></button>'+
+            '</div>'+
+          '</div>'+
+        '</div>';
+      document.body.appendChild(root);
+      q('.tt-tour-skip').textContent=opts.labels.skip||'Skip';
+      q('.tt-tour-back').textContent=opts.labels.back||'Back';
+      q('.tt-tour-skip').onclick=function(){ finish(false); };
+      q('.tt-tour-back').onclick=back;
+      q('.tt-tour-next').onclick=next;
+      q('.tt-tour-dim').onclick=function(e){ e.stopPropagation(); };
+      onKey=function(e){ if(e.key==='Escape'){e.preventDefault();e.stopPropagation();finish(false);} else if(e.key==='Enter'||e.key==='ArrowRight'){e.preventDefault();e.stopPropagation();next();} else if(e.key==='ArrowLeft'){e.preventDefault();e.stopPropagation();back();} };
+      window.addEventListener('keydown', onKey, true);
+      onResize=function(){ if(root) render(); };
+      window.addEventListener('resize', onResize); window.addEventListener('scroll', onResize, true);
+      render();
+    },
+    stop:stop
+  };
+})();
 </script>
 </head>
 <body>
@@ -194,12 +279,12 @@
       <div><div style="font-family:'Fredoka';font-weight:600;font-size:21px;line-height:1;color:var(--ink)">TypTap</div><div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.03em;margin-top:3px">{{ t.brandSub }}</div></div>
     </div>
     <sc-for list="{{ nav }}" as="item" hint-placeholder-count="6">
-      <div onClick="{{ item.onClick }}" class="tt-navitem" role="button" tabindex="0" data-kbclick="" style="{{ item.style }}">
+      <div onClick="{{ item.onClick }}" class="tt-navitem" role="button" tabindex="0" data-kbclick="" data-tour="{{ item.sc }}" style="{{ item.style }}">
         <span style="{{ item.badgeStyle }}"><i class="{{ item.icon }}"></i></span>
         <span class="tt-navtext" style="flex:1">{{ item.label }}</span>
       </div>
     </sc-for>
-    <div class="tt-profile" style="position:relative;margin-top:auto">
+    <div class="tt-profile" data-tour="profile" style="position:relative;margin-top:auto">
       <sc-if value="{{ profileMenu }}" hint-placeholder-val="{{ false }}">
         <div style="position:absolute;bottom:calc(100% + 8px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:6px;z-index:40">
           <div style="padding:8px 12px;font-size:12px;color:var(--muted);font-weight:700">{{ t.profile }}: <b style="color:var(--ink)">{{ nickname }}</b></div>
@@ -228,6 +313,7 @@
           <button onClick="{{ u.onClick }}" style="{{ u.style }}">{{ u.short }}</button>
         </sc-for>
       </div>
+      <button onClick="{{ startTour }}" title="{{ t.tour_help }}" aria-label="{{ t.tour_help }}" style="width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-circle-question"></i></button>
       <button onClick="{{ toggleTheme }}" title="Theme" style="width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center"><i class="{{ themeIcon }}"></i></button>
     </header>
 
@@ -248,7 +334,7 @@
       <!-- ==================== HUB ==================== -->
       <sc-if value="{{ isHub }}" hint-placeholder-val="{{ true }}">
       <div style="max-width:1320px;margin:0 auto;padding:34px 40px 60px;animation:tt-fade .4s">
-        <div class="tt-hero" style="display:grid;grid-template-columns:1.35fr 1fr;gap:22px;align-items:stretch">
+        <div class="tt-hero" data-tour="hero" style="display:grid;grid-template-columns:1.35fr 1fr;gap:22px;align-items:stretch">
           <div style="background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);border-radius:var(--r-xl);padding:34px 34px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow)">
             <div style="position:relative;z-index:2;max-width:62%">
               <div style="font-size:13px;font-weight:800;letter-spacing:.05em;opacity:.9;text-transform:uppercase">{{ t.dailyGoal }} · {{ dailyDone }}/{{ dailyTotal }} {{ t.minUnit }}</div>
@@ -328,7 +414,7 @@
             </div>
           </sc-for>
         </div>
-        <button onClick="{{ goLesson }}" style="width:100%;margin-top:26px;border:none;background:var(--brand);color:#fff;font-family:'Fredoka';font-weight:600;font-size:19px;padding:16px;border-radius:18px;box-shadow:0 5px 0 var(--brand-ink);cursor:pointer">{{ t.startTyping }} <i class="fa-solid fa-arrow-right"></i></button>
+        <button onClick="{{ onboardStart }}" style="width:100%;margin-top:26px;border:none;background:var(--brand);color:#fff;font-family:'Fredoka';font-weight:600;font-size:19px;padding:16px;border-radius:18px;box-shadow:0 5px 0 var(--brand-ink);cursor:pointer">{{ t.startTyping }} <i class="fa-solid fa-arrow-right"></i></button>
       </div>
       </sc-if>
 
@@ -1154,7 +1240,7 @@ class Component extends DCLogic {
     const completed={}; ['en-0-0','en-0-1','en-0-2','en-1-0','en-1-1','en-1-2','en-1-3','en-2-0','en-2-1'].forEach(k=>completed[k]=true);
     return { sessions, bestRace:38, streak:{count:12,last:today.toISOString().slice(0,10)}, completed, xp:2450, seeded:true };
   }
-  _blank(){ return {sessions:[],bestRace:0,streak:{count:0,last:null},completed:{},xp:0,created:Date.now()}; }
+  _blank(){ return {sessions:[],bestRace:0,streak:{count:0,last:null},completed:{},xp:0,created:Date.now(),tourDone:false}; }
   // _save = локально (мгновенно, офлайн-основа) + пуш на сервер (дебаунс внутри TypTapSync).
   _save(){ this._saveLocal(); if(window.TypTapSync && this.pdata.current && this.store){ try{ window.TypTapSync.saveProfile(this.pdata.current, this.store); }catch(e){} } }
   // _saveLocal НЕ трогать: на нём завязана вся офлайн-работа (и он используется в _syncPullProfile, чтобы не зациклить пуш).
@@ -1425,6 +1511,15 @@ class Component extends DCLogic {
       badgeDrill:'🎯 DRILL', badgeLesson:'📖 LESSON', backWord:'Back', prevWord:'Prev', levelsWord:'Levels', nextWord:'Next', restartWord:'Restart', seeResults:'See results',
       st_speed:'Speed', st_accuracy:'Accuracy', st_errors:'Errors', wpmUnit:' wpm',
       courseMode:'Course mode', adaptivePractice:'Adaptive practice', weakKeyPractice:'Weak-key practice: ', adaptiveFrom:'Adaptive · pulled from your recent misses', adaptiveType:'Adaptive · type more to personalise this', targetWpmSuffix:' · target % wpm', lessonWordCap:'Lesson', lessonDash:' — lesson ', examStart:'Exam', examStop:'Show keys',
+      tour_help:'Help / tour', tour_next:'Next', tour_back:'Back', tour_skip:'Skip', tour_done_btn:'Start',
+      tour_welcome_t:"Hi, I'm Typo! 👋", tour_welcome_b:'Let me show you around in a few quick steps.',
+      tour_lessons_t:'Lessons', tour_lessons_b:'A structured course, step by step — from the home row to pro speed. Keys unlock as you progress.',
+      tour_drill_t:'Drills', tour_drill_b:'Adaptive practice that focuses on the keys you miss most.',
+      tour_games_t:'Games', tour_games_b:'16 mini-games to build speed while having fun.',
+      tour_lb_t:'Leaderboard', tour_lb_b:'See how you rank against typists around the world.',
+      tour_type_t:'How typing works', tour_type_b:'Type the text on screen — key colors show which finger to use. In a lesson, tap “Exam” to hide the keyboard and test yourself.',
+      tour_profile_t:'Your progress', tour_profile_b:'Your nickname, streak and stats live here — saved automatically.',
+      tour_done_t:"You're all set! 🚀", tour_done_b:"Let's start your first lesson.",
       // results
       h_pb:'New personal best!', h_brilliant:'Brilliant!', h_nice:'Nicely done!', h_good:'Good progress!',
       msg_needTarget:'You need % WPM to clear this level — you hit %. So close, run it again!', msg_pb:'Your fastest run yet at % WPM. Typo is proud of you.', msg_flawless:'Almost flawless — that muscle memory is really setting in.', msg_keepGoing:"Keep going — a little more practice on your weak keys and you’ll fly.",
@@ -1485,6 +1580,15 @@ class Component extends DCLogic {
       badgeDrill:'🎯 ТРЕНУВАННЯ', badgeLesson:'📖 УРОК', backWord:'Назад', prevWord:'Попередній', levelsWord:'Рівні', nextWord:'Далі', restartWord:'Заново', seeResults:'Побачити результат',
       st_speed:'Швидкість', st_accuracy:'Точність', st_errors:'Помилки', wpmUnit:' зн/хв',
       courseMode:'Курс', adaptivePractice:'Адаптивна практика', weakKeyPractice:'Слабкі клавіші: ', adaptiveFrom:'Адаптивно · за твоїми останніми помилками', adaptiveType:'Адаптивно · друкуй більше, щоб персоналізувати', targetWpmSuffix:' · ціль % зн/хв', lessonWordCap:'Урок', lessonDash:' — урок ', examStart:'Залік', examStop:'Показати клавіші',
+      tour_help:'Довідка / тур', tour_next:'Далі', tour_back:'Назад', tour_skip:'Пропустити', tour_done_btn:'Почати',
+      tour_welcome_t:'Привіт, я Тайпо! 👋', tour_welcome_b:'Покажу за кілька кроків, що тут де.',
+      tour_lessons_t:'Уроки', tour_lessons_b:'Структурований курс крок за кроком — від опорного ряду до швидкості профі. Клавіші відкриваються поступово.',
+      tour_drill_t:'Тренування', tour_drill_b:'Адаптивна практика саме тих клавіш, де ти найчастіше помиляєшся.',
+      tour_games_t:'Ігри', tour_games_b:'16 міні-ігор, щоб нарощувати швидкість із задоволенням.',
+      tour_lb_t:'Лідери', tour_lb_b:'Дивись, яке в тебе місце серед друкарів з усього світу.',
+      tour_type_t:'Як друкувати', tour_type_b:'Друкуй текст з екрана — кольори клавіш підказують, яким пальцем. В уроці натисни «Залік», щоб сховати клавіатуру й перевірити себе.',
+      tour_profile_t:'Твій прогрес', tour_profile_b:'Тут твій нік, серія та статистика — зберігається автоматично.',
+      tour_done_t:'Готово! 🚀', tour_done_b:'Почнімо твій перший урок.',
       h_pb:'Новий особистий рекорд!', h_brilliant:'Блискуче!', h_nice:'Гарно вийшло!', h_good:'Гарний прогрес!',
       msg_needTarget:'Потрібно % ЗН/ХВ, щоб пройти рівень — у тебе %. Зовсім близько, спробуй ще!', msg_pb:'Твій найшвидший забіг — % ЗН/ХВ. Typo пишається тобою.', msg_flawless:'Майже бездоганно — м’язова пам’ять уже закріплюється.', msg_keepGoing:'Продовжуй — ще трохи практики над слабкими клавішами, і ти полетиш.',
       r_wpm:'ЗН/ХВ', r_accuracy:'Точність', r_errors:'Помилки', r_time:'Час', heatmap:'Теплокарта клавіатури', redderMore:'Червоніше = більше промахів', retryWord:'Ще раз', continueWord:'Далі',
@@ -1665,6 +1769,28 @@ class Component extends DCLogic {
     this.forceUpdate();
   }
   _finishNow(){ const s=this.state.session; if(s){ s.done=true; s._end=Date.now(); this._recordSession(this._stats()); } this._stopLoop(); this.setState({screen:'results'}); }
+  // Гайд-тур с маскотом Тайпо. Собирает шаги из словаря (i18n) и запускает
+  // вьюшку-оверлей window.TypTapTour. afterLesson=true -> по завершении/пропуску
+  // начать первый урок (сценарий первой регистрации).
+  _startTour(afterLesson){
+    const T=this._t();
+    const finishTour=(done)=>{ if(this.store){ this.store.tourDone=true; this._save(); } if(afterLesson) this.go('lesson'); };
+    if(!window.TypTapTour){ finishTour(false); return; }
+    const steps=[
+      {sel:null,                       title:T.tour_welcome_t, body:T.tour_welcome_b},
+      {sel:'[data-tour="lessons"]',    title:T.tour_lessons_t, body:T.tour_lessons_b},
+      {sel:'[data-tour="drill"]',      title:T.tour_drill_t,   body:T.tour_drill_b},
+      {sel:'[data-tour="game"]',       title:T.tour_games_t,   body:T.tour_games_b},
+      {sel:'[data-tour="leaderboard"]',title:T.tour_lb_t,      body:T.tour_lb_b},
+      {sel:'[data-tour="hero"]',       title:T.tour_type_t,    body:T.tour_type_b},
+      {sel:'[data-tour="profile"]',    title:T.tour_profile_t, body:T.tour_profile_b},
+      {sel:null,                       title:T.tour_done_t,    body:T.tour_done_b}
+    ];
+    window.TypTapTour.start(steps, {
+      labels:{next:T.tour_next, back:T.tour_back, skip:T.tour_skip, done:T.tour_done_btn},
+      onDone:finishTour
+    });
+  }
 
   _stats(){
     const s=this.state.session; if(!s || !s.startAt) return {wpm:0,acc:100,err:0,time:0,correct:0,total:0};
@@ -2081,7 +2207,7 @@ class Component extends DCLogic {
     const navActive=(k)=> (k===s.screen) || (k==='lessons'&&(s.screen==='lesson'||s.screen==='results')) || (k==='game'&&s.screen==='game');
     const nav=navDefs.map(n=>{
       const act=navActive(n.sc);
-      return { label:n.label, icon:n.icon, badge:n.badge, onClick:()=>this.go(n.sc),
+      return { label:n.label, icon:n.icon, badge:n.badge, sc:n.sc, onClick:()=>this.go(n.sc),
         badgeStyle:this._rb(act?'var(--brand)':'var(--brand-bg)', act?'#fff':'var(--brand-ink)', 30, 9)+'font-size:13px;',
         style:`display:flex;align-items:center;gap:12px;padding:9px 11px;border-radius:13px;cursor:pointer;font-weight:800;font-size:14.5px;transition:background .12s;`+(act?`background:var(--brand-bg);color:var(--brand-ink);`:`color:var(--ink-2);background:transparent;`) };
     });
@@ -2102,6 +2228,10 @@ class Component extends DCLogic {
       nav, uiLangs, t:T,
       layoutToastShow: !!s.layoutToast, layoutToastLabel: T.layoutSwitched, layoutToastName: s.layoutToast ? s.layoutToast.name : '', layoutToastAbbr: s.layoutToast ? s.layoutToast.abbr : '',
       goHome:()=>this.go('hub'), goLesson:()=>this.go('lesson'), goDrill:()=>this.go('drill'),
+      // Первый вход: показать гайд-тур с маскотом, затем начать урок. Иначе — сразу урок.
+      onboardStart:()=>{ if(this.store && !this.store.tourDone){ this.go('hub'); setTimeout(()=>this._startTour(true), 90); } else { this.go('lesson'); } },
+      // Кнопка "?" в шапке — повторно запустить тур (остаёмся на главной).
+      startTour:()=>{ this.go('hub'); setTimeout(()=>this._startTour(false), 90); },
       goLessons:()=>this.go('lessons'),
       goOnboarding:()=>this.go('onboarding'), goDashboard:()=>this.go('hub'),
       showProgress: screen==='hub',
