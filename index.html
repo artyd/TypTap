@@ -56,7 +56,7 @@
     },
     // GET /leaderboard?metric&nickname -> { metric, top, you }
     fetchLeaderboard: function(metric, nickname){
-      var q = '/leaderboard?metric=' + encodeURIComponent(metric || 'wpm');
+      var q = '/leaderboard?metric=' + encodeURIComponent(metric || 'wpm') + '&limit=100';
       if(nickname) q += '&nickname=' + encodeURIComponent(nickname);
       return req('GET', q);
     }
@@ -79,7 +79,16 @@
    calls window.TypTapTour.start(steps, opts). Targets are located via [data-tour] selectors
    and positioned with getBoundingClientRect, so it is decoupled from the DC template. */
 (function(){
-  var MASCOT='<svg viewBox="0 0 120 120" width="52" height="52" xmlns="http://www.w3.org/2000/svg"><rect x="52" y="12" width="16" height="22" rx="6" fill="#FB7A2A"/><rect x="18" y="30" width="84" height="74" rx="24" fill="#FB7A2A"/><circle cx="45" cy="62" r="7" fill="#241E1B"/><circle cx="75" cy="62" r="7" fill="#241E1B"/><path d="M45 80 q15 13 30 0" stroke="#241E1B" stroke-width="5" fill="none" stroke-linecap="round"/></svg>';
+  // Наш маскот Тайпо (тот же SVG, что в Mascot.dc.html) + набор эмоций. Живой bob-анимацией.
+  var MBASE='<ellipse cx="60" cy="110" rx="30" ry="6" fill="rgba(30,20,15,.10)"></ellipse><rect x="20" y="66" width="10" height="22" rx="5" fill="var(--brand-ink,#B24E12)" transform="rotate(18 25 77)"></rect><rect x="90" y="66" width="10" height="22" rx="5" fill="var(--brand-ink,#B24E12)" transform="rotate(-18 95 77)"></rect><rect x="42" y="96" width="14" height="14" rx="6" fill="var(--brand-ink,#B24E12)"></rect><rect x="64" y="96" width="14" height="14" rx="6" fill="var(--brand-ink,#B24E12)"></rect><rect x="22" y="24" width="76" height="74" rx="22" fill="var(--brand-ink,#B24E12)"></rect><rect x="24" y="24" width="72" height="64" rx="20" fill="var(--brand,#FB7A2A)"></rect><rect x="30" y="30" width="60" height="46" rx="15" fill="var(--brand-2,#FF9A4D)"></rect><rect x="52" y="35" width="16" height="4" rx="2" fill="rgba(255,255,255,.35)"></rect><rect x="58" y="35" width="4" height="15" rx="2" fill="rgba(255,255,255,.35)"></rect>';
+  var MOODS={
+    neutral:'<circle cx="47" cy="58" r="5.5" fill="#2A211C"></circle><circle cx="73" cy="58" r="5.5" fill="#2A211C"></circle><circle cx="49" cy="56" r="1.8" fill="#fff"></circle><circle cx="75" cy="56" r="1.8" fill="#fff"></circle><path d="M50 70 Q60 76 70 70" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path>',
+    happy:'<path d="M42 58 Q47 51 52 58" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path><path d="M68 58 Q73 51 78 58" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path><path d="M48 66 Q60 80 72 66 Z" fill="#2A211C"></path><path d="M53 73 Q60 78 67 73" fill="#F2748A"></path><path d="M18 34 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="var(--accent,#FFB020)"></path><path d="M100 44 l1.5 4 l4 1.5 l-4 1.5 l-1.5 4 l-1.5 -4 l-4 -1.5 l4 -1.5 Z" fill="var(--accent,#FFB020)"></path>',
+    encouraging:'<circle cx="47" cy="58" r="5.5" fill="#2A211C"></circle><circle cx="49" cy="56" r="1.8" fill="#fff"></circle><path d="M67 58 Q73 54 79 58" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path><path d="M50 69 Q60 75 70 69" stroke="#2A211C" stroke-width="3.5" fill="none" stroke-linecap="round"></path><circle cx="98" cy="52" r="7" fill="var(--brand-ink,#B24E12)"></circle>',
+    celebrate:'<path d="M40 55 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#2A211C"></path><path d="M78 55 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="#2A211C"></path><path d="M46 66 Q60 82 74 66 Z" fill="#2A211C"></path><path d="M52 73 Q60 78 68 73" fill="#F2748A"></path><rect x="44" y="18" width="32" height="12" rx="2" fill="var(--accent,#FFB020)" transform="rotate(-4 60 24)"></rect><path d="M46 18 l4 -8 l4 8 M56 18 l4 -9 l4 9 M66 18 l4 -8 l4 8" fill="var(--accent,#FFB020)" stroke="var(--accent,#FFB020)" stroke-width="1"></path><path d="M16 30 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z" fill="var(--accent,#FFB020)" style="animation:tt-float 2.4s ease-in-out infinite"></path><path d="M100 40 l1.8 4 l4 1.8 l-4 1.8 l-1.8 4 l-1.8 -4 l-4 -1.8 l4 -1.8 Z" fill="var(--accent,#FFB020)" style="animation:tt-float 2.8s ease-in-out infinite"></path>',
+    puzzled:'<line x1="42" y1="47" x2="53" y2="44" stroke="#2A211C" stroke-width="3" stroke-linecap="round"></line><line x1="68" y1="45" x2="79" y2="47" stroke="#2A211C" stroke-width="3" stroke-linecap="round"></line><circle cx="47" cy="58" r="5.5" fill="#2A211C"></circle><circle cx="73" cy="57" r="4" fill="#2A211C"></circle><path d="M49 71 Q56 67 62 71 Q68 75 72 71" stroke="#2A211C" stroke-width="3" fill="none" stroke-linecap="round"></path><path d="M92 34 q7 -6 10 1 q2 5 -4 7 q-3 1 -3 5" stroke="var(--ink-2,#6E625A)" stroke-width="3" fill="none" stroke-linecap="round"></path><circle cx="95" cy="55" r="1.8" fill="var(--ink-2,#6E625A)"></circle>'
+  };
+  function mascotSVG(mood){ return '<svg viewBox="0 0 120 120" style="width:100%;height:100%;overflow:visible" xmlns="http://www.w3.org/2000/svg">'+MBASE+'<g>'+(MOODS[mood]||MOODS.happy)+'</g></svg>'; }
   var root=null, steps=[], idx=0, opts=null, onKey=null, onResize=null;
   function q(s){ return root.querySelector(s); }
   function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
@@ -92,6 +101,7 @@
     var spot=q('.tt-tour-spot');
     if(rect){ var p=8; spot.style.display='block'; spot.style.left=(rect.left-p)+'px'; spot.style.top=(rect.top-p)+'px'; spot.style.width=(rect.width+p*2)+'px'; spot.style.height=(rect.height+p*2)+'px'; }
     else spot.style.display='none';
+    q('.tt-tour-mascot').innerHTML=mascotSVG(step.mood||'happy');
     q('.tt-tour-title').textContent=step.title||'';
     q('.tt-tour-body').textContent=step.body||'';
     q('.tt-tour-count').textContent=(idx+1)+' / '+steps.length;
@@ -127,12 +137,12 @@
       root.innerHTML=
         '<div class="tt-tour-dim" style="position:fixed;inset:0;pointer-events:auto"></div>'+
         '<div class="tt-tour-spot" style="position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(0,0,0,.55);pointer-events:none"></div>'+
-        '<div class="tt-tour-card" style="position:fixed;width:320px;max-width:calc(100vw - 32px);background:var(--surface,#fff);color:var(--ink,#241e1b);border:1px solid var(--border,#eee);border-radius:18px;box-shadow:0 14px 44px rgba(0,0,0,.28);padding:18px">'+
-          '<div style="display:flex;gap:12px;align-items:flex-start">'+
-            '<div style="flex:none">'+MASCOT+'</div>'+
+        '<div class="tt-tour-card" style="position:fixed;width:400px;max-width:calc(100vw - 32px);background:var(--surface,#fff);color:var(--ink,#241e1b);border:1px solid var(--border,#eee);border-radius:20px;box-shadow:0 16px 50px rgba(0,0,0,.30);padding:24px 24px 18px">'+
+          '<div style="display:flex;gap:16px;align-items:flex-start">'+
+            '<div class="tt-tour-mascot" style="flex:none;width:96px;height:96px;animation:tt-tour-bob 2.4s ease-in-out infinite"></div>'+
             '<div style="flex:1;min-width:0">'+
-              '<div class="tt-tour-title" style="font-family:Fredoka,sans-serif;font-weight:600;font-size:18px;line-height:1.2"></div>'+
-              '<div class="tt-tour-body" style="font-size:13.5px;color:var(--ink-2,#555);font-weight:600;line-height:1.5;margin-top:6px"></div>'+
+              '<div class="tt-tour-title" style="font-family:Fredoka,sans-serif;font-weight:600;font-size:22px;line-height:1.2"></div>'+
+              '<div class="tt-tour-body" style="font-size:15px;color:var(--ink-2,#555);font-weight:600;line-height:1.55;margin-top:8px"></div>'+
             '</div>'+
           '</div>'+
           '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px">'+
@@ -227,6 +237,7 @@
   /* A11y: always-visible keyboard focus ring for buttons, links and custom clickable cards. */
   :focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:10px}
   [data-kbclick]{cursor:pointer}
+  @keyframes tt-tour-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 </style>
 </helmet>
 <template id="__bundler_thumbnail" data-bg-color="#FB7A2A">
@@ -1066,6 +1077,7 @@
         </div>
 
         <div style="max-width:600px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);overflow:hidden">
+          <div style="max-height:420px;overflow-y:auto">
           <sc-for list="{{ lbList }}" as="r" hint-placeholder-count="7">
             <div style="{{ r.rowStyle }}">
               <div style="width:30px;text-align:center;font-family:'Fredoka';font-weight:600;font-size:17px;color:var(--muted)">{{ r.rank }}</div>
@@ -1074,6 +1086,7 @@
               <div style="font-family:'JetBrains Mono';font-weight:700;font-size:15px;color:var(--ink)">{{ r.val }} <span style="color:var(--muted);font-size:12px">{{ r.unit }}</span></div>
             </div>
           </sc-for>
+          </div>
           <div style="display:flex;align-items:center;gap:14px;padding:15px 18px;background:linear-gradient(90deg,var(--accent-bg),var(--brand-bg));border-top:2px dashed var(--border-2)">
             <div style="min-width:30px;text-align:center;font-family:'Fredoka';font-weight:600;font-size:15px;color:var(--brand-ink)">{{ lbYouRow.rank }}</div>
             <div style="width:38px;height:38px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;flex:none;box-shadow:0 3px 0 var(--brand-ink)">{{ lbYouRow.av }}</div>
@@ -1437,7 +1450,8 @@ class Component extends DCLogic {
       const yr=has?Math.max(11,Math.round(2500*(1-Math.min(1,uv/maxRef)))):2481;
       you={rank:'#'+yr.toLocaleString('en-US'),name:this.pdata.current||'you',av:this._ini(this.pdata.current||'?'),val:has?disp(uv):'\u2014',unit:has?unit():''};
     }
-    return {L,metric,top3:rows.slice(0,3),list:rows.slice(3,10),you};
+    // Подиум — топ-3; список — ВСЕ игроки (полная таблица), чтобы был виден весь список пользователей.
+    return {L,metric,top3:rows.slice(0,3),list:rows,you};
   }
 
   _recordSession(stat){
@@ -1782,14 +1796,14 @@ class Component extends DCLogic {
     const finishTour=(done)=>{ if(this.store){ this.store.tourDone=true; this._save(); } if(afterLesson) this.go('lesson'); };
     if(!window.TypTapTour){ finishTour(false); return; }
     const steps=[
-      {sel:null,                       title:T.tour_welcome_t, body:T.tour_welcome_b},
-      {sel:'[data-tour="lessons"]',    title:T.tour_lessons_t, body:T.tour_lessons_b},
-      {sel:'[data-tour="drill"]',      title:T.tour_drill_t,   body:T.tour_drill_b},
-      {sel:'[data-tour="game"]',       title:T.tour_games_t,   body:T.tour_games_b},
-      {sel:'[data-tour="leaderboard"]',title:T.tour_lb_t,      body:T.tour_lb_b},
-      {sel:'[data-tour="hero"]',       title:T.tour_type_t,    body:T.tour_type_b},
-      {sel:'[data-tour="profile"]',    title:T.tour_profile_t, body:T.tour_profile_b},
-      {sel:null,                       title:T.tour_done_t,    body:T.tour_done_b}
+      {sel:null,                       mood:'happy',       title:T.tour_welcome_t, body:T.tour_welcome_b},
+      {sel:'[data-tour="lessons"]',    mood:'encouraging', title:T.tour_lessons_t, body:T.tour_lessons_b},
+      {sel:'[data-tour="drill"]',      mood:'neutral',     title:T.tour_drill_t,   body:T.tour_drill_b},
+      {sel:'[data-tour="game"]',       mood:'celebrate',   title:T.tour_games_t,   body:T.tour_games_b},
+      {sel:'[data-tour="leaderboard"]',mood:'happy',       title:T.tour_lb_t,      body:T.tour_lb_b},
+      {sel:'[data-tour="hero"]',       mood:'encouraging', title:T.tour_type_t,    body:T.tour_type_b},
+      {sel:'[data-tour="profile"]',    mood:'puzzled',     title:T.tour_profile_t, body:T.tour_profile_b},
+      {sel:null,                       mood:'celebrate',   title:T.tour_done_t,    body:T.tour_done_b}
     ];
     window.TypTapTour.start(steps, {
       labels:{next:T.tour_next, back:T.tour_back, skip:T.tour_skip, done:T.tour_done_btn},
