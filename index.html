@@ -229,6 +229,8 @@
     .tt-cols4{grid-template-columns:1fr 1fr !important}
     .tt-lessons{height:auto !important;flex-direction:column !important;overflow:visible !important}
     .tt-tierlist{width:auto !important}
+    header{padding-left:10px !important;padding-right:10px !important;gap:8px !important}
+    .tt-headerchip{display:none !important}
   }
   /* A11y: respect the user's reduced-motion preference — cut confetti/sway/bob and transitions. */
   @media (prefers-reduced-motion: reduce){
@@ -260,7 +262,7 @@
   </svg>
 </template>
 
-<div data-theme="{{ theme }}" style="min-height:100vh;background:var(--bg);color:var(--ink)">
+<div data-theme="{{ theme }}" lang="{{ ui }}" style="min-height:100vh;background:var(--bg);color:var(--ink)">
 
   <!-- ============ LOGIN ============ -->
   <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
@@ -290,7 +292,7 @@
       <div><div style="font-family:'Fredoka';font-weight:600;font-size:21px;line-height:1;color:var(--ink)">TypTap</div><div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.03em;margin-top:3px">{{ t.brandSub }}</div></div>
     </div>
     <sc-for list="{{ nav }}" as="item" hint-placeholder-count="6">
-      <div onClick="{{ item.onClick }}" class="tt-navitem" role="button" tabindex="0" data-kbclick="" data-tour="{{ item.sc }}" style="{{ item.style }}">
+      <div onClick="{{ item.onClick }}" class="tt-navitem" role="button" tabindex="0" data-kbclick="" data-tour="{{ item.sc }}" aria-current="{{ item.current }}" style="{{ item.style }}">
         <span style="{{ item.badgeStyle }}"><i class="{{ item.icon }}"></i></span>
         <span class="tt-navtext" style="flex:1">{{ item.label }}</span>
       </div>
@@ -317,8 +319,8 @@
     <header style="height:64px;flex:none;border-bottom:1px solid var(--border);background:color-mix(in srgb, var(--surface) 80%, transparent);backdrop-filter:blur(8px);display:flex;align-items:center;gap:14px;padding:0 26px;position:sticky;top:0;z-index:20">
       <div style="font-family:'Fredoka';font-weight:600;font-size:19px">{{ pageTitle }}</div>
       <div style="flex:1"></div>
-      <div style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-weight:800;font-size:13px"><i class="fa-solid fa-fire" style="color:var(--brand)"></i><span>{{ streak }}</span></div>
-      <div style="display:flex;align-items:center;gap:6px;background:var(--accent-bg);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:20px;padding:6px 12px;font-weight:800;font-size:13px;color:var(--accent-ink)"><i class="fa-solid fa-bolt"></i><span>{{ xp }} XP</span></div>
+      <div class="tt-headerchip" style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-weight:800;font-size:13px"><i class="fa-solid fa-fire" style="color:var(--brand)"></i><span>{{ streak }}</span></div>
+      <div class="tt-headerchip" style="display:flex;align-items:center;gap:6px;background:var(--accent-bg);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:20px;padding:6px 12px;font-weight:800;font-size:13px;color:var(--accent-ink)"><i class="fa-solid fa-bolt"></i><span>{{ xp }} XP</span></div>
       <div style="display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px;gap:2px">
         <sc-for list="{{ uiLangs }}" as="u" hint-placeholder-count="2">
           <button onClick="{{ u.onClick }}" style="{{ u.style }}">{{ u.short }}</button>
@@ -471,7 +473,7 @@
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
           <div style="{{ modeBadgeStyle }}">{{ modeBadge }}</div>
           <div style="flex:1"><div style="font-family:'Fredoka';font-weight:600;font-size:20px">{{ sessionTitle }}</div><div style="font-size:13px;color:var(--ink-2);font-weight:600">{{ sessionSub }}</div></div>
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
             <button onClick="{{ goBack }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer"><i class="fa-solid fa-arrow-left"></i> {{ backLabel }}</button>
             <sc-if value="{{ showNext }}"><button onClick="{{ goNext }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer">{{ t.nextWord }} <i class="fa-solid fa-arrow-right"></i></button></sc-if>
             <button onClick="{{ toggleExam }}" title="{{ examBtnLabel }}" style="border:1px solid var(--border);background:{{ examBtnBg }};color:{{ examBtnColor }};font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer"><i class="{{ examBtnIcon }}"></i> {{ examBtnLabel }}</button>
@@ -1550,7 +1552,7 @@ class Component extends DCLogic {
       yourPath:'Your typing path', adaptsTo:'Beginner → pro · adapts to %', levelWord:'LEVEL', speedGated:'SPEED-GATED', statusCompleted:'Completed', statusNotStarted:'Not started', lessonN:'Lesson', targetWord:'target',
       legendRank:'Legend rank', legendNote:'+ WPM — a bonus above the human record. Real levels cap at world-class ≈150 WPM.',
       // typing
-      badgeDrill:'🎯 DRILL', badgeLesson:'📖 LESSON', badgeCustom:'📝 YOUR TEXT', backWord:'Back', prevWord:'Prev', levelsWord:'Levels', nextWord:'Next', restartWord:'Restart', seeResults:'See results',
+      badgeDrill:'🎯 DRILL', badgeLesson:'📖 LESSON', badgeCustom:'📝 YOUR TEXT', badgeExam:'🎓 EXAM', backWord:'Back', prevWord:'Prev', levelsWord:'Levels', nextWord:'Next', restartWord:'Restart', seeResults:'See results',
       mc_custom_t:'Your text', mc_custom_d:'Practice on your own text or file',
       custTitle:'Practice your own text', custSub:'Paste any text, or upload a .txt / .md file — we clean it up and turn it into a drill.', custPlaceholder:'Paste text here… (up to 5000 characters)', custUpload:'Upload .txt / .md', custCancel:'Cancel', custStart:'Start practice',
       custErrType:'Only .txt or .md files are supported.', custErrSize:'File is too large (max 100 KB).', custErrRead:'Could not read the file.', custErrEmpty:'Add at least a few characters of text first.',
@@ -1622,7 +1624,7 @@ class Component extends DCLogic {
       g_beginner_t:'Повний початківець', g_beginner_d:'Я ніколи не вчив сліпий друк', g_homerow_t:'Знаю основний ряд', g_homerow_d:'Готовий іти далі за asdf jkl;', g_speed_t:'Хочу лише швидкість', g_speed_d:'Відшліфувати ЗН/ХВ і точність',
       yourPath:'Твій шлях друку', adaptsTo:'Початківець → профі · адаптується до %', levelWord:'РІВЕНЬ', speedGated:'НА ШВИДКІСТЬ', statusCompleted:'Пройдено', statusNotStarted:'Не розпочато', lessonN:'Урок', targetWord:'ціль',
       legendRank:'Ранг легенди', legendNote:'+ ЗН/ХВ — бонус понад людський рекорд. Реальні рівні — до світового класу ≈150 ЗН/ХВ.',
-      badgeDrill:'🎯 ТРЕНУВАННЯ', badgeLesson:'📖 УРОК', badgeCustom:'📝 СВІЙ ТЕКСТ', backWord:'Назад', prevWord:'Попередній', levelsWord:'Рівні', nextWord:'Далі', restartWord:'Заново', seeResults:'Побачити результат',
+      badgeDrill:'🎯 ТРЕНУВАННЯ', badgeLesson:'📖 УРОК', badgeCustom:'📝 СВІЙ ТЕКСТ', badgeExam:'🎓 ЗАЛІК', backWord:'Назад', prevWord:'Попередній', levelsWord:'Рівні', nextWord:'Далі', restartWord:'Заново', seeResults:'Побачити результат',
       mc_custom_t:'Свій текст', mc_custom_d:'Тренуйся на власному тексті або файлі',
       custTitle:'Тренування на власному тексті', custSub:'Встав будь-який текст або завантаж файл .txt / .md — ми очистимо його й зробимо вправу.', custPlaceholder:'Встав текст сюди… (до 5000 символів)', custUpload:'Завантажити .txt / .md', custCancel:'Скасувати', custStart:'Почати',
       custErrType:'Підтримуються лише файли .txt або .md.', custErrSize:'Файл завеликий (макс. 100 КБ).', custErrRead:'Не вдалося прочитати файл.', custErrEmpty:'Спершу додай хоча б кілька символів тексту.',
@@ -1725,23 +1727,54 @@ class Component extends DCLogic {
   _startLesson(tier, idx){
     this._stopLoop();
     const gen=this._genLesson(this.state.lang, tier, idx);
-    this.setState({ screen:'lesson', currentLesson:{tier,idx,target:gen.target}, session:{ text:gen.text, i:0, marks:[], typed:[], errors:0, startAt:0, done:false, mode:'lesson', flash:0, keyErr:{}, tier, idx } }, ()=>{
+    // Последний урок каждого тира = ЗАЛІК: клавиатура и подсказка следующей клавиши
+    // скрыты по умолчанию (проверка вслепую). Остальные уроки — с подсказкой.
+    const isExam = idx === (this.TIERS[tier].lessons-1);
+    this.setState({ screen:'lesson', examMode:isExam, currentLesson:{tier,idx,target:gen.target,exam:isExam}, session:{ text:gen.text, i:0, marks:[], typed:[], errors:0, startAt:0, done:false, mode:'lesson', flash:0, keyErr:{}, tier, idx } }, ()=>{
       this._startLoop(()=>this.setState(s=>({tick:s.tick+1})), 350);
     });
+  }
+  // Старт по выбранной на онбординге цели: скорость -> скоростной тир, «знаю ряд» -> опорный ряд.
+  _goalStart(){
+    const g=this.state.goal;
+    if(g==='speed') return this._startLesson(9,0);       // «Нарощення швидкості» (цели ЗН/ХВ)
+    if(g==='homerow') return this._startLesson(1,0);      // опорный ряд
+    const n=this._nextLesson(); this._startLesson(n.tier,n.idx);
+  }
+  // Набор символов, которые ученик уже «открыл» (по пройденным тирам). Домашний
+  // ряд доступен всегда; верхний/нижний ряды и цифры — после прохождения их тиров.
+  _unlockedChars(lang){
+    const D=this.LANGDATA[lang]||this.LANGDATA.en;
+    const comp=(this.store&&this.store.completed)||{};
+    let maxT=-1;
+    for(const k in comp){ const p=k.split('-'); if(p[0]===lang){ const t=parseInt(p[1],10); if(!isNaN(t)&&t>maxT) maxT=t; } }
+    let chars=D.home;                 // тиры 0/1 — опорный ряд
+    if(maxT>=2) chars+=D.top;          // тир 2 — верхний ряд
+    if(maxT>=3) chars+=D.bottom;       // тир 3 — нижний ряд
+    if(maxT>=4) chars+='1234567890';   // тир 4 — цифры
+    return new Set(chars.toLowerCase().split(''));
   }
   _startDrill(){
     this._stopLoop();
     const lang=this.state.lang;
     const D=this.LANGDATA[lang]||this.LANGDATA.en;
-    const wk=this._weakKeys().map(e=>e[0].toLowerCase());
+    const allowed=this._unlockedChars(lang);
+    const inAllowed=(w)=>[...w.toLowerCase()].every(c=>allowed.has(c));
+    const learned=D.words.filter(inAllowed);          // слова только из изученных символов
+    const enough=learned.length>=4;
+    const wk=this._weakKeys().map(e=>e[0].toLowerCase()).filter(c=>allowed.has(c));
     let text;
-    if(wk.length){
+    if(wk.length && enough){
       const focus=wk.slice(0,4);
-      const words=D.words.filter(w=>focus.some(k=>w.includes(k)));
-      const bank = words.length>=4?words:D.words;
-      text = this._groups(focus.join(''), 8, 3)+' '+this._pickWords(bank, 10);
+      const words=learned.filter(w=>focus.some(k=>w.includes(k)));
+      const bank=words.length>=4?words:learned;
+      text=this._groups(focus.join(''), 8, 3)+' '+this._pickWords(bank, 10);
+    } else if(enough){
+      text=this._groups(D.home, 8, 3)+' '+this._pickWords(learned, 8);
     } else {
-      text = this._groups(D.home, 8, 3)+' '+this._pickWords(D.words, 8);
+      // Новичок: только гаммы из уже открытых рядов, без «взрослых» слов.
+      const rowChars=[...allowed].join('')||D.home;
+      text=this._groups(rowChars, 12, 3);
     }
     this.setState({ screen:'drill', currentLesson:null, session:{ text, i:0, marks:[], typed:[], errors:0, startAt:0, done:false, mode:'drill', flash:0, keyErr:{}, focus:wk.slice(0,4) } }, ()=>{
       this._startLoop(()=>this.setState(s=>({tick:s.tick+1})), 350);
@@ -1860,7 +1893,7 @@ class Component extends DCLogic {
   // начать первый урок (сценарий первой регистрации).
   _startTour(afterLesson){
     const T=this._t();
-    const finishTour=(done)=>{ if(this.store){ this.store.tourDone=true; this._save(); } if(afterLesson) this.go('lesson'); };
+    const finishTour=(done)=>{ if(this.store){ this.store.tourDone=true; this._save(); } if(afterLesson) this._goalStart(); };
     if(!window.TypTapTour){ finishTour(false); return; }
     const steps=[
       {sel:null,                       mood:'happy',       title:T.tour_welcome_t, body:T.tour_welcome_b},
@@ -2296,7 +2329,7 @@ class Component extends DCLogic {
     const navActive=(k)=> (k===s.screen) || (k==='lessons'&&(s.screen==='lesson'||s.screen==='results')) || (k==='game'&&s.screen==='game');
     const nav=navDefs.map(n=>{
       const act=navActive(n.sc);
-      return { label:n.label, icon:n.icon, badge:n.badge, sc:n.sc, onClick:()=>this.go(n.sc),
+      return { label:n.label, icon:n.icon, badge:n.badge, sc:n.sc, current:act?'page':'false', onClick:()=>this.go(n.sc),
         badgeStyle:this._rb(act?'var(--brand)':'var(--brand-bg)', act?'#fff':'var(--brand-ink)', 30, 9)+'font-size:13px;',
         style:`display:flex;align-items:center;gap:12px;padding:9px 11px;border-radius:13px;cursor:pointer;font-weight:800;font-size:14.5px;transition:background .12s;`+(act?`background:var(--brand-bg);color:var(--brand-ink);`:`color:var(--ink-2);background:transparent;`) };
     });
@@ -2318,7 +2351,7 @@ class Component extends DCLogic {
       layoutToastShow: !!s.layoutToast, layoutToastLabel: T.layoutSwitched, layoutToastName: s.layoutToast ? s.layoutToast.name : '', layoutToastAbbr: s.layoutToast ? s.layoutToast.abbr : '',
       goHome:()=>this.go('hub'), goLesson:()=>this.go('lesson'), goDrill:()=>this.go('drill'),
       // Первый вход: показать гайд-тур с маскотом, затем начать урок. Иначе — сразу урок.
-      onboardStart:()=>{ if(this.store && !this.store.tourDone){ this.go('hub'); setTimeout(()=>this._startTour(true), 90); } else { this.go('lesson'); } },
+      onboardStart:()=>{ if(this.store && !this.store.tourDone){ this.go('hub'); setTimeout(()=>this._startTour(true), 90); } else { this._goalStart(); } },
       // Кнопка "?" в шапке — повторно запустить тур (остаёмся на главной).
       startTour:()=>{ this.go('hub'); setTimeout(()=>this._startTour(false), 90); },
       goLessons:()=>this.go('lessons'),
@@ -2450,8 +2483,9 @@ class Component extends DCLogic {
         const isCustom=ses.mode==='custom';
         const alt=isDrill||isCustom;
         const stat=this._stats();
-        vals.modeColor=alt?'var(--accent)':'var(--brand)';
-        vals.modeBadge=isCustom?T.badgeCustom:(isDrill?T.badgeDrill:T.badgeLesson);
+        const examLesson = !alt && !!(s.currentLesson && s.currentLesson.exam);
+        vals.modeColor=alt?'var(--accent)':(examLesson?'var(--f4)':'var(--brand)');
+        vals.modeBadge=isCustom?T.badgeCustom:(isDrill?T.badgeDrill:(examLesson?T.badgeExam:T.badgeLesson));
         vals.modeBadgeStyle=`font-family:'Fredoka';font-weight:600;font-size:13px;letter-spacing:.03em;padding:7px 14px;border-radius:12px;color:#fff;background:${alt?'var(--accent)':'var(--brand)'};box-shadow:0 3px 0 ${alt?'var(--accent-ink)':'var(--brand-ink)'}`;
         const cl=s.currentLesson; const clTier=cl?this.TIERS[cl.tier]:null;
         vals.showNext = !alt && !!cl;
