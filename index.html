@@ -466,6 +466,25 @@
       </div>
       </sc-if>
 
+      <!-- ==================== CUSTOM TEXT (own-text mode landing) ==================== -->
+      <sc-if value="{{ isCustomLanding }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:640px;margin:0 auto;padding:30px 30px 60px;animation:tt-fade .35s">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+          <div style="width:52px;height:52px;flex:none;border-radius:16px;background:var(--brand-bg);color:var(--brand-ink);display:flex;align-items:center;justify-content:center;font-size:22px"><i class="fa-solid fa-file-import"></i></div>
+          <div><div style="font-family:'Fredoka';font-weight:600;font-size:26px">{{ t.custTitle }}</div><div style="color:var(--ink-2);font-weight:600;font-size:14px">{{ t.custSub }}</div></div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);padding:22px">
+          <textarea value="{{ customText }}" onChange="{{ onCustomInput }}" placeholder="{{ t.custPlaceholder }}" aria-label="{{ t.custTitle }}" style="width:100%;box-sizing:border-box;height:180px;resize:vertical;border:2px solid var(--border);background:var(--surface-2);color:var(--ink);font-family:'Nunito';font-weight:700;font-size:15px;line-height:1.55;padding:12px 14px;border-radius:14px;outline:none" style-focus="border-color:var(--brand)"></textarea>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:12px;flex-wrap:wrap">
+            <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;font-size:13px;color:var(--brand-ink);background:var(--brand-bg);border:1px solid color-mix(in srgb,var(--brand) 30%,var(--border));padding:9px 14px;border-radius:12px"><i class="fa-solid fa-upload"></i> {{ t.custUpload }}<input type="file" accept=".txt,.md,text/plain,text/markdown" onChange="{{ onCustomFile }}" style="display:none"/></label>
+            <span style="font-size:12px;font-weight:700;color:var(--muted)">{{ customCharCount }}/5000</span>
+          </div>
+          <sc-if value="{{ customError }}" hint-placeholder-val="{{ false }}"><div style="margin-top:14px;color:var(--error-ink);background:var(--error-bg);border:1px solid color-mix(in srgb,var(--error) 30%,var(--border));padding:10px 12px;border-radius:12px;font-weight:700;font-size:13px"><i class="fa-solid fa-triangle-exclamation"></i> {{ customError }}</div></sc-if>
+          <button onClick="{{ startCustom }}" style="width:100%;margin-top:18px;border:none;background:var(--brand);color:#fff;font-family:'Fredoka';font-weight:600;font-size:17px;padding:15px;border-radius:16px;box-shadow:0 4px 0 var(--brand-ink);cursor:pointer">{{ t.custStart }} <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+      </sc-if>
+
       <!-- ==================== LESSON / DRILL (shared typing surface) ==================== -->
       <sc-if value="{{ isTyping }}" hint-placeholder-val="{{ true }}">
       <div style="max-width:1200px;margin:0 auto;padding:26px 40px 50px;animation:tt-fade .35s">
@@ -1136,25 +1155,6 @@
   </div>
   </sc-if>
 
-  <!-- ==================== CUSTOM TEXT / FILE IMPORT MODAL ==================== -->
-  <sc-if value="{{ customModalOpen }}" hint-placeholder-val="{{ false }}">
-  <div onClick="{{ closeCustom }}" style="position:fixed;inset:0;z-index:80;background:rgba(36,30,27,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;animation:tt-fade .2s">
-    <div onClick="{{ stopProp }}" role="dialog" aria-modal="true" style="width:100%;max-width:540px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow);padding:24px;animation:tt-pop .3s">
-      <div style="font-family:'Fredoka';font-weight:600;font-size:22px;margin-bottom:4px">{{ t.custTitle }}</div>
-      <div style="color:var(--ink-2);font-weight:600;font-size:13.5px;margin-bottom:16px">{{ t.custSub }}</div>
-      <textarea value="{{ customText }}" onChange="{{ onCustomInput }}" placeholder="{{ t.custPlaceholder }}" aria-label="{{ t.custTitle }}" style="width:100%;box-sizing:border-box;height:150px;resize:vertical;border:2px solid var(--border);background:var(--surface-2);color:var(--ink);font-family:'Nunito';font-weight:700;font-size:15px;line-height:1.5;padding:12px 14px;border-radius:14px;outline:none" style-focus="border-color:var(--brand)"></textarea>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:12px;flex-wrap:wrap">
-        <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;font-size:13px;color:var(--brand-ink);background:var(--brand-bg);border:1px solid color-mix(in srgb,var(--brand) 30%,var(--border));padding:9px 14px;border-radius:12px"><i class="fa-solid fa-upload"></i> {{ t.custUpload }}<input type="file" accept=".txt,.md,text/plain,text/markdown" onChange="{{ onCustomFile }}" style="display:none"/></label>
-        <span style="font-size:12px;font-weight:700;color:var(--muted)">{{ customCharCount }}/5000</span>
-      </div>
-      <sc-if value="{{ customError }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px;color:var(--error-ink);background:var(--error-bg);border:1px solid color-mix(in srgb,var(--error) 30%,var(--border));padding:10px 12px;border-radius:12px;font-weight:700;font-size:13px"><i class="fa-solid fa-triangle-exclamation"></i> {{ customError }}</div></sc-if>
-      <div style="display:flex;gap:10px;margin-top:18px">
-        <button onClick="{{ closeCustom }}" style="flex:1;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-family:'Fredoka';font-weight:600;font-size:16px;padding:13px;border-radius:15px;cursor:pointer">{{ t.custCancel }}</button>
-        <button onClick="{{ startCustom }}" style="flex:1.4;border:none;background:var(--brand);color:#fff;font-family:'Fredoka';font-weight:600;font-size:16px;padding:13px;border-radius:15px;box-shadow:0 4px 0 var(--brand-ink);cursor:pointer">{{ t.custStart }} <i class="fa-solid fa-arrow-right"></i></button>
-      </div>
-    </div>
-  </div>
-  </sc-if>
   </div>
   </sc-if>
 </div>
@@ -1264,7 +1264,7 @@ class Component extends DCLogic {
     if(this._layoutTimer) clearInterval(this._layoutTimer);
     this._stopLoop();
   }
-  _isTypingScreen(s){ return s==='lesson'||s==='drill'; }
+  _isTypingScreen(s){ return s==='lesson'||s==='drill'||(s==='custom' && !!(this.state.session && !this.state.session.done)); }
 
   // ---------- persistence (nickname profiles) ----------
   _loadProfiles(){
@@ -1504,6 +1504,8 @@ class Component extends DCLogic {
     if(screen==='lesson'){ const n=this._nextLesson(); this._startLesson(n.tier,n.idx); return; }
     if(screen==='drill'){ this.setState({screen:'drill'}, ()=>this._startDrill()); return; }
     if(screen==='game'){ this.setState({screen:'game', game:null}); return; }
+    // Свій текст — отдельный режим: показываем форму ввода (сессия сбрасывается).
+    if(screen==='custom'){ this.setState({screen:'custom', session:null, currentLesson:null, customError:''}); return; }
     // Заходя в таблицу лидеров, всегда тянем свежие данные с сервера (иначе кэш lbRemote
     // залипает и новые игроки/результаты не появляются).
     if(screen==='leaderboard') this._lbStale=true;
@@ -1534,7 +1536,7 @@ class Component extends DCLogic {
   I18N = {
     en: {
       // nav + shell
-      nav_home:'Home', nav_lessons:'Lessons', nav_drills:'Drills', nav_games:'Games', nav_leaderboard:'Leaderboard',
+      nav_home:'Home', nav_lessons:'Lessons', nav_drills:'Drills', nav_custom:'Your text', nav_games:'Games', nav_leaderboard:'Leaderboard',
       brandSub:'TOUCH-TYPING', profile:'Profile', logout:'Log out', dayStreak:'day streak',
       layoutAutoHint:'Lessons follow your system keyboard layout', layoutSwitched:'Keyboard layout',
       // page titles
@@ -1612,7 +1614,7 @@ class Component extends DCLogic {
       tier0_n:'Orientation', tier0_d:'Find home keys, first fingers', tier1_n:'Home row', tier1_d:'asdf jkl; — the anchor row', tier2_n:'Top row', tier2_d:'qwerty and up', tier3_n:'Bottom row', tier3_d:'zxcv and reaches', tier4_n:'Number row', tier4_d:'digits and stretch', tier5_n:'Punctuation', tier5_d:'symbols and marks', tier6_n:'Capitals & Shift', tier6_d:'Shift combos', tier7_n:'Words & bigrams', tier7_d:'real words, common pairs', tier8_n:'Sentences', tier8_d:'connected text', tier9_n:'Speed building', tier9_d:'hit the WPM target', tier10_n:'Advanced', tier10_d:'dense punctuation & numbers', tier11_n:'Pro', tier11_d:'world-class bursts'
     },
     uk: {
-      nav_home:'Головна', nav_lessons:'Уроки', nav_drills:'Тренування', nav_games:'Ігри', nav_leaderboard:'Лідери',
+      nav_home:'Головна', nav_lessons:'Уроки', nav_drills:'Тренування', nav_custom:'Свій текст', nav_games:'Ігри', nav_leaderboard:'Лідери',
       brandSub:'СЛІПИЙ ДРУК', profile:'Профіль', logout:'Вийти з профілю', dayStreak:'дн. поспіль',
       layoutAutoHint:'Уроки підлаштовуються під розкладку системної клавіатури', layoutSwitched:'Розкладка клавіатури',
       t_hub:'Головна', t_onboarding:'Початок', t_lessons:'Уроки', t_lesson:'Структурований урок', t_drill:'Адаптивне тренування', t_results:'Твій результат', t_dashboard:'Прогрес', t_game:'Міні-ігри', t_leaderboard:'Лідери', t_system:'Дизайн-система', t_empty:'Стани',
@@ -1790,6 +1792,12 @@ class Component extends DCLogic {
   // ---------- typing session ----------
   _restart(){
     const ses=this.state.session;
+    if(ses && ses.mode==='custom'){
+      const text=ses.text; this._stopLoop();
+      this.setState({ screen:'custom', currentLesson:null, session:{ text, i:0, marks:[], typed:[], errors:0, startAt:0, done:false, mode:'custom', flash:0, keyErr:{}, focus:[] } },
+        ()=>{ this._startLoop(()=>this.setState(s=>({tick:s.tick+1})), 350); this._scheduleScroll(); });
+      return;
+    }
     if(ses && ses.mode==='drill'){ this._startDrill(); return; }
     if(this.state.currentLesson){ this._startLesson(this.state.currentLesson.tier, this.state.currentLesson.idx); return; }
     const n=this._nextLesson(); this._startLesson(n.tier, n.idx);
@@ -1805,6 +1813,8 @@ class Component extends DCLogic {
 
   _onKey(e){
     const s = this.state;
+    // Не перехватывать ввод в полях формы (логин, textarea своего текста и т.п.).
+    if(e.target && (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')) return;
     // Shift+Tab = switch the on-screen keyboard layout on demand (EN → УК → РУ), before typing.
     if(s.layoutAuto && e.key==='Tab' && e.shiftKey && (this._isTypingScreen(s.screen) || s.screen==='game')){
       e.preventDefault();
@@ -1876,8 +1886,8 @@ class Component extends DCLogic {
   }
   _finishNow(){ const s=this.state.session; if(s){ s.done=true; s._end=Date.now(); this._recordSession(this._stats()); } this._stopLoop(); this.setState({screen:'results'}); }
   // ---------- custom text / file import (TXT/MD) ----------
-  _openCustom(){ this.setState({customModal:true, customText:'', customError:''}); }
-  _closeCustom(){ this.setState({customModal:false}); }
+  _openCustom(){ this.setState({customText:'', customError:''}, ()=>this.go('custom')); }
+  _closeCustom(){ this.go('hub'); }
   _customFile(e){
     const T=this._t();
     const f = e && e.target && e.target.files && e.target.files[0];
@@ -1901,7 +1911,7 @@ class Component extends DCLogic {
     const clean=this._sanitizeCustom(this.state.customText);
     if(clean.length<3){ this.setState({customError:T.custErrEmpty}); return; }
     this._stopLoop();
-    this.setState({ customModal:false, screen:'drill', currentLesson:null,
+    this.setState({ customModal:false, screen:'custom', currentLesson:null,
       session:{ text:clean, i:0, marks:[], typed:[], errors:0, startAt:0, done:false, mode:'custom', flash:0, keyErr:{}, focus:[] } },
       ()=>{ this._startLoop(()=>this.setState(s=>({tick:s.tick+1})), 350); this._scheduleScroll(); });
   }
@@ -2340,6 +2350,7 @@ class Component extends DCLogic {
       {sc:'hub',label:T.nav_home,icon:'fa-solid fa-house'},
       {sc:'lessons',label:T.nav_lessons,icon:'fa-solid fa-book-open'},
       {sc:'drill',label:T.nav_drills,icon:'fa-solid fa-bullseye'},
+      {sc:'custom',label:T.nav_custom,icon:'fa-solid fa-file-import'},
       {sc:'game',label:T.nav_games,icon:'fa-solid fa-gamepad'},
       {sc:'leaderboard',label:T.nav_leaderboard,icon:'fa-solid fa-ranking-star'}
     ];
@@ -2358,7 +2369,7 @@ class Component extends DCLogic {
     const uiLangs=uiDefs.map(([code,short])=>({short,onClick:()=>this._setUi(code),
       style:`border:none;cursor:pointer;font-weight:800;font-size:12.5px;padding:6px 11px;border-radius:14px;`+(s.ui===code?`background:var(--ink);color:var(--surface);`:`background:transparent;color:var(--ink-2);`)}));
 
-    const titles={hub:T.t_hub,onboarding:T.t_onboarding,lessons:T.t_lessons,lesson:T.t_lesson,drill:T.t_drill,results:T.t_results,dashboard:T.t_dashboard,game:T.t_game,leaderboard:T.t_leaderboard,system:T.t_system,empty:T.t_empty};
+    const titles={hub:T.t_hub,onboarding:T.t_onboarding,lessons:T.t_lessons,lesson:T.t_lesson,drill:T.t_drill,custom:T.nav_custom,results:T.t_results,dashboard:T.t_dashboard,game:T.t_game,leaderboard:T.t_leaderboard,system:T.t_system,empty:T.t_empty};
 
     const vals={
       theme:s.theme, themeIcon: s.theme==='light'?'fa-solid fa-moon':'fa-solid fa-sun',
@@ -2388,7 +2399,7 @@ class Component extends DCLogic {
       loginMood: s.loginName.trim()? (this.pdata.profiles[s.loginName.trim()]?'happy':'celebrate') : 'encouraging',
       loginSub: s.loginName.trim()? (this.pdata.profiles[s.loginName.trim()]? this._fmt(T.loginSubReturn, s.loginName.trim()) : T.loginSubNew) : T.loginSubDefault,
       loginBtn: s.loginName.trim()? (this.pdata.profiles[s.loginName.trim()]?T.loginBtnLogin:T.loginBtnCreate):T.loginBtnContinue,
-      isHub:screen==='hub', isOnboarding:screen==='onboarding', isTyping, isResults:screen==='results',
+      isHub:screen==='hub', isOnboarding:screen==='onboarding', isTyping, isResults:screen==='results', isCustomLanding: screen==='custom' && !s.session,
       isLessons:screen==='lessons',
       isDashboard:screen==='dashboard', isGame:screen==='game', isSystem:screen==='system', isEmpty:screen==='empty',
       streak:streakCount, dailyDone:Math.min(15, completedCount*2), dailyTotal:15, topWpm:bestWpm, topAcc:bestAcc
@@ -2506,7 +2517,7 @@ class Component extends DCLogic {
         vals.modeBadgeStyle=`font-family:'Fredoka';font-weight:600;font-size:13px;letter-spacing:.03em;padding:7px 14px;border-radius:12px;color:#fff;background:${alt?'var(--accent)':'var(--brand)'};box-shadow:0 3px 0 ${alt?'var(--accent-ink)':'var(--brand-ink)'}`;
         const cl=s.currentLesson; const clTier=cl?this.TIERS[cl.tier]:null;
         vals.showNext = !alt && !!cl;
-        vals.goBack = ()=>{ if(alt){ this.go('hub'); return; } if(cl && cl.idx>0){ this._startLesson(cl.tier, cl.idx-1); } else { this.go('lessons'); } };
+        vals.goBack = ()=>{ if(isCustom){ this.go('custom'); return; } if(alt){ this.go('hub'); return; } if(cl && cl.idx>0){ this._startLesson(cl.tier, cl.idx-1); } else { this.go('lessons'); } };
         vals.goNext = ()=>{ if(!cl) return; const TT=this.TIERS[cl.tier]; if(cl.idx < TT.lessons-1){ this._startLesson(cl.tier, cl.idx+1); } else if(cl.tier < this.TIERS.length-1){ this._startLesson(cl.tier+1, 0); } };
         vals.backLabel = alt ? T.backWord : (cl && cl.idx>0 ? T.prevWord : T.levelsWord);
         const focusKeys=(ses.focus||[]).filter(k=>k&&k.trim());
