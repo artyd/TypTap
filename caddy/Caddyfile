@@ -1,0 +1,25 @@
+# TypTap — фрагмент для Caddy (на сервере вже стоїть Caddy).
+# Caddy сам випускає й оновлює TLS-сертифікат (Let's Encrypt) — certbot не потрібен.
+#
+# Додай цей блок у свій /etc/caddy/Caddyfile (або окремим файлом, який
+# підключається через `import`), потім: sudo systemctl reload caddy
+#
+# Схема: статика віддається з /var/www/typtap; усе під /api/* проксирується
+# на Node-бекенд у Docker (127.0.0.1:8010). handle_path зрізає префікс /api,
+# тому бекенд отримує /login, /profile, /leaderboard (як і очікують роути).
+
+typtap.alliancegroup95.com {
+	encode gzip zstd
+
+	# API -> Node backend (Docker, лише loopback, host-порт 8010)
+	handle_path /api/* {
+		reverse_proxy 127.0.0.1:8010
+	}
+
+	# Статика застосунку
+	handle {
+		root * /var/www/typtap
+		try_files {path} /index.html
+		file_server
+	}
+}
