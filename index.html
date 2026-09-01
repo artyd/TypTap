@@ -386,8 +386,8 @@
         </div>
 
         <div style="font-family:'Fredoka';font-weight:600;font-size:20px;margin:32px 0 14px">{{ t.jumpBackIn }}</div>
-        <div class="tt-cols4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
-          <sc-for list="{{ modeCards }}" as="c" hint-placeholder-count="4">
+        <div class="tt-cols4" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px">
+          <sc-for list="{{ modeCards }}" as="c" hint-placeholder-count="5">
             <div onClick="{{ c.onClick }}" role="button" tabindex="0" data-kbclick="" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .12s" style-hover="transform:translateY(-3px)">
               <div style="{{ c.iconStyle }}"><i class="{{ c.icon }}"></i></div>
               <div style="font-family:'Fredoka';font-weight:600;font-size:17px;margin-top:14px">{{ c.title }}</div>
@@ -493,10 +493,12 @@
             </div>
           </sc-for>
         </div>
-        <!-- typing text -->
+        <!-- typing text: 2-line window that smoothly scrolls down as you type -->
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:30px 32px;box-shadow:var(--shadow-sm);margin-bottom:20px">
-          <div class="tt-typing" style="font-family:'JetBrains Mono';font-size:27px;line-height:1.7;letter-spacing:.5px;word-spacing:2px;flex-wrap:wrap;display:flex">
-            <sc-for list="{{ chars }}" as="c" hint-placeholder-count="40"><span style="{{ c.style }}">{{ c.disp }}</span></sc-for>
+          <div class="tt-typing-win" style="height:3.4em;font-size:27px;line-height:1.7;overflow:hidden;position:relative">
+            <div class="tt-typing tt-typing-inner" style="font-family:'JetBrains Mono';font-size:27px;line-height:1.7;letter-spacing:.5px;word-spacing:2px;flex-wrap:wrap;display:flex;transition:transform .28s ease;will-change:transform">
+              <sc-for list="{{ chars }}" as="c" hint-placeholder-count="40"><span class="{{ c.cls }}" style="{{ c.style }}">{{ c.disp }}</span></sc-for>
+            </div>
           </div>
         </div>
         <!-- keyboard (hidden in exam mode -> no next-key hint) -->
@@ -1731,7 +1733,7 @@ class Component extends DCLogic {
     // скрыты по умолчанию (проверка вслепую). Остальные уроки — с подсказкой.
     const isExam = idx === (this.TIERS[tier].lessons-1);
     this.setState({ screen:'lesson', examMode:isExam, currentLesson:{tier,idx,target:gen.target,exam:isExam}, session:{ text:gen.text, i:0, marks:[], typed:[], errors:0, startAt:0, done:false, mode:'lesson', flash:0, keyErr:{}, tier, idx } }, ()=>{
-      this._startLoop(()=>this.setState(s=>({tick:s.tick+1})), 350);
+      this._startLoop(()=>this.setState(s=>({tick:s.tick+1})), 350); this._scheduleScroll();
     });
   }
   // Старт по выбранной на онбординге цели: скорость -> скоростной тир, «знаю ряд» -> опорный ряд.
@@ -1777,7 +1779,7 @@ class Component extends DCLogic {
       text=this._groups(rowChars, 12, 3);
     }
     this.setState({ screen:'drill', currentLesson:null, session:{ text, i:0, marks:[], typed:[], errors:0, startAt:0, done:false, mode:'drill', flash:0, keyErr:{}, focus:wk.slice(0,4) } }, ()=>{
-      this._startLoop(()=>this.setState(s=>({tick:s.tick+1})), 350);
+      this._startLoop(()=>this.setState(s=>({tick:s.tick+1})), 350); this._scheduleScroll();
     });
   }
 
@@ -1841,7 +1843,7 @@ class Component extends DCLogic {
 
   _typeKey(e){
     const s = this.state.session; if(!s || s.done) return;
-    if(e.key==='Backspace'){ e.preventDefault(); if(s.i>0){ s.i--; s.marks.pop(); s.typed.pop(); this.forceUpdate(); } return; }
+    if(e.key==='Backspace'){ e.preventDefault(); if(s.i>0){ s.i--; s.marks.pop(); s.typed.pop(); this.forceUpdate(); this._scheduleScroll(); } return; }
     if(e.key.length!==1) return;
     e.preventDefault();
     if(!s.startAt) s.startAt = Date.now();
@@ -1856,6 +1858,21 @@ class Component extends DCLogic {
     s.i++;
     if(s.i>=s.text.length){ s.done=true; s._end=Date.now(); this._stopLoop(); this._recordSession(this._stats()); this.setState({screen:'results'}); return; }
     this.forceUpdate();
+    this._scheduleScroll();
+  }
+  // Окно набора: показываем 2 строки; по мере набора плавно опускаемся к строкам 3,4,5…
+  _scheduleScroll(){ this._scrollTyping(); if(this._scrollT) clearTimeout(this._scrollT); this._scrollT=setTimeout(()=>this._scrollTyping(), 0); }
+  _scrollTyping(){
+    const inner=document.querySelector('.tt-typing-inner'); if(!inner) return;
+    const win=inner.parentElement;
+    const lineH=parseFloat(getComputedStyle(inner).lineHeight)||46;
+    if(win) win.style.height=(lineH*2)+'px';               // ровно 2 строки
+    const cur=inner.querySelector('.tt-cursor');
+    let line=0;
+    if(cur) line=Math.round(cur.offsetTop/lineH);
+    else line=Math.max(0, Math.round(inner.scrollHeight/lineH)-1);
+    const shift=Math.max(0, line-1)*lineH;                 // курсор держим на 2-й (нижней) видимой строке
+    inner.style.transform='translateY(-'+shift+'px)';
   }
   _finishNow(){ const s=this.state.session; if(s){ s.done=true; s._end=Date.now(); this._recordSession(this._stats()); } this._stopLoop(); this.setState({screen:'results'}); }
   // ---------- custom text / file import (TXT/MD) ----------
@@ -1886,7 +1903,7 @@ class Component extends DCLogic {
     this._stopLoop();
     this.setState({ customModal:false, screen:'drill', currentLesson:null,
       session:{ text:clean, i:0, marks:[], typed:[], errors:0, startAt:0, done:false, mode:'custom', flash:0, keyErr:{}, focus:[] } },
-      ()=>{ this._startLoop(()=>this.setState(s=>({tick:s.tick+1})), 350); });
+      ()=>{ this._startLoop(()=>this.setState(s=>({tick:s.tick+1})), 350); this._scheduleScroll(); });
   }
   // Гайд-тур с маскотом Тайпо. Собирает шаги из словаря (i18n) и запускает
   // вьюшку-оверлей window.TypTapTour. afterLesson=true -> по завершении/пропуску
@@ -2520,7 +2537,7 @@ class Component extends DCLogic {
           else if(st==='correct') style+='color:var(--ink);';
           else if(st==='incorrect') style+='color:var(--error);background:var(--error-bg);text-decoration:underline;text-decoration-style:wavy;text-underline-offset:3px;';
           else if(st==='current') style+='color:var(--brand-ink);background:var(--brand-bg);box-shadow:inset 0 -3px 0 var(--brand);animation:tt-caret 1s infinite;';
-          return {disp: ch===' '?'\u00A0':ch, style};
+          return {disp: ch===' '?'\u00A0':ch, style, cls: st==='current'?'tt-cursor':''};
         });
         // keyboard (realistic ANSI shape, per-language labels)
         const langKb = this.state.lang;
