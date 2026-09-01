@@ -1,0 +1,35 @@
+# TypTap backend — Postgres + Node/Express API.
+# API наружу НЕ торчит: доступен только на 127.0.0.1:8010 (внутри контейнера 8787),
+# а трафик к нему пускает Caddy (см. caddy/Caddyfile). Статику тоже отдаёт Caddy.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Порт наружу не публикуем — к БД ходит только сервис api по внутренней сети.
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      PORT: 8787
+    ports:
+      # Наружу только на loopback; проксирует Caddy (host-порт 8010 -> контейнер 8787).
+      - "127.0.0.1:8010:8787"
+
+volumes:
+  pgdata:

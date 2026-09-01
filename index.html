@@ -4,6 +4,78 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
+<script>
+/* TypTap sync client — общается с бэкендом (Node/Express + Postgres за nginx).
+   Единый origin (сайт и /api на одном домене) => ни CORS, ни токен не нужны.
+   Авторизация профиля — только по нику (осознанный компромисс исходного дизайна).
+   Любая сетевая ошибка глотается в консоль: приложение обязано работать офлайн. */
+(function(){
+  // Базовый URL API. По умолчанию '/api' на том же домене (nginx проксирует
+  // на Node-бэкенд). Для локальной разработки можно переопределить, задав
+  // window.TYPTAP_API_BASE='http://localhost:8787' отдельным тегом ДО этого скрипта.
+  var BASE = (typeof window.TYPTAP_API_BASE === 'string') ? window.TYPTAP_API_BASE : '/api';
+  window.TYPTAP_API_BASE = BASE;
+
+  function req(method, path, body){
+    var opts = { method: method, headers: { 'Content-Type': 'application/json' } };
+    if(body !== undefined) opts.body = JSON.stringify(body);
+    return fetch(BASE + path, opts).then(function(r){
+      if(!r.ok) return r.text().then(function(t){ throw new Error('HTTP '+r.status+' '+t); });
+      return r.json();
+    });
+  }
+
+  // saveProfile дебаунсится: подряд идущие вызовы (много сохранений во время
+  // урока/игры) схлопываются в ОДИН сетевой PUT с последними данными.
+  var saveTimers = {};   // per-nickname timer
+  var savePending = {};  // per-nickname последняя порция data
+  var SAVE_DEBOUNCE = 900;
+
+  function flushSave(nick){
+    var data = savePending[nick];
+    delete savePending[nick];
+    delete saveTimers[nick];
+    if(data === undefined) return;
+    req('PUT', '/profile', { nickname: nick, data: data })
+      .catch(function(e){ console.warn('[TypTapSync] saveProfile failed:', e.message); });
+  }
+
+  window.TypTapSync = {
+    // POST /login -> { nickname, exists, data }
+    fetchProfile: function(nickname){
+      return req('POST', '/login', { nickname: nickname });
+    },
+    // Дебаунс ~900мс, затем PUT /profile. Клонируем data сразу, чтобы не
+    // отправить объект, который приложение продолжит мутировать.
+    saveProfile: function(nickname, data){
+      if(!nickname) return;
+      try { savePending[nickname] = JSON.parse(JSON.stringify(data)); }
+      catch(e){ savePending[nickname] = data; }
+      if(saveTimers[nickname]) clearTimeout(saveTimers[nickname]);
+      saveTimers[nickname] = setTimeout(function(){ flushSave(nickname); }, SAVE_DEBOUNCE);
+    },
+    // GET /leaderboard?metric&nickname -> { metric, top, you }
+    fetchLeaderboard: function(metric, nickname){
+      var q = '/leaderboard?metric=' + encodeURIComponent(metric || 'wpm');
+      if(nickname) q += '&nickname=' + encodeURIComponent(nickname);
+      return req('GET', q);
+    }
+  };
+})();
+/* A11y: let keyboard users activate custom clickable cards (div role="button" data-kbclick).
+   Enter/Space on a focused such element fires a real click, mirroring mouse behaviour.
+   The lessons' typing capture is unaffected — those live on separate handlers. */
+(function(){
+  document.addEventListener('keydown', function(e){
+    if(e.key!=='Enter' && e.key!==' ' && e.key!=='Spacebar') return;
+    var el = document.activeElement;
+    if(el && el.hasAttribute && el.hasAttribute('data-kbclick')){
+      e.preventDefault();
+      el.click();
+    }
+  });
+})();
+</script>
 </head>
 <body>
 <x-dc>
@@ -63,6 +135,13 @@
     .tt-lessons{height:auto !important;flex-direction:column !important;overflow:visible !important}
     .tt-tierlist{width:auto !important}
   }
+  /* A11y: respect the user's reduced-motion preference — cut confetti/sway/bob and transitions. */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+  }
+  /* A11y: always-visible keyboard focus ring for buttons, links and custom clickable cards. */
+  :focus-visible{outline:3px solid var(--brand);outline-offset:2px;border-radius:10px}
+  [data-kbclick]{cursor:pointer}
 </style>
 </helmet>
 <template id="__bundler_thumbnail" data-bg-color="#FB7A2A">
@@ -110,12 +189,12 @@
 
   <!-- ============ SIDEBAR ============ -->
   <aside class="tt-side" style="width:246px;flex:none;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;padding:20px 16px;gap:6px">
-    <div onClick="{{ goHome }}" class="tt-brand" style="display:flex;align-items:center;gap:11px;padding:6px 8px 16px;cursor:pointer">
+    <div onClick="{{ goHome }}" class="tt-brand" role="button" tabindex="0" data-kbclick="" aria-label="TypTap — home" style="display:flex;align-items:center;gap:11px;padding:6px 8px 16px;cursor:pointer">
       <div style="width:38px;height:38px;border-radius:11px;background:var(--brand);box-shadow:0 3px 0 var(--brand-ink);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fredoka';font-weight:600;font-size:22px">T</div>
       <div><div style="font-family:'Fredoka';font-weight:600;font-size:21px;line-height:1;color:var(--ink)">TypTap</div><div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.03em;margin-top:3px">{{ t.brandSub }}</div></div>
     </div>
     <sc-for list="{{ nav }}" as="item" hint-placeholder-count="6">
-      <div onClick="{{ item.onClick }}" class="tt-navitem" style="{{ item.style }}">
+      <div onClick="{{ item.onClick }}" class="tt-navitem" role="button" tabindex="0" data-kbclick="" style="{{ item.style }}">
         <span style="{{ item.badgeStyle }}"><i class="{{ item.icon }}"></i></span>
         <span class="tt-navtext" style="flex:1">{{ item.label }}</span>
       </div>
@@ -124,10 +203,10 @@
       <sc-if value="{{ profileMenu }}" hint-placeholder-val="{{ false }}">
         <div style="position:absolute;bottom:calc(100% + 8px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:6px;z-index:40">
           <div style="padding:8px 12px;font-size:12px;color:var(--muted);font-weight:700">{{ t.profile }}: <b style="color:var(--ink)">{{ nickname }}</b></div>
-          <div onClick="{{ logout }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;cursor:pointer;font-weight:800;font-size:14px;color:var(--error-ink)" style-hover="background:var(--error-bg)"><span style="width:26px;height:26px;border-radius:8px;background:var(--error-bg);color:var(--error-ink);display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-right-from-bracket"></i></span>{{ t.logout }}</div>
+          <div onClick="{{ logout }}" role="button" tabindex="0" data-kbclick="" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;cursor:pointer;font-weight:800;font-size:14px;color:var(--error-ink)" style-hover="background:var(--error-bg)"><span style="width:26px;height:26px;border-radius:8px;background:var(--error-bg);color:var(--error-ink);display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-right-from-bracket"></i></span>{{ t.logout }}</div>
         </div>
       </sc-if>
-      <div onClick="{{ toggleProfileMenu }}" style="padding:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;gap:11px;cursor:pointer">
+      <div onClick="{{ toggleProfileMenu }}" role="button" tabindex="0" data-kbclick="" style="padding:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;gap:11px;cursor:pointer">
         <div style="width:40px;height:40px;border-radius:50%;background:var(--brand-bg);display:flex;align-items:center;justify-content:center;color:var(--brand-ink);font-weight:800;font-size:16px">{{ avatarInitial }}</div>
         <div style="min-width:0;flex:1"><div style="font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ nickname }}</div><div style="font-size:11px;color:var(--muted);font-weight:700"><i class="fa-solid fa-fire" style="color:var(--brand)"></i> {{ streak }} {{ t.dayStreak }}</div></div>
         <i class="fa-solid fa-ellipsis-vertical" style="color:var(--muted)"></i>
@@ -199,7 +278,7 @@
               </div>
               </sc-if>
             </div>
-            <div onClick="{{ goOnboarding }}" style="background:var(--accent-bg);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--border));border-radius:var(--r-lg);padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:12px">
+            <div onClick="{{ goOnboarding }}" role="button" tabindex="0" data-kbclick="" style="background:var(--accent-bg);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--border));border-radius:var(--r-lg);padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:12px">
               <div style="{{ setupBadge }}"><i class="fa-solid fa-bullseye"></i></div>
               <div style="flex:1"><div style="font-weight:800;font-size:15px">{{ t.setupPath }}</div><div style="font-size:12.5px;color:var(--ink-2);font-weight:600">{{ t.setupPathSub }}</div></div>
               <div style="color:var(--accent-ink);font-size:16px"><i class="fa-solid fa-arrow-right"></i></div>
@@ -210,7 +289,7 @@
         <div style="font-family:'Fredoka';font-weight:600;font-size:20px;margin:32px 0 14px">{{ t.jumpBackIn }}</div>
         <div class="tt-cols4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
           <sc-for list="{{ modeCards }}" as="c" hint-placeholder-count="4">
-            <div onClick="{{ c.onClick }}" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .12s" style-hover="transform:translateY(-3px)">
+            <div onClick="{{ c.onClick }}" role="button" tabindex="0" data-kbclick="" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .12s" style-hover="transform:translateY(-3px)">
               <div style="{{ c.iconStyle }}"><i class="{{ c.icon }}"></i></div>
               <div style="font-family:'Fredoka';font-weight:600;font-size:17px;margin-top:14px">{{ c.title }}</div>
               <div style="font-size:12.5px;color:var(--ink-2);font-weight:600;line-height:1.4;margin-top:3px">{{ c.desc }}</div>
@@ -231,7 +310,7 @@
         <p style="text-align:center;color:var(--ink-2);font-weight:600;margin:0 0 24px">{{ t.langSub }}</p>
         <div class="tt-cols3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:34px">
           <sc-for list="{{ onbLangs }}" as="l" hint-placeholder-count="3">
-            <div onClick="{{ l.onClick }}" style="{{ l.style }}">
+            <div onClick="{{ l.onClick }}" role="button" tabindex="0" data-kbclick="" style="{{ l.style }}">
               <div style="font-size:30px;line-height:1">{{ l.flag }}</div>
               <div style="font-family:'Fredoka';font-weight:600;font-size:19px;margin-top:8px">{{ l.name }}</div>
               <div style="font-family:'JetBrains Mono';font-size:13px;color:var(--ink-2);margin-top:4px">{{ l.sample }}</div>
@@ -242,7 +321,7 @@
         <p style="text-align:center;color:var(--ink-2);font-weight:600;margin:0 0 18px">{{ t.tailorFirst }}</p>
         <div style="display:flex;flex-direction:column;gap:12px">
           <sc-for list="{{ onbGoals }}" as="g" hint-placeholder-count="3">
-            <div onClick="{{ g.onClick }}" style="{{ g.style }}">
+            <div onClick="{{ g.onClick }}" role="button" tabindex="0" data-kbclick="" style="{{ g.style }}">
               <div style="width:46px;height:46px;flex:none;border-radius:13px;background:var(--brand-bg);color:var(--brand-ink);display:flex;align-items:center;justify-content:center;font-size:19px"><i class="{{ g.icon }}"></i></div>
               <div style="flex:1"><div style="font-family:'Fredoka';font-weight:600;font-size:17px">{{ g.title }}</div><div style="font-size:13px;color:var(--ink-2);font-weight:600">{{ g.desc }}</div></div>
               <div style="{{ g.checkStyle }}"><i class="fa-solid fa-check"></i></div>
@@ -274,7 +353,7 @@
               <div style="height:8px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin:16px 0 18px"><div style="height:100%;width:{{ t.pct }}%;background:{{ t.barColor }};border-radius:20px;transition:width .25s"></div></div>
               <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px">
                 <sc-for list="{{ t.nodes }}" as="n" hint-placeholder-count="4">
-                  <div onClick="{{ n.onClick }}" style="{{ n.cardStyle }}" style-hover="transform:translateY(-3px)">
+                  <div onClick="{{ n.onClick }}" role="button" tabindex="0" data-kbclick="" style="{{ n.cardStyle }}" style-hover="transform:translateY(-3px)">
                     <div style="{{ n.nodeStyle }}"><sc-if value="{{ n.mark }}"><i class="{{ n.mark }}"></i></sc-if><sc-if value="{{ n.showNum }}"><span>{{ n.n }}</span></sc-if></div>
                     <div style="{{ n.titleStyle }}">{{ n.title }}</div>
                     <div style="{{ n.subStyle }}">{{ n.sub }}</div>
@@ -298,6 +377,7 @@
           <div style="display:flex;gap:8px">
             <button onClick="{{ goBack }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer"><i class="fa-solid fa-arrow-left"></i> {{ backLabel }}</button>
             <sc-if value="{{ showNext }}"><button onClick="{{ goNext }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer">{{ t.nextWord }} <i class="fa-solid fa-arrow-right"></i></button></sc-if>
+            <button onClick="{{ toggleExam }}" title="{{ examBtnLabel }}" style="border:1px solid var(--border);background:{{ examBtnBg }};color:{{ examBtnColor }};font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer"><i class="{{ examBtnIcon }}"></i> {{ examBtnLabel }}</button>
             <button onClick="{{ restartSession }}" style="border:1px solid var(--border);background:var(--surface);color:var(--ink);font-weight:800;font-size:13px;padding:9px 15px;border-radius:12px;cursor:pointer"><i class="fa-solid fa-rotate-left"></i> {{ t.restartWord }}</button>
           </div>
         </div>
@@ -320,7 +400,8 @@
             <sc-for list="{{ chars }}" as="c" hint-placeholder-count="40"><span style="{{ c.style }}">{{ c.disp }}</span></sc-for>
           </div>
         </div>
-        <!-- keyboard -->
+        <!-- keyboard (hidden in exam mode -> no next-key hint) -->
+        <sc-if value="{{ showKb }}" hint-placeholder-val="{{ true }}">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow-sm)">
           <div class="tt-kb" style="display:flex;flex-direction:column;gap:6px;max-width:780px;margin:0 auto">
           <sc-for list="{{ kbRows }}" as="row" hint-placeholder-count="5">
@@ -338,6 +419,7 @@
             </sc-for>
           </div>
         </div>
+        </sc-if>
         <div style="text-align:center;margin-top:16px"><button onClick="{{ finishNow }}" style="border:none;background:var(--surface);border:1px solid var(--border);color:var(--ink-2);font-weight:800;font-size:13px;padding:10px 18px;border-radius:12px;cursor:pointer">{{ t.seeResults }} <i class="fa-solid fa-arrow-right"></i></button></div>
       </div>
       </sc-if>
@@ -443,7 +525,7 @@
         <div style="color:var(--ink-2);font-weight:600;font-size:14px;margin-bottom:20px">{{ t.practiceFun }}</div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px">
           <sc-for list="{{ gameCards }}" as="c" hint-placeholder-count="4">
-            <div onClick="{{ c.onClick }}" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .12s" style-hover="transform:translateY(-3px)">
+            <div onClick="{{ c.onClick }}" role="button" tabindex="0" data-kbclick="" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .12s" style-hover="transform:translateY(-3px)">
               <div style="{{ c.iconStyle }}"><i class="{{ c.icon }}"></i></div>
               <div style="font-family:'Fredoka';font-weight:600;font-size:18px;margin-top:14px">{{ c.title }}</div>
               <div style="font-size:12.5px;color:var(--ink-2);font-weight:600;line-height:1.4;margin-top:3px">{{ c.desc }}</div>
@@ -979,7 +1061,9 @@ class Component extends DCLogic {
       race: null,
       tick: 0,
       lbMetric: 'wpm',
-      lbModal: false
+      lbModal: false,
+      lbRemote: null,   // {metric, top, you} с сервера; null => фолбэк на _lbSeed()
+      examMode: false   // режим заліку: ховає екранну клавіатуру (немає підказки наступної клавіші)
     };
     this._onKey = this._onKey.bind(this);
   }
@@ -1041,6 +1125,8 @@ class Component extends DCLogic {
     if(navigator.keyboard && navigator.keyboard.addEventListener){ try{ navigator.keyboard.addEventListener('layoutchange', this._layoutPoll); }catch(e){} }
     this._layoutTimer = setInterval(()=>{ if(this.state.layoutAuto) this._pollLayout(); }, 1500);
     this._pollLayout();
+    // Подтянуть профиль с сервера, если пользователь уже залогинен (кросс-девайс синхронизация).
+    if(this.pdata.current) this._syncPullProfile(this.pdata.current);
     const sc=this.state.screen;
     if(sc==='lesson'){ const n=this._nextLesson(); this._startLesson(n.tier,n.idx); }
     else if(sc==='drill'){ this._startDrill(); }
@@ -1069,11 +1155,48 @@ class Component extends DCLogic {
     return { sessions, bestRace:38, streak:{count:12,last:today.toISOString().slice(0,10)}, completed, xp:2450, seeded:true };
   }
   _blank(){ return {sessions:[],bestRace:0,streak:{count:0,last:null},completed:{},xp:0,created:Date.now()}; }
-  _save(){ this._saveLocal(); }
+  // _save = локально (мгновенно, офлайн-основа) + пуш на сервер (дебаунс внутри TypTapSync).
+  _save(){ this._saveLocal(); if(window.TypTapSync && this.pdata.current && this.store){ try{ window.TypTapSync.saveProfile(this.pdata.current, this.store); }catch(e){} } }
+  // _saveLocal НЕ трогать: на нём завязана вся офлайн-работа (и он используется в _syncPullProfile, чтобы не зациклить пуш).
   _saveLocal(){ try{ localStorage.setItem('typtap_v2', JSON.stringify(this.pdata)); }catch(e){} }
   _reset(){ if(!this.pdata.current) return; this.pdata.profiles[this.pdata.current]=this._blank(); this.store=this.pdata.profiles[this.pdata.current]; this._save(); this.setState({screen:'dashboard'}); }
   _seedDemo(){ if(!this.pdata.current) return; this.pdata.profiles[this.pdata.current]=this._seed(); this.store=this.pdata.profiles[this.pdata.current]; this._save(); this.forceUpdate(); }
-  _login(nick){ nick=(nick||'').trim().slice(0,20); if(!nick) return; const exists=!!this.pdata.profiles[nick]; if(!exists) this.pdata.profiles[nick]=this._blank(); this.pdata.current=nick; this.store=this.pdata.profiles[nick]; this._save(); this.setState({screen: exists?'hub':'onboarding', loginName:'', profileMenu:false, lbModal:true}); }
+  _login(nick){ nick=(nick||'').trim().slice(0,20); if(!nick) return; const exists=!!this.pdata.profiles[nick]; if(!exists) this.pdata.profiles[nick]=this._blank(); this.pdata.current=nick; this.store=this.pdata.profiles[nick]; this._save(); this.setState({screen: exists?'hub':'onboarding', loginName:'', profileMenu:false, lbModal:true}); this._syncPullProfile(nick); }
+  // Синхронизация профиля с сервера при входе / на старте. Сервер авторитетен:
+  // если там есть данные — подменяем локальный профиль ими (кросс-девайс). Если
+  // профиля на сервере ещё нет — заливаем туда текущий локальный. Ошибки сети
+  // молчаливо логируем: приложение должно работать офлайн.
+  _syncPullProfile(nick){
+    if(!window.TypTapSync || !nick) return;
+    window.TypTapSync.fetchProfile(nick).then((res)=>{
+      if(res && res.exists && res.data){
+        this.pdata.profiles[nick] = res.data;
+        if(this.pdata.current === nick){ this.store = this.pdata.profiles[nick]; this.forceUpdate(); }
+        this._saveLocal(); // НЕ _save(): иначе тут же запушим обратно то, что только что скачали
+      } else {
+        // На сервере профиля нет — залить текущий локальный (первая регистрация ника).
+        const local = this.pdata.profiles[nick];
+        if(local) window.TypTapSync.saveProfile(nick, local);
+      }
+    }).catch((e)=>{ console.warn('[TypTapSync] pull failed:', e.message); });
+  }
+  // Лениво подгружает глобальный лидерборд для метрики (один раз на метрику).
+  // Вызывается из _lbView во время рендера — поэтому сам запрос и setState
+  // откладываем через setTimeout(0), а от повторов защищаемся instance-флагом
+  // (не state), чтобы не дёргать setState во время рендера.
+  _syncEnsureLeaderboard(metric){
+    if(!window.TypTapSync) return;
+    const cur = this.state.lbRemote;
+    if(cur && cur.metric === metric) return;   // уже загружено для этой метрики
+    if(this._lbFetching === metric) return;    // запрос уже в полёте
+    this._lbFetching = metric;
+    setTimeout(()=>{
+      window.TypTapSync.fetchLeaderboard(metric, this.pdata.current).then((res)=>{
+        this._lbFetching = null;
+        if(res && res.metric) this.setState({lbRemote:{metric:res.metric, top:res.top||[], you:res.you||null}});
+      }).catch((e)=>{ this._lbFetching = null; console.warn('[TypTapSync] leaderboard failed:', e.message); });
+    }, 0);
+  }
   _logout(){ this.pdata.current=null; this.store=null; this._save(); this._stopLoop(); this.setState({screen:'login', profileMenu:false}); }
   _addXp(n){ if(this.store) this.store.xp=(this.store.xp||0)+n; }
 
@@ -1196,18 +1319,36 @@ class Component extends DCLogic {
   }; return M[lang]||M.en; }
   _lbView(){
     const s=this.state; const metric=s.lbMetric||'wpm'; const L=this.LB(s.ui);
+    // \u0422\u0440\u0438\u0433\u0433\u0435\u0440\u0438\u043c \u043b\u0435\u043d\u0438\u0432\u0443\u044e \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0443 \u0436\u0438\u0432\u043e\u0433\u043e \u043b\u0438\u0434\u0435\u0440\u0431\u043e\u0440\u0434\u0430 (setState \u043e\u0442\u043b\u043e\u0436\u0435\u043d \u0432\u043d\u0443\u0442\u0440\u0438 \u043c\u0435\u0442\u043e\u0434\u0430).
+    this._syncEnsureLeaderboard(metric);
     const hist=(this.store&&this.store.sessions)||[];
     const bestWpm=hist.length?Math.max(...hist.map(x=>x.wpm)):0;
     const bestAcc=hist.length?Math.max(...hist.map(x=>x.acc)):0;
     const streakCount=(this.store&&this.store.streak&&this.store.streak.count)||0;
-    const disp=(v)=> metric==='acc'?(v.toFixed(1)+'%'):String(v);
+    const disp=(v)=> metric==='acc'?(Number(v).toFixed(1)+'%'):String(v);
     const unit=()=> metric==='acc'?'':(metric==='wpm'?(L.uWpm||'wpm'):L.uDays);
-    const sorted=this._lbSeed().slice().sort((a,b)=>b[metric]-a[metric]);
-    const rows=sorted.map((p,i)=>({rank:i+1,name:p.name,av:this._ini(p.name),val:disp(p[metric]),unit:unit()}));
+    // \u0416\u0438\u0432\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435 \u0441 \u0441\u0435\u0440\u0432\u0435\u0440\u0430 \u0434\u043b\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043c\u0435\u0442\u0440\u0438\u043a\u0438; \u0438\u043d\u0430\u0447\u0435 \u0444\u043e\u043b\u0431\u044d\u043a \u043d\u0430 \u0434\u0435\u043c\u043e-\u0441\u0438\u0434 (\u043e\u0444\u043b\u0430\u0439\u043d/\u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0430).
+    const remote=(s.lbRemote && s.lbRemote.metric===metric) ? s.lbRemote : null;
+    let rows;
+    if(remote){
+      rows=(remote.top||[]).map((p)=>({rank:p.rank,name:p.nickname,av:this._ini(p.nickname),val:disp(p.value),unit:unit()}));
+    } else {
+      const sorted=this._lbSeed().slice().sort((a,b)=>b[metric]-a[metric]);
+      rows=sorted.map((p,i)=>({rank:i+1,name:p.name,av:this._ini(p.name),val:disp(p[metric]),unit:unit()}));
+    }
     const uv=metric==='wpm'?bestWpm:metric==='acc'?bestAcc:streakCount;
-    const has=uv>0; const maxRef=metric==='acc'?100:130;
-    const yr=has?Math.max(11,Math.round(2500*(1-Math.min(1,uv/maxRef)))):2481;
-    const you={rank:'#'+yr.toLocaleString('en-US'),name:this.pdata.current||'you',av:this._ini(this.pdata.current||'?'),val:has?disp(uv):'\u2014',unit:has?unit():''};
+    const has=uv>0;
+    let you;
+    if(remote && remote.you && remote.you.rank){
+      // \u0420\u0435\u0430\u043b\u044c\u043d\u043e\u0435 \u043c\u0435\u0441\u0442\u043e \u0438\u0433\u0440\u043e\u043a\u0430 \u0441 \u0441\u0435\u0440\u0432\u0435\u0440\u0430.
+      const yy=remote.you;
+      you={rank:'#'+Number(yy.rank).toLocaleString('en-US'),name:this.pdata.current||'you',av:this._ini(this.pdata.current||'?'),val:disp(yy.value),unit:unit()};
+    } else {
+      // \u0424\u043e\u043b\u0431\u044d\u043a: \u0441\u0442\u0430\u0440\u0430\u044f \u043f\u0441\u0435\u0432\u0434\u043e-\u0444\u043e\u0440\u043c\u0443\u043b\u0430 \u0440\u0430\u043d\u0433\u0430 (\u043e\u0444\u043b\u0430\u0439\u043d / \u0438\u0433\u0440\u043e\u043a \u0435\u0449\u0451 \u0431\u0435\u0437 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u0430 \u043d\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0435).
+      const maxRef=metric==='acc'?100:130;
+      const yr=has?Math.max(11,Math.round(2500*(1-Math.min(1,uv/maxRef)))):2481;
+      you={rank:'#'+yr.toLocaleString('en-US'),name:this.pdata.current||'you',av:this._ini(this.pdata.current||'?'),val:has?disp(uv):'\u2014',unit:has?unit():''};
+    }
     return {L,metric,top3:rows.slice(0,3),list:rows.slice(3,10),you};
   }
 
@@ -1283,7 +1424,7 @@ class Component extends DCLogic {
       // typing
       badgeDrill:'🎯 DRILL', badgeLesson:'📖 LESSON', backWord:'Back', prevWord:'Prev', levelsWord:'Levels', nextWord:'Next', restartWord:'Restart', seeResults:'See results',
       st_speed:'Speed', st_accuracy:'Accuracy', st_errors:'Errors', wpmUnit:' wpm',
-      courseMode:'Course mode', adaptivePractice:'Adaptive practice', weakKeyPractice:'Weak-key practice: ', adaptiveFrom:'Adaptive · pulled from your recent misses', adaptiveType:'Adaptive · type more to personalise this', targetWpmSuffix:' · target % wpm', lessonWordCap:'Lesson', lessonDash:' — lesson ',
+      courseMode:'Course mode', adaptivePractice:'Adaptive practice', weakKeyPractice:'Weak-key practice: ', adaptiveFrom:'Adaptive · pulled from your recent misses', adaptiveType:'Adaptive · type more to personalise this', targetWpmSuffix:' · target % wpm', lessonWordCap:'Lesson', lessonDash:' — lesson ', examStart:'Exam', examStop:'Show keys',
       // results
       h_pb:'New personal best!', h_brilliant:'Brilliant!', h_nice:'Nicely done!', h_good:'Good progress!',
       msg_needTarget:'You need % WPM to clear this level — you hit %. So close, run it again!', msg_pb:'Your fastest run yet at % WPM. Typo is proud of you.', msg_flawless:'Almost flawless — that muscle memory is really setting in.', msg_keepGoing:"Keep going — a little more practice on your weak keys and you’ll fly.",
@@ -1343,7 +1484,7 @@ class Component extends DCLogic {
       legendRank:'Ранг легенди', legendNote:'+ ЗН/ХВ — бонус понад людський рекорд. Реальні рівні — до світового класу ≈150 ЗН/ХВ.',
       badgeDrill:'🎯 ТРЕНУВАННЯ', badgeLesson:'📖 УРОК', backWord:'Назад', prevWord:'Попередній', levelsWord:'Рівні', nextWord:'Далі', restartWord:'Заново', seeResults:'Побачити результат',
       st_speed:'Швидкість', st_accuracy:'Точність', st_errors:'Помилки', wpmUnit:' зн/хв',
-      courseMode:'Курс', adaptivePractice:'Адаптивна практика', weakKeyPractice:'Слабкі клавіші: ', adaptiveFrom:'Адаптивно · за твоїми останніми помилками', adaptiveType:'Адаптивно · друкуй більше, щоб персоналізувати', targetWpmSuffix:' · ціль % зн/хв', lessonWordCap:'Урок', lessonDash:' — урок ',
+      courseMode:'Курс', adaptivePractice:'Адаптивна практика', weakKeyPractice:'Слабкі клавіші: ', adaptiveFrom:'Адаптивно · за твоїми останніми помилками', adaptiveType:'Адаптивно · друкуй більше, щоб персоналізувати', targetWpmSuffix:' · ціль % зн/хв', lessonWordCap:'Урок', lessonDash:' — урок ', examStart:'Залік', examStop:'Показати клавіші',
       h_pb:'Новий особистий рекорд!', h_brilliant:'Блискуче!', h_nice:'Гарно вийшло!', h_good:'Гарний прогрес!',
       msg_needTarget:'Потрібно % ЗН/ХВ, щоб пройти рівень — у тебе %. Зовсім близько, спробуй ще!', msg_pb:'Твій найшвидший забіг — % ЗН/ХВ. Typo пишається тобою.', msg_flawless:'Майже бездоганно — м’язова пам’ять уже закріплюється.', msg_keepGoing:'Продовжуй — ще трохи практики над слабкими клавішами, і ти полетиш.',
       r_wpm:'ЗН/ХВ', r_accuracy:'Точність', r_errors:'Помилки', r_time:'Час', heatmap:'Теплокарта клавіатури', redderMore:'Червоніше = більше промахів', retryWord:'Ще раз', continueWord:'Далі',
@@ -2092,6 +2233,13 @@ class Component extends DCLogic {
         vals.progressPct=Math.round(ses.i/ses.text.length*100);
         vals.restartSession=()=>this._restart();
         vals.finishNow=()=>this._finishNow();
+        // Exam mode: hide the on-screen keyboard (and thus the next-key hint) for a scored, no-peeking attempt.
+        vals.showKb = !s.examMode;
+        vals.toggleExam = ()=>this.setState({examMode:!this.state.examMode});
+        vals.examBtnLabel = s.examMode ? T.examStop : T.examStart;
+        vals.examBtnIcon = s.examMode ? 'fa-solid fa-keyboard' : 'fa-solid fa-eye-slash';
+        vals.examBtnBg = s.examMode ? 'var(--brand)' : 'var(--surface)';
+        vals.examBtnColor = s.examMode ? '#fff' : 'var(--ink)';
         const flashOn = ses.flash && (Date.now()-ses.flash<320);
         vals.liveStats=[
           {label:T.st_speed,value:stat.wpm,unit:T.wpmUnit,color:'var(--brand)'},
