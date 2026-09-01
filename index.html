@@ -1247,7 +1247,7 @@ class Component extends DCLogic {
   _saveLocal(){ try{ localStorage.setItem('typtap_v2', JSON.stringify(this.pdata)); }catch(e){} }
   _reset(){ if(!this.pdata.current) return; this.pdata.profiles[this.pdata.current]=this._blank(); this.store=this.pdata.profiles[this.pdata.current]; this._save(); this.setState({screen:'dashboard'}); }
   _seedDemo(){ if(!this.pdata.current) return; this.pdata.profiles[this.pdata.current]=this._seed(); this.store=this.pdata.profiles[this.pdata.current]; this._save(); this.forceUpdate(); }
-  _login(nick){ nick=(nick||'').trim().slice(0,20); if(!nick) return; const exists=!!this.pdata.profiles[nick]; if(!exists) this.pdata.profiles[nick]=this._blank(); this.pdata.current=nick; this.store=this.pdata.profiles[nick]; this._save(); this.setState({screen: exists?'hub':'onboarding', loginName:'', profileMenu:false, lbModal:true}); this._syncPullProfile(nick); }
+  _login(nick){ nick=(nick||'').trim().slice(0,20); if(!nick) return; const exists=!!this.pdata.profiles[nick]; if(!exists) this.pdata.profiles[nick]=this._blank(); this.pdata.current=nick; this.store=this.pdata.profiles[nick]; this._saveLocal(); this.setState({screen: exists?'hub':'onboarding', loginName:'', profileMenu:false, lbModal:true}); this._syncPullProfile(nick); }
   // Синхронизация профиля с сервера при входе / на старте. Сервер авторитетен:
   // если там есть данные — подменяем локальный профиль ими (кросс-девайс). Если
   // профиля на сервере ещё нет — заливаем туда текущий локальный. Ошибки сети
@@ -1273,8 +1273,10 @@ class Component extends DCLogic {
   _syncEnsureLeaderboard(metric){
     if(!window.TypTapSync) return;
     const cur = this.state.lbRemote;
-    if(cur && cur.metric === metric) return;   // уже загружено для этой метрики
-    if(this._lbFetching === metric) return;    // запрос уже в полёте
+    const stale = this._lbStale;                 // выставляется при входе на экран лидеров
+    if(!stale && cur && cur.metric === metric) return;   // свежий кэш этой метрики — пропускаем
+    if(this._lbFetching === metric && !stale) return;    // запрос уже в полёте
+    this._lbStale = false;                       // одноразовый форс-рефреш
     this._lbFetching = metric;
     setTimeout(()=>{
       window.TypTapSync.fetchLeaderboard(metric, this.pdata.current).then((res)=>{
@@ -1461,6 +1463,9 @@ class Component extends DCLogic {
     if(screen==='lesson'){ const n=this._nextLesson(); this._startLesson(n.tier,n.idx); return; }
     if(screen==='drill'){ this.setState({screen:'drill'}, ()=>this._startDrill()); return; }
     if(screen==='game'){ this.setState({screen:'game', game:null}); return; }
+    // Заходя в таблицу лидеров, всегда тянем свежие данные с сервера (иначе кэш lbRemote
+    // залипает и новые игроки/результаты не появляются).
+    if(screen==='leaderboard') this._lbStale=true;
     this.setState({screen});
   }
   _openGame(id){ this._stopLoop(); this.setState({screen:'game', game:id}, ()=>this._startGame(id)); }
