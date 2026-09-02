@@ -292,12 +292,12 @@
       <div><div style="font-family:'Fredoka';font-weight:600;font-size:21px;line-height:1;color:var(--ink)">TypTap</div><div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.03em;margin-top:3px">{{ t.brandSub }}</div></div>
     </div>
     <sc-for list="{{ nav }}" as="item" hint-placeholder-count="6">
-      <div onClick="{{ item.onClick }}" class="tt-navitem" role="button" tabindex="0" data-kbclick="" data-tour="{{ item.sc }}" aria-current="{{ item.current }}" style="{{ item.style }}">
+      <div onClick="{{ item.onClick }}" class="tt-navitem" role="button" tabindex="0" data-kbclick="" data-tour="{{ item.sc }}" data-tour-title="{{ item.tourTitle }}" data-tour-body="{{ item.tourBody }}" data-tour-order="{{ item.tourOrder }}" data-tour-mood="{{ item.tourMood }}" aria-current="{{ item.current }}" style="{{ item.style }}">
         <span style="{{ item.badgeStyle }}"><i class="{{ item.icon }}"></i></span>
         <span class="tt-navtext" style="flex:1">{{ item.label }}</span>
       </div>
     </sc-for>
-    <div class="tt-profile" data-tour="profile" style="position:relative;margin-top:auto">
+    <div class="tt-profile" data-tour="profile" data-tour-title="{{ t.tour_profile_t }}" data-tour-body="{{ t.tour_profile_b }}" data-tour-order="90" data-tour-mood="puzzled" style="position:relative;margin-top:auto">
       <sc-if value="{{ profileMenu }}" hint-placeholder-val="{{ false }}">
         <div style="position:absolute;bottom:calc(100% + 8px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:6px;z-index:40">
           <div style="padding:8px 12px;font-size:12px;color:var(--muted);font-weight:700">{{ t.profile }}: <b style="color:var(--ink)">{{ nickname }}</b></div>
@@ -321,13 +321,13 @@
       <div style="flex:1"></div>
       <div class="tt-headerchip" style="display:flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-weight:800;font-size:13px"><i class="fa-solid fa-fire" style="color:var(--brand)"></i><span>{{ streak }}</span></div>
       <div class="tt-headerchip" style="display:flex;align-items:center;gap:6px;background:var(--accent-bg);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));border-radius:20px;padding:6px 12px;font-weight:800;font-size:13px;color:var(--accent-ink)"><i class="fa-solid fa-bolt"></i><span>{{ xp }} XP</span></div>
-      <div style="display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px;gap:2px">
+      <div data-tour="uilang" data-tour-title="{{ t.tour_uilang_t }}" data-tour-body="{{ t.tour_uilang_b }}" data-tour-order="70" data-tour-mood="neutral" style="display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:3px;gap:2px">
         <sc-for list="{{ uiLangs }}" as="u" hint-placeholder-count="2">
           <button onClick="{{ u.onClick }}" style="{{ u.style }}">{{ u.short }}</button>
         </sc-for>
       </div>
-      <button onClick="{{ startTour }}" title="{{ t.tour_help }}" aria-label="{{ t.tour_help }}" style="width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-circle-question"></i></button>
-      <button onClick="{{ toggleTheme }}" title="Theme" style="width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center"><i class="{{ themeIcon }}"></i></button>
+      <button onClick="{{ startTour }}" title="{{ t.tour_help }}" aria-label="{{ t.tour_help }}" data-tour="help" data-tour-title="{{ t.tour_help_t }}" data-tour-body="{{ t.tour_help_b }}" data-tour-order="74" data-tour-mood="happy" style="width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-circle-question"></i></button>
+      <button onClick="{{ toggleTheme }}" title="Theme" data-tour="theme" data-tour-title="{{ t.tour_theme_t }}" data-tour-body="{{ t.tour_theme_b }}" data-tour-order="72" data-tour-mood="celebrate" style="width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center"><i class="{{ themeIcon }}"></i></button>
     </header>
 
     <!-- keyboard-layout switch HUD (centered, macOS-style) -->
@@ -347,7 +347,7 @@
       <!-- ==================== HUB ==================== -->
       <sc-if value="{{ isHub }}" hint-placeholder-val="{{ true }}">
       <div style="max-width:1320px;margin:0 auto;padding:34px 40px 60px;animation:tt-fade .4s">
-        <div class="tt-hero" data-tour="hero" style="display:grid;grid-template-columns:1.35fr 1fr;gap:22px;align-items:stretch">
+        <div class="tt-hero" data-tour="hero" data-tour-title="{{ t.tour_type_t }}" data-tour-body="{{ t.tour_type_b }}" data-tour-order="80" data-tour-mood="encouraging" style="display:grid;grid-template-columns:1.35fr 1fr;gap:22px;align-items:stretch">
           <div style="background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);border-radius:var(--r-xl);padding:34px 34px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow)">
             <div style="position:relative;z-index:2;max-width:62%">
               <div style="font-size:13px;font-weight:800;letter-spacing:.05em;opacity:.9;text-transform:uppercase">{{ t.dailyGoal }} · {{ dailyDone }}/{{ dailyTotal }} {{ t.minUnit }}</div>
@@ -1564,12 +1564,20 @@ class Component extends DCLogic {
       courseMode:'Course mode', adaptivePractice:'Adaptive practice', weakKeyPractice:'Weak-key practice: ', adaptiveFrom:'Adaptive · pulled from your recent misses', adaptiveType:'Adaptive · type more to personalise this', targetWpmSuffix:' · target % wpm', lessonWordCap:'Lesson', lessonDash:' — lesson ', examStart:'Exam', examStop:'Show keys',
       tour_help:'Help / tour', tour_next:'Next', tour_back:'Back', tour_skip:'Skip', tour_done_btn:'Start',
       tour_welcome_t:"Hi, I'm Typo! 👋", tour_welcome_b:'Let me show you around in a few quick steps.',
+      // One step per feature, keyed by its [data-tour] marker (tour_<key>_t/_b). To add a feature to the
+      // tour later, just give its element a data-tour marker and drop a matching pair of strings here —
+      // it joins the tour automatically, no code changes. New sidebar modes are picked up with zero work.
+      tour_hub_t:'Home', tour_hub_b:'Your daily dashboard — streak, daily goal, this week’s activity and a one-tap way back into your next lesson.',
       tour_lessons_t:'Lessons', tour_lessons_b:'A structured course, step by step — from the home row to pro speed. Keys unlock as you progress.',
       tour_drill_t:'Drills', tour_drill_b:'Adaptive practice that focuses on the keys you miss most.',
-      tour_games_t:'Games', tour_games_b:'16 mini-games to build speed while having fun.',
-      tour_lb_t:'Leaderboard', tour_lb_b:'See how you rank against typists around the world.',
+      tour_custom_t:'Your text', tour_custom_b:'Paste any text or upload a .txt / .md file — TypTap turns it into a personal typing drill.',
+      tour_game_t:'Games', tour_game_b:'A whole arcade of mini-games — races, boss battles, mazes and more — to build speed while having fun.',
+      tour_leaderboard_t:'Leaderboard', tour_leaderboard_b:'See how your speed, accuracy and streak rank against typists around the world.',
+      tour_uilang_t:'Interface language', tour_uilang_b:'Switch the interface between Ukrainian and English anytime. Lessons follow your system keyboard layout automatically.',
+      tour_theme_t:'Light & dark', tour_theme_b:'Tap to switch between light and dark themes — easy on the eyes, day or night.',
+      tour_help_t:'Replay this tour', tour_help_b:'Lost? Tap the “?” anytime to run this guided tour again.',
       tour_type_t:'How typing works', tour_type_b:'Type the text on screen — key colors show which finger to use. In a lesson, tap “Exam” to hide the keyboard and test yourself.',
-      tour_profile_t:'Your progress', tour_profile_b:'Your nickname, streak and stats live here — saved automatically.',
+      tour_profile_t:'Your progress', tour_profile_b:'Your nickname, streak, XP and stats live here — saved automatically and synced across your devices.',
       tour_done_t:"You're all set! 🚀", tour_done_b:"Let's start your first lesson.",
       // results
       h_pb:'New personal best!', h_brilliant:'Brilliant!', h_nice:'Nicely done!', h_good:'Good progress!',
@@ -1636,12 +1644,17 @@ class Component extends DCLogic {
       courseMode:'Курс', adaptivePractice:'Адаптивна практика', weakKeyPractice:'Слабкі клавіші: ', adaptiveFrom:'Адаптивно · за твоїми останніми помилками', adaptiveType:'Адаптивно · друкуй більше, щоб персоналізувати', targetWpmSuffix:' · ціль % зн/хв', lessonWordCap:'Урок', lessonDash:' — урок ', examStart:'Залік', examStop:'Показати клавіші',
       tour_help:'Довідка / тур', tour_next:'Далі', tour_back:'Назад', tour_skip:'Пропустити', tour_done_btn:'Почати',
       tour_welcome_t:'Привіт, я Тайпо! 👋', tour_welcome_b:'Покажу за кілька кроків, що тут де.',
+      tour_hub_t:'Головна', tour_hub_b:'Твоя щоденна панель — серія, ціль на день, активність за тиждень і кнопка, щоб одним дотиком повернутися до наступного уроку.',
       tour_lessons_t:'Уроки', tour_lessons_b:'Структурований курс крок за кроком — від опорного ряду до швидкості профі. Клавіші відкриваються поступово.',
       tour_drill_t:'Тренування', tour_drill_b:'Адаптивна практика саме тих клавіш, де ти найчастіше помиляєшся.',
-      tour_games_t:'Ігри', tour_games_b:'16 міні-ігор, щоб нарощувати швидкість із задоволенням.',
-      tour_lb_t:'Лідери', tour_lb_b:'Дивись, яке в тебе місце серед друкарів з усього світу.',
+      tour_custom_t:'Свій текст', tour_custom_b:'Встав будь-який текст або завантаж файл .txt / .md — TypTap зробить із нього персональну вправу.',
+      tour_game_t:'Ігри', tour_game_b:'Ціла аркада міні-ігор — перегони, боси, лабіринти й не тільки — щоб нарощувати швидкість із задоволенням.',
+      tour_leaderboard_t:'Лідери', tour_leaderboard_b:'Дивись, як твоя швидкість, точність і серія стоять серед друкарів з усього світу.',
+      tour_uilang_t:'Мова інтерфейсу', tour_uilang_b:'Перемикай інтерфейс між українською та англійською будь-коли. Уроки самі підлаштовуються під розкладку системної клавіатури.',
+      tour_theme_t:'Світла й темна', tour_theme_b:'Натисни, щоб перемкнути світлу й темну теми — комфортно для очей і вдень, і вночі.',
+      tour_help_t:'Повторити тур', tour_help_b:'Загубився? Натисни «?» будь-коли, щоб знову пройти цей гід.',
       tour_type_t:'Як друкувати', tour_type_b:'Друкуй текст з екрана — кольори клавіш підказують, яким пальцем. В уроці натисни «Залік», щоб сховати клавіатуру й перевірити себе.',
-      tour_profile_t:'Твій прогрес', tour_profile_b:'Тут твій нік, серія та статистика — зберігається автоматично.',
+      tour_profile_t:'Твій прогрес', tour_profile_b:'Тут твій нік, серія, XP і статистика — зберігається автоматично й синхронізується між пристроями.',
       tour_done_t:'Готово! 🚀', tour_done_b:'Почнімо твій перший урок.',
       h_pb:'Новий особистий рекорд!', h_brilliant:'Блискуче!', h_nice:'Гарно вийшло!', h_good:'Гарний прогрес!',
       msg_needTarget:'Потрібно % ЗН/ХВ, щоб пройти рівень — у тебе %. Зовсім близько, спробуй ще!', msg_pb:'Твій найшвидший забіг — % ЗН/ХВ. Typo пишається тобою.', msg_flawless:'Майже бездоганно — м’язова пам’ять уже закріплюється.', msg_keepGoing:'Продовжуй — ще трохи практики над слабкими клавішами, і ти полетиш.',
@@ -1922,20 +1935,39 @@ class Component extends DCLogic {
     const T=this._t();
     const finishTour=(done)=>{ if(this.store){ this.store.tourDone=true; this._save(); } if(afterLesson) this._goalStart(); };
     if(!window.TypTapTour){ finishTour(false); return; }
-    const steps=[
-      {sel:null,                       mood:'happy',       title:T.tour_welcome_t, body:T.tour_welcome_b},
-      {sel:'[data-tour="lessons"]',    mood:'encouraging', title:T.tour_lessons_t, body:T.tour_lessons_b},
-      {sel:'[data-tour="drill"]',      mood:'neutral',     title:T.tour_drill_t,   body:T.tour_drill_b},
-      {sel:'[data-tour="game"]',       mood:'celebrate',   title:T.tour_games_t,   body:T.tour_games_b},
-      {sel:'[data-tour="leaderboard"]',mood:'happy',       title:T.tour_lb_t,      body:T.tour_lb_b},
-      {sel:'[data-tour="hero"]',       mood:'encouraging', title:T.tour_type_t,    body:T.tour_type_b},
-      {sel:'[data-tour="profile"]',    mood:'puzzled',     title:T.tour_profile_t, body:T.tour_profile_b},
-      {sel:null,                       mood:'celebrate',   title:T.tour_done_t,    body:T.tour_done_b}
-    ];
+    const steps=this._buildTourSteps();
     window.TypTapTour.start(steps, {
       labels:{next:T.tour_next, back:T.tour_back, skip:T.tour_skip, done:T.tour_done_btn},
       onDone:finishTour
     });
+  }
+
+  // Собирает шаги тура прямо из DOM: каждый видимый элемент с атрибутом [data-tour]
+  // становится шагом. Заголовок/текст/эмоция/порядок берутся из его data-* атрибутов,
+  // а если их нет — из i18n-ключей tour_<key>_t / tour_<key>_b. Благодаря этому любая
+  // новая функция (новый пункт сайдбара или любой элемент, помеченный data-tour) сама
+  // попадает в гайд — переписывать тур при добавлении фич не нужно.
+  _buildTourSteps(){
+    const T=this._t();
+    const steps=[{sel:null, mood:'happy', title:T.tour_welcome_t, body:T.tour_welcome_b}];
+    const moods=['encouraging','neutral','happy','celebrate','puzzled'];
+    const nodes=Array.prototype.slice.call(document.querySelectorAll('[data-tour]'));
+    const domIdx=new Map(); nodes.forEach((el,i)=>domIdx.set(el,i));
+    // Только реально видимые точки (у скрытых экранов размеры 0).
+    const visible=nodes.filter(el=>{ const r=el.getBoundingClientRect(); return r.width>0 && r.height>0; });
+    // Порядок: явный data-tour-order, иначе — порядок появления в DOM (после явно заданных).
+    const ord=(el)=> el.hasAttribute('data-tour-order') ? parseFloat(el.getAttribute('data-tour-order')) : 1000+domIdx.get(el);
+    visible.sort((a,b)=> ord(a)-ord(b));
+    visible.forEach((el,i)=>{
+      const key=el.getAttribute('data-tour');
+      const title=el.getAttribute('data-tour-title') || T['tour_'+key+'_t'] || '';
+      const body =el.getAttribute('data-tour-body')  || T['tour_'+key+'_b'] || '';
+      if(!title && !body) return; // недокументированные точки пропускаем
+      const mood=el.getAttribute('data-tour-mood') || moods[i%moods.length];
+      steps.push({sel:'[data-tour="'+key+'"]', mood, title, body});
+    });
+    steps.push({sel:null, mood:'celebrate', title:T.tour_done_t, body:T.tour_done_b});
+    return steps;
   }
 
   _stats(){
@@ -2355,9 +2387,16 @@ class Component extends DCLogic {
       {sc:'leaderboard',label:T.nav_leaderboard,icon:'fa-solid fa-ranking-star'}
     ];
     const navActive=(k)=> (k===s.screen) || (k==='lessons'&&(s.screen==='lesson'||s.screen==='results')) || (k==='game'&&s.screen==='game');
-    const nav=navDefs.map(n=>{
+    // Per-item guided-tour copy. Falls back through i18n so a brand-new nav mode gets a sensible
+    // tour step automatically (dedicated tour_<sc>_t/_b → its mode-card desc → page title → label).
+    const tourMoodBySc={hub:'happy',lessons:'encouraging',drill:'neutral',custom:'happy',game:'celebrate',leaderboard:'happy'};
+    const nav=navDefs.map((n,ni)=>{
       const act=navActive(n.sc);
       return { label:n.label, icon:n.icon, badge:n.badge, sc:n.sc, current:act?'page':'false', onClick:()=>this.go(n.sc),
+        tourTitle: T['tour_'+n.sc+'_t'] || n.label,
+        tourBody:  T['tour_'+n.sc+'_b'] || T['mc_'+n.sc+'_d'] || T['t_'+n.sc] || n.label,
+        tourOrder: (ni+1)*10,
+        tourMood:  tourMoodBySc[n.sc] || 'happy',
         badgeStyle:this._rb(act?'var(--brand)':'var(--brand-bg)', act?'#fff':'var(--brand-ink)', 30, 9)+'font-size:13px;',
         style:`display:flex;align-items:center;gap:12px;padding:9px 11px;border-radius:13px;cursor:pointer;font-weight:800;font-size:14.5px;transition:background .12s;`+(act?`background:var(--brand-bg);color:var(--brand-ink);`:`color:var(--ink-2);background:transparent;`) };
     });
