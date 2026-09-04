@@ -4,9 +4,16 @@
 
 ```
 Браузер ──HTTPS──> Caddy (автосертифікат Let's Encrypt)
-                     ├─ /            → статика: index.html, support.js, Mascot.dc.html
+                     ├─ /            → статика: index.html, support.js, mascots/*.dc.html
+                     ├─ /api/ws      → WebSocket мультиплеєра (той самий Docker: api)
                      └─ /api/*       → 127.0.0.1:8010 (Docker: api)  → Postgres (Docker)
 ```
+
+> **Мультиплеєр** (гонка одним текстом, присутність онлайн, запрошення) працює
+> через WebSocket на `/api/ws` — той самий контейнер `api`. Caddy апгрейдить
+> WebSocket автоматично, тож **окремих налаштувань не треба**. Стан матчів
+> тримається в памʼяті процесу `api` (деплой однопроцесний — цього достатньо).
+> Залежність `ws` ставиться сама під час `docker compose build`.
 
 Бекенд (Node + Postgres) працює в Docker і слухає **лише** loopback на порту
 **8010**. Назовні все віддає Caddy, він же тримає TLS. Профіль гравця — за
@@ -80,7 +87,10 @@ curl -s "http://127.0.0.1:8010/leaderboard?metric=wpm&nickname=Test"
 
 ```bash
 sudo mkdir -p /var/www/typtap
-sudo cp /opt/typtap/index.html /opt/typtap/support.js /opt/typtap/Mascot.dc.html /var/www/typtap/
+sudo cp /opt/typtap/index.html /opt/typtap/support.js /var/www/typtap/
+sudo cp -r /opt/typtap/mascots /var/www/typtap/
+# mascots/ = усі DC-компоненти-маскоти (Mascot + Mon + Bear/Cat/Bunny/… — потрібні для лобі й гонки).
+# support.js бере їх із ./mascots (константа COMPONENT_DIR).
 ```
 
 ---
@@ -119,7 +129,7 @@ curl -s https://typtap.alliancegroup95.com/api/health    # -> {"ok":true}
 **Фронтенд (index.html / support.js):**
 ```bash
 cd /opt/typtap && git pull
-sudo cp index.html support.js Mascot.dc.html /var/www/typtap/
+sudo cp index.html support.js /var/www/typtap/ && sudo cp -r mascots /var/www/typtap/
 ```
 (Caddy перезавантажувати не треба — статика читається з диска.)
 

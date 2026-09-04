@@ -62,6 +62,51 @@
     }
   };
 })();
+/* TypTap multiplayer client — тонкая обёртка над WebSocket к /api/ws.
+   Тот же принцип, что и у TypTapSync: сетевые сбои не роняют приложение
+   (одиночная игра работает и без соединения). Один обработчик onMsg получает
+   уже разобранные сообщения сервера; ping/pong обрабатывается тут же. */
+(function(){
+  var API = (typeof window.TYPTAP_API_BASE === 'string') ? window.TYPTAP_API_BASE : '/api';
+  // WS-URL можно переопределить window.TYPTAP_WS_BASE='ws://localhost:8787/ws' ДО этого скрипта.
+  function wsUrl(){
+    if(typeof window.TYPTAP_WS_BASE === 'string') return window.TYPTAP_WS_BASE;
+    if(/^https?:\/\//i.test(API)) return API.replace(/^http/i,'ws').replace(/\/+$/,'') + '/ws';
+    var proto = (location.protocol === 'https:') ? 'wss:' : 'ws:';
+    var path = ('/' + API + '/ws').replace(/\/+/g,'/');
+    return proto + '//' + location.host + path;
+  }
+  var ws=null, onMsg=null, hello=null, connected=false, backoff=1000, closedByUs=false, queue=[];
+  function raw(o){ try{ ws.send(JSON.stringify(o)); }catch(e){} }
+  function open(){
+    try { ws = new WebSocket(wsUrl()); }
+    catch(e){ console.warn('[TypTapMP] ws error:', e.message); retry(); return; }
+    ws.onopen = function(){
+      connected = true; backoff = 1000;
+      if(hello) raw(Object.assign({type:'hello'}, hello));
+      while(queue.length) raw(queue.shift());
+      if(onMsg) onMsg({type:'_open'});
+    };
+    ws.onmessage = function(ev){
+      var m; try{ m = JSON.parse(ev.data); }catch(_){ return; }
+      if(m.type === 'ping'){ raw({type:'pong'}); return; }
+      if(onMsg) onMsg(m);
+    };
+    ws.onclose = function(){ connected=false; if(onMsg) onMsg({type:'_close'}); if(!closedByUs) retry(); };
+    ws.onerror = function(){ try{ ws.close(); }catch(_){} };
+  }
+  function retry(){ setTimeout(open, backoff); backoff = Math.min(15000, Math.round(backoff*1.7)); }
+  window.TypTapMP = {
+    connect: function(helloPayload, handler){ onMsg = handler; hello = helloPayload; closedByUs = false; if(!ws || ws.readyState > 1) open(); },
+    updateHello: function(h){ hello = h; },
+    send: function(type, payload){
+      var o = Object.assign({type:type}, payload||{});
+      if(connected && ws && ws.readyState === 1) raw(o); else queue.push(o);
+    },
+    isConnected: function(){ return connected; },
+    close: function(){ closedByUs = true; try{ ws && ws.close(); }catch(_){} }
+  };
+})();
 /* A11y: let keyboard users activate custom clickable cards (div role="button" data-kbclick).
    Enter/Space on a focused such element fires a real click, mirroring mouse behaviour.
    The lessons' typing capture is unaffected — those live on separate handlers. */
@@ -1121,6 +1166,110 @@
       </div>
       </sc-if>
 
+      <!-- ==================== MULTIPLAYER ==================== -->
+      <sc-if value="{{ isMp }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:980px;margin:0 auto;padding:26px 30px 60px;animation:tt-fade .35s">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <div style="width:40px;height:40px;border-radius:12px;background:var(--brand);box-shadow:0 3px 0 var(--brand-ink);display:flex;align-items:center;justify-content:center;color:#fff;font-size:19px"><i class="fa-solid fa-users"></i></div>
+          <div style="flex:1;min-width:0"><div style="font-family:'Fredoka';font-weight:600;font-size:22px;line-height:1">{{ t.mp_title }}</div><div style="font-size:13px;font-weight:700;color:var(--ink-2);margin-top:3px">{{ mpSubLine }}</div></div>
+          <div style="display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:7px 12px;font-weight:800;font-size:12.5px;color:var(--ink-2)"><span style="width:8px;height:8px;border-radius:50%;background:{{ mpDotColor }};display:inline-block"></span>{{ mpConnLabel }}</div>
+          <button onClick="{{ mpExit }}" style="border:1px solid var(--border-2);background:var(--surface);color:var(--ink-2);font-family:inherit;font-weight:800;font-size:13px;padding:9px 14px;border-radius:11px;cursor:pointer">{{ t.mp_exit }}</button>
+        </div>
+
+        <!-- RACE: shared text -->
+        <sc-if value="{{ mpRaceView }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:26px 26px 30px;box-shadow:var(--shadow)">
+          <div style="font-size:12px;font-weight:800;color:var(--brand-ink);text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px"><i class="fa-solid fa-keyboard" style="margin-right:6px"></i>{{ t.mp_raceTitle }}</div>
+          <div style="font-family:'JetBrains Mono','Fredoka',monospace;font-size:26px;line-height:1.95;letter-spacing:.5px;word-break:break-word;white-space:pre-wrap">
+            <sc-for list="{{ mpChars }}" as="c" hint-placeholder-count="0"><span style="{{ c.style }}">{{ c.disp }}</span></sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- LOBBY: create step -->
+        <sc-if value="{{ mpStepCreate }}" hint-placeholder-val="{{ true }}">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:20px;box-shadow:var(--shadow)">
+          <h2 style="font-family:'Fredoka';font-weight:600;font-size:19px;margin:0 0 14px">{{ t.mp_createTitle }}</h2>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            <sc-for list="{{ mpLenCards }}" as="g" hint-placeholder-count="3">
+              <button onClick="{{ g.onClick }}" style="{{ g.cardStyle }}"><span style="{{ g.chipStyle }}"><i class="{{ g.icon }}"></i></span><span style="font-family:'Fredoka';font-weight:600;font-size:15px;color:var(--ink)">{{ g.title }}</span><span style="font-size:12px;font-weight:700;color:var(--ink-2)">{{ g.desc }}</span></button>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:22px">
+            <button onClick="{{ mpCreate }}" style="border:none;background:var(--brand);color:#fff;font-family:'Fredoka';font-weight:600;font-size:16px;padding:13px 26px;border-radius:14px;box-shadow:0 4px 0 var(--brand-ink);cursor:pointer">{{ t.mp_create }}</button>
+            <button onClick="{{ mpQuick }}" style="border:1px solid var(--border-2);background:var(--surface);color:var(--brand-ink);font-family:'Fredoka';font-weight:600;font-size:16px;padding:13px 22px;border-radius:14px;cursor:pointer"><i class="fa-solid fa-bolt" style="margin-right:7px"></i>{{ t.mp_quick }}</button>
+            <sc-if value="{{ mpWaiting }}" hint-placeholder-val="{{ false }}"><span style="font-weight:700;font-size:13.5px;color:var(--ink-2)"><i class="fa-solid fa-spinner" style="margin-right:6px"></i>{{ t.mp_quickWait }} <button onClick="{{ mpCancelQuick }}" style="border:none;background:transparent;color:var(--brand-ink);font-weight:800;cursor:pointer;text-decoration:underline">{{ t.mp_cancel }}</button></span></sc-if>
+          </div>
+          <div style="height:1px;background:var(--border);margin:20px 0 16px"></div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <input value="{{ mpJoinInput }}" onInput="{{ mpJoinType }}" placeholder="{{ t.mp_codePlaceholder }}" maxlength="6" style="flex:1;min-width:160px;border:1px solid var(--border-2);background:var(--surface-2);border-radius:12px;padding:12px 14px;font-family:'JetBrains Mono';font-weight:700;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:var(--ink)"/>
+            <button onClick="{{ mpJoinBtn }}" style="border:1px solid var(--border-2);background:var(--surface);color:var(--ink);font-family:'Fredoka';font-weight:600;font-size:15px;padding:12px 20px;border-radius:12px;cursor:pointer">{{ t.mp_join }}</button>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- LOBBY: room step -->
+        <sc-if value="{{ mpStepLobby }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:20px;box-shadow:var(--shadow)">
+          <div style="display:flex;align-items:center;gap:12px;background:var(--brand-bg);border:1px solid color-mix(in srgb,var(--brand) 30%,var(--border));border-radius:16px;padding:12px 16px;margin-bottom:18px;flex-wrap:wrap">
+            <span style="width:40px;height:40px;border-radius:12px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 3px 0 var(--brand-ink)"><i class="fa-solid fa-flag-checkered"></i></span>
+            <div style="flex:1;min-width:120px"><div style="font-size:12px;font-weight:800;color:var(--brand-ink);text-transform:uppercase;letter-spacing:.04em">{{ t.mp_len }}</div><div style="font-family:'Fredoka';font-weight:600;font-size:17px">{{ mpLenLabel }}</div></div>
+            <div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 12px"><span style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase">{{ t.mp_roomCode }}</span><b style="font-family:'JetBrains Mono';font-size:16px;letter-spacing:2px;color:var(--brand-ink)">{{ mpRoomCode }}</b></div>
+            <button onClick="{{ mpShareLink }}" style="border:1px solid var(--border-2);background:var(--surface);color:var(--ink-2);font-family:inherit;font-weight:800;font-size:12.5px;padding:9px 13px;border-radius:11px;cursor:pointer"><i class="fa-solid fa-link" style="margin-right:5px"></i>{{ t.mp_copyLink }}</button>
+            <button onClick="{{ mpChangeSettings }}" style="border:1px solid var(--border-2);background:var(--surface);color:var(--ink-2);font-family:inherit;font-weight:800;font-size:12.5px;padding:9px 13px;border-radius:11px;cursor:pointer">{{ t.mp_change }}</button>
+          </div>
+
+          <h3 style="font-family:'Fredoka';font-weight:600;font-size:15px;margin:0 0 12px;color:var(--ink-2)">{{ t.mp_chooseChar }}</h3>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+            <sc-for list="{{ mpAnimalGrid }}" as="a" hint-placeholder-count="10">
+              <button onClick="{{ a.onClick }}" style="position:relative;border:2px solid var(--border);background:var(--surface-2);border-radius:16px;padding:10px 6px 7px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px">
+                <sc-if value="{{ a.sel }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:-2px;border:3px solid var(--brand);border-radius:16px;pointer-events:none"></div><div style="position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 2px 0 var(--brand-ink)"><i class="fa-solid fa-check"></i></div></sc-if>
+                <div style="width:60px;height:60px"><dc-import name="Mon" a="{{ a.key }}" mood="{{ a.mood }}" hint-size="60px,60px"></dc-import></div>
+                <span style="font-family:'Fredoka';font-weight:600;font-size:12.5px">{{ a.name }}</span>
+              </button>
+            </sc-for>
+          </div>
+
+          <div style="height:1px;background:var(--border);margin:20px 0 14px"></div>
+          <h3 style="font-family:'Fredoka';font-weight:600;font-size:15px;margin:0 0 12px;color:var(--ink-2)">{{ t.mp_players }} · {{ mpCountLabel }}</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+            <sc-for list="{{ mpSlots }}" as="sl" hint-placeholder-count="4">
+              <sc-if value="{{ sl.filled }}" hint-placeholder-val="{{ true }}">
+                <div style="{{ sl.wrapStyle }}">
+                  <div style="width:46px;height:46px;border-radius:50%;background:#fff;flex:none;overflow:hidden;border:1px solid var(--border)"><dc-import name="Mon" a="{{ sl.animal }}" mood="{{ sl.mood }}" hint-size="46px,46px"></dc-import></div>
+                  <div style="min-width:0"><div style="font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sl.name }}</div><div style="{{ sl.badgeStyle }}">{{ sl.badge }}</div></div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ sl.empty }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:11px;border:2px dashed var(--border-2);border-radius:16px;padding:9px 12px;color:var(--muted)"><div style="width:46px;height:46px;border-radius:50%;border:2px dashed var(--border-2);flex:none;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="fa-solid fa-plus"></i></div><div style="font-weight:800;font-size:13px">{{ t.mp_slotEmpty }}</div></div>
+              </sc-if>
+            </sc-for>
+          </div>
+
+          <h3 style="font-family:'Fredoka';font-weight:600;font-size:15px;margin:20px 0 12px;color:var(--ink-2)"><i class="fa-solid fa-circle" style="color:var(--success);font-size:9px;vertical-align:middle;margin-right:6px"></i>{{ t.mp_online }}</h3>
+          <sc-if value="{{ mpNoOnline }}" hint-placeholder-val="{{ false }}"><div style="color:var(--muted);font-weight:700;font-size:13px;padding:4px 2px 8px">{{ t.mp_noOnline }}</div></sc-if>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">
+            <sc-for list="{{ mpOnline }}" as="o" hint-placeholder-count="0">
+              <div style="display:flex;align-items:center;gap:11px;background:var(--surface-2);border:1px solid var(--border);border-radius:16px;padding:8px 10px 8px 12px">
+                <div style="width:40px;height:40px;border-radius:50%;background:var(--brand-bg);flex:none;overflow:hidden"><dc-import name="Mon" a="{{ o.animal }}" mood="idle" hint-size="40px,40px"></dc-import></div>
+                <div style="min-width:0;flex:1"><div style="font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.name }}</div><div style="font-size:11px;font-weight:800;color:var(--muted)">{{ o.wpm }} {{ t.mp_unit }}</div></div>
+                <button onClick="{{ o.onInvite }}" style="{{ o.btnStyle }}">{{ o.btnLabel }}</button>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:14px;margin-top:22px;flex-wrap:wrap">
+            <button onClick="{{ mpReadyToggle }}" style="{{ mpReadyStyle }}">{{ mpReadyLabel }}</button>
+            <button onClick="{{ mpAddBot }}" style="border:1px solid var(--border-2);background:var(--surface);color:var(--ink-2);font-family:'Fredoka';font-weight:600;font-size:15px;padding:12px 20px;border-radius:14px;cursor:pointer"><i class="fa-solid fa-robot" style="margin-right:7px"></i>{{ t.mp_addBot }}</button>
+            <div style="font-weight:700;font-size:14px;color:var(--ink-2);flex:1;min-width:160px">{{ mpLobbyStatusText }}</div>
+          </div>
+        </div>
+        </sc-if>
+
+        <div style="min-height:18px;text-align:center;color:var(--muted);font-weight:700;font-size:12.5px;margin-top:14px">{{ mpStatus }}</div>
+      </div>
+      </sc-if>
+
     </div>
   </main>
 
@@ -1155,6 +1304,76 @@
   </div>
   </sc-if>
 
+  <!-- ==================== MP: COUNTDOWN ==================== -->
+  <sc-if value="{{ mpCounting }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:9500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(20,14,10,.62);backdrop-filter:blur(4px)">
+      <div style="font-family:'Fredoka';font-weight:600;font-size:20px;color:rgba(255,255,255,.85)">{{ t.mp_startsIn }}</div>
+      <div style="font-family:'Fredoka';font-weight:700;font-size:120px;line-height:1;color:#fff;text-shadow:0 6px 30px rgba(251,122,42,.6)" key="{{ mpCount }}"><span style="display:inline-block;animation:tt-pop .5s">{{ mpCount }}</span></div>
+    </div>
+  </sc-if>
+
+  <!-- ==================== MP: LIVE BOARD ==================== -->
+  <sc-if value="{{ mpLive }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:8000;display:flex;flex-direction:column;gap:9px;background:color-mix(in srgb,var(--surface) 97%,transparent);border:1px solid var(--border);border-radius:18px;box-shadow:0 14px 38px rgba(120,70,20,.2);padding:12px 14px;min-width:300px;max-width:360px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-family:'Fredoka';font-weight:600;font-size:13px;color:var(--brand-ink);text-transform:uppercase;letter-spacing:.04em;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ mpGameTitle }}</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono','Fredoka';font-weight:700;font-size:20px;color:{{ mpClock }}"><i class="fa-regular fa-clock" style="font-size:15px"></i>{{ mpTimeLabel }}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <sc-for list="{{ mpBoard }}" as="p" hint-placeholder-count="3">
+          <div style="{{ p.rowStyle }}">
+            <div style="width:26px;height:26px;border-radius:50%;background:#fff;flex:none;overflow:hidden;border:1px solid var(--border)"><dc-import name="Mon" a="{{ p.animal }}" mood="typing" hint-size="26px,26px"></dc-import></div>
+            <span style="font-weight:800;font-size:12.5px;width:60px;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span>
+            <div style="flex:1;height:8px;background:var(--border);border-radius:5px;overflow:hidden"><div style="{{ p.barStyle }}"></div></div>
+            <span style="font-family:'JetBrains Mono';font-weight:700;font-size:12px;color:var(--ink-2);width:34px;flex:none;text-align:right">{{ p.cpm }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ==================== MP: RESULTS ==================== -->
+  <sc-if value="{{ mpResult }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:9600;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(20,14,10,.6);backdrop-filter:blur(5px);animation:tt-fade .25s">
+      <div style="width:100%;max-width:440px;background:var(--surface);border:1px solid var(--border);border-radius:26px;box-shadow:0 40px 90px rgba(0,0,0,.4);padding:26px 24px 24px;text-align:center">
+        <div style="font-size:12px;font-weight:800;color:var(--brand-ink);text-transform:uppercase;letter-spacing:.05em"><i class="fa-solid fa-trophy" style="margin-right:6px"></i>{{ mpResTitle }}</div>
+        <div style="position:relative;width:118px;height:118px;margin:14px auto 4px">
+          <div style="width:118px;height:118px"><dc-import name="Mon" a="{{ mpWinner.animal }}" mood="win" hint-size="118px,118px"></dc-import></div>
+          <div style="position:absolute;top:-6px;right:2px;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#FFE9A8,#E8A400 62%,#B57C00);display:flex;align-items:center;justify-content:center;box-shadow:0 5px 12px rgba(184,124,0,.45),inset 0 2px 3px rgba(255,255,255,.7)"><i class="fa-solid fa-trophy" style="color:#7A5200;font-size:17px"></i></div>
+        </div>
+        <div style="font-family:'Fredoka';font-weight:600;font-size:22px">{{ mpWinner.name }}</div>
+        <div style="font-family:'JetBrains Mono';font-weight:700;font-size:14px;color:var(--brand)">{{ mpWinner.cpm }} {{ mpUnit }}</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:18px">
+          <sc-for list="{{ mpRanking }}" as="p" hint-placeholder-count="3">
+            <div style="{{ p.rowStyle }}">
+              <span style="width:24px;flex:none;font-family:'Fredoka';font-weight:700;font-size:16px;color:{{ p.rankColor }}">{{ p.rank }}</span>
+              <div style="width:34px;height:34px;border-radius:50%;background:#fff;overflow:hidden;flex:none;border:1px solid var(--border)"><dc-import name="Mon" a="{{ p.animal }}" mood="{{ p.resMood }}" hint-size="34px,34px"></dc-import></div>
+              <span style="font-weight:800;font-size:14px;flex:1;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span>
+              <span style="font-family:'JetBrains Mono';font-weight:700;font-size:14px">{{ p.cpm }}</span>
+              <span style="font-size:11px;font-weight:700;color:var(--muted);width:38px;flex:none;text-align:left">{{ mpUnit }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-weight:700;font-size:13px;color:var(--muted);margin-top:18px"><i class="fa-solid fa-arrow-rotate-left" style="margin-right:6px"></i>{{ mpReturning }}</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ==================== MP: INVITE POPUP (global) ==================== -->
+  <sc-if value="{{ mpInvitePending }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:9700;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(20,14,10,.55);backdrop-filter:blur(3px);animation:tt-fade .18s">
+      <div style="width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.4);padding:26px 24px;text-align:center;animation:tt-pop .22s">
+        <div style="font-size:12px;font-weight:800;color:var(--brand-ink);text-transform:uppercase;letter-spacing:.05em"><i class="fa-solid fa-bell" style="margin-right:6px"></i>{{ t.mp_inviteTitle }}</div>
+        <div style="width:96px;height:96px;margin:14px auto 6px"><dc-import name="Mon" a="{{ mpInviteAnimal }}" mood="ready" hint-size="96px,96px"></dc-import></div>
+        <div style="font-size:15px;font-weight:700;color:var(--ink-2);line-height:1.5;margin:2px 0 8px">{{ mpInviteBody }}</div>
+        <div style="display:flex;gap:10px;margin-top:14px">
+          <button onClick="{{ mpDecline }}" style="flex:1;border:1px solid var(--border-2);background:var(--surface);color:var(--ink-2);font-family:'Fredoka';font-weight:600;font-size:15px;padding:12px;border-radius:14px;cursor:pointer">{{ t.mp_decline }}</button>
+          <button onClick="{{ mpAccept }}" style="flex:1;border:none;background:var(--success);color:#fff;font-family:'Fredoka';font-weight:600;font-size:15px;padding:12px;border-radius:14px;cursor:pointer;box-shadow:0 3px 0 var(--success-ink)">{{ t.mp_accept }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
   </div>
   </sc-if>
 </div>
@@ -1187,7 +1406,14 @@ class Component extends DCLogic {
       lbModal: false,
       lbRemote: null,   // {metric, top, you} с сервера; null => фолбэк на _lbSeed()
       examMode: false,  // режим заліку: ховає екранну клавіатуру (немає підказки наступної клавіші)
-      customModal: false, customText: '', customError: ''  // импорт своего текста/файла (TXT/MD)
+      customModal: false, customText: '', customError: '',  // импорт своего текста/файла (TXT/MD)
+      // --- мультиплеер (гонка одинаковым текстом; см. TypTapMP + backend/realtime.js) ---
+      mp: null,          // активный матч: {text, startAt, dur, board:[], remaining, over, ranking, youId}
+      mpLobby: null,     // локально-серверный вид лобби: {step, settings, sel, room, online, waiting}
+      mpInvite: null,    // входящее приглашение: {from, fromAnimal, roomId, code, settings}
+      mpConnected: false,
+      mpStatus: '',      // строка статуса/ошибки в лобби
+      mpCount: null      // оверлей обратного отсчёта 3-2-1 перед стартом
     };
     this._onKey = this._onKey.bind(this);
   }
@@ -1251,6 +1477,11 @@ class Component extends DCLogic {
     this._pollLayout();
     // Подтянуть профиль с сервера, если пользователь уже залогинен (кросс-девайс синхронизация).
     if(this.pdata.current) this._syncPullProfile(this.pdata.current);
+    // Мультиплеер: как только пользователь залогинен — подключаемся к WS, чтобы он
+    // числился «онлайн» и мог получать приглашения даже вне экрана мультиплеера.
+    // Ссылка-приглашение ?room=CODE / #room=CODE открывает лобби с автоджойном.
+    this._pendingRoom = this._mpRoomFromUrl();
+    if(this.pdata.current){ this._mpConnect(()=>{ if(this._pendingRoom){ const c=this._pendingRoom; this._pendingRoom=null; this._openMp(c); } }); }
     const sc=this.state.screen;
     if(sc==='lesson'){ const n=this._nextLesson(); this._startLesson(n.tier,n.idx); }
     else if(sc==='drill'){ this._startDrill(); }
@@ -1278,14 +1509,14 @@ class Component extends DCLogic {
     const completed={}; ['en-0-0','en-0-1','en-0-2','en-1-0','en-1-1','en-1-2','en-1-3','en-2-0','en-2-1'].forEach(k=>completed[k]=true);
     return { sessions, bestRace:38, streak:{count:12,last:today.toISOString().slice(0,10)}, completed, xp:2450, seeded:true };
   }
-  _blank(){ return {sessions:[],bestRace:0,streak:{count:0,last:null},completed:{},xp:0,created:Date.now(),tourDone:false}; }
+  _blank(){ return {sessions:[],bestRace:0,streak:{count:0,last:null},completed:{},xp:0,created:Date.now(),tourDone:false,animal:'Cat'}; }
   // _save = локально (мгновенно, офлайн-основа) + пуш на сервер (дебаунс внутри TypTapSync).
   _save(){ this._saveLocal(); if(window.TypTapSync && this.pdata.current && this.store){ try{ window.TypTapSync.saveProfile(this.pdata.current, this.store); }catch(e){} } }
   // _saveLocal НЕ трогать: на нём завязана вся офлайн-работа (и он используется в _syncPullProfile, чтобы не зациклить пуш).
   _saveLocal(){ try{ localStorage.setItem('typtap_v2', JSON.stringify(this.pdata)); }catch(e){} }
   _reset(){ if(!this.pdata.current) return; this.pdata.profiles[this.pdata.current]=this._blank(); this.store=this.pdata.profiles[this.pdata.current]; this._save(); this.setState({screen:'dashboard'}); }
   _seedDemo(){ if(!this.pdata.current) return; this.pdata.profiles[this.pdata.current]=this._seed(); this.store=this.pdata.profiles[this.pdata.current]; this._save(); this.forceUpdate(); }
-  _login(nick){ nick=(nick||'').trim().slice(0,20); if(!nick) return; const exists=!!this.pdata.profiles[nick]; if(!exists) this.pdata.profiles[nick]=this._blank(); this.pdata.current=nick; this.store=this.pdata.profiles[nick]; this._saveLocal(); this.setState({screen: exists?'hub':'onboarding', loginName:'', profileMenu:false, lbModal:true}); this._syncPullProfile(nick); }
+  _login(nick){ nick=(nick||'').trim().slice(0,20); if(!nick) return; const exists=!!this.pdata.profiles[nick]; if(!exists) this.pdata.profiles[nick]=this._blank(); this.pdata.current=nick; this.store=this.pdata.profiles[nick]; this._saveLocal(); this.setState({screen: exists?'hub':'onboarding', loginName:'', profileMenu:false, lbModal:true}); this._syncPullProfile(nick); this._mpConnect(()=>{ if(this._pendingRoom){ const c=this._pendingRoom; this._pendingRoom=null; this._openMp(c); } }); }
   // Синхронизация профиля с сервера при входе / на старте. Сервер авторитетен:
   // если там есть данные — подменяем локальный профиль ими (кросс-девайс). Если
   // профиля на сервере ещё нет — заливаем туда текущий локальный. Ошибки сети
@@ -1506,6 +1737,7 @@ class Component extends DCLogic {
     if(screen==='game'){ this.setState({screen:'game', game:null}); return; }
     // Свій текст — отдельный режим: показываем форму ввода (сессия сбрасывается).
     if(screen==='custom'){ this.setState({screen:'custom', session:null, currentLesson:null, customError:''}); return; }
+    if(screen==='mp'){ this._openMp(); return; }
     // Заходя в таблицу лидеров, всегда тянем свежие данные с сервера (иначе кэш lbRemote
     // залипает и новые игроки/результаты не появляются).
     if(screen==='leaderboard') this._lbStale=true;
@@ -1515,6 +1747,215 @@ class Component extends DCLogic {
   _startGame(id){ if(id==='falling')this._startFalling(true); else if(id==='race')this._startRace(true); else if(id==='boss')this._startBoss(true); else if(id==='combo')this._startCombo(true); else if(id==='defense')this._startDefense(true); else if(id==='balloon')this._startBalloon(true); else if(id==='climber')this._startClimber(true); else if(id==='piano')this._startPiano(true); else if(id==='maze')this._startMaze(true); else if(id==='horde')this._startHorde(true); else if(id==='flash')this._startFlash(true); else if(id==='cipher')this._startCipher(true); else if(id==='chain')this._startChain(true); else if(id==='duel')this._startDuel(true); else if(id==='garden')this._startGarden(true); else if(id==='ladder')this._startLadder(true); }
   _backToHub(){ this._stopLoop(); this.setState({game:null}); }
   _shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+  // ==================== MULTIPLAYER (гонка одинаковым текстом) ====================
+  // Транспорт — window.TypTapMP (WebSocket /api/ws). Сервер авторитетен за текст,
+  // старт, ботов и итоговый рейтинг; клиент шлёт только свой прогресс набора.
+  MP_ANIMALS = ['Hippo','Cat','Chick','Bunny','Mouse','Bear','Dog','Fish','Snake','Monkey'];
+  _mpRoomFromUrl(){ try{ const u=new URL(location.href); let c=u.searchParams.get('room'); if(!c && location.hash){ const m=location.hash.match(/room=([A-Za-z0-9]+)/); if(m) c=m[1]; } return c?c.toUpperCase().slice(0,6):null; }catch(e){ return null; } }
+  _mpHello(){ return { nickname: this.pdata.current||'', animal: (this.store&&this.store.animal)||'Cat', bestWpm: Number(this.store&&this.store.bestRace)||0, lang: this.state.lang }; }
+  _mpConnect(cb){
+    if(!window.TypTapMP) return;
+    if(window.TypTapMP.isConnected()){ window.TypTapMP.updateHello(this._mpHello()); this._mpSend('hello', this._mpHello()); this._mpSend('presence:refresh',{}); if(cb) cb(); return; }
+    this._mpConnectCb = cb || null;
+    window.TypTapMP.connect(this._mpHello(), (m)=>this._mpOnMsg(m));
+  }
+  _mpSend(type,payload){ if(window.TypTapMP) window.TypTapMP.send(type, payload||{}); }
+  _openMp(joinCode){
+    this._stopLoop();
+    const sel=(this.store&&this.store.animal)||'Cat';
+    const cur=this.state.mpLobby||{};
+    const lobby=Object.assign({ step:'create', settings:{lang:this.state.lang, len:'medium'}, sel:sel, room:null, online:[], waiting:false }, cur, { sel:sel });
+    this.setState({ screen:'mp', mp:null, mpLobby:lobby, mpStatus:'', mpCount:null }, ()=>{
+      this._mpConnect(()=>{ if(joinCode) this._mpSend('room:join',{code:joinCode}); });
+    });
+  }
+  _mpExit(){ this._mpClearTimers(); this._mpSend('room:leave',{}); this._mpSend('quickmatch:cancel',{}); const l=Object.assign({},this.state.mpLobby||{},{room:null,step:'create',waiting:false}); this.setState({mp:null, mpLobby:l, mpCount:null}); this.go('hub'); }
+  _mpClearTimers(){ if(this._mpRaceTimer){ clearInterval(this._mpRaceTimer); this._mpRaceTimer=null; } if(this._mpReturn){ clearTimeout(this._mpReturn); this._mpReturn=null; } }
+  _mpMyConnId(){ return this._mpConnId||null; }
+  _mpMergeLobby(patch){ const base=this.state.mpLobby||{ step:'create', settings:{lang:this.state.lang, len:'medium'}, sel:(this.store&&this.store.animal)||'Cat', online:[], room:null, waiting:false }; this.setState({mpLobby:Object.assign({},base,patch)}); }
+  _mpErr(code){ const en=this.state.ui==='en'; const map=en?{room_full:'Room is full',room_not_found:'Room not found',room_started:'Race already started',user_offline:'Player is offline',room_gone:'Room no longer exists'}:{room_full:'Кімната заповнена',room_not_found:'Кімнату не знайдено',room_started:'Гонка вже почалась',user_offline:'Гравець офлайн',room_gone:'Кімнати більше немає'}; return map[code]||code; }
+  _mpOnMsg(m){
+    switch(m.type){
+      case '_open': this.setState({mpConnected:true}); this._mpSend('presence:refresh',{}); if(this._mpConnectCb){ const cb=this._mpConnectCb; this._mpConnectCb=null; cb(); } break;
+      case '_close': this.setState({mpConnected:false}); break;
+      case 'welcome': case 'hello:ok': this._mpConnId=m.connId; break;
+      case 'presence': this._mpMergeLobby({ online:(m.users||[]).filter(u=>u.nickname && u.nickname!==this.pdata.current) }); break;
+      case 'room:state': { const l=Object.assign({},this.state.mpLobby||{}, { room:m.room, step:m.room?'lobby':'create', waiting:false }); this.setState({mpLobby:l, mpStatus:''}); break; }
+      case 'invite': if(this.pdata.current) this.setState({mpInvite:{from:m.from, fromAnimal:m.fromAnimal||'Cat', roomId:m.roomId, code:m.code, settings:m.settings}}); break;
+      case 'invite:declined': this.setState({mpStatus:(m.nickname||'')+' '+(this.state.ui==='en'?'declined':'відхилив запрошення')}); break;
+      case 'quickmatch:waiting': this._mpMergeLobby({waiting:true}); break;
+      case 'countdown': this.setState({mpCount:m.n}); break;
+      case 'race:start': this._mpStartRace(m.text, m.startAt, m.dur); break;
+      case 'race:tick': { const mp=this.state.mp; if(mp && !mp.over) this.setState({mp:Object.assign({},mp,{board:m.players||[], remaining:m.remaining})}); break; }
+      case 'race:done': this._mpDone(m.ranking||[], m.youId); break;
+      case 'error': this.setState({mpStatus:this._mpErr(m.msg)}); break;
+    }
+  }
+  // ---- lobby actions ----
+  _mpPickLen(len){ const l=Object.assign({},this.state.mpLobby); l.settings=Object.assign({},l.settings,{len:len}); this.setState({mpLobby:l}); }
+  _mpPickAnimal(a){ if(this.store){ this.store.animal=a; this._save(); } this._mpMergeLobby({sel:a}); this._mpSend('char:set',{animal:a}); }
+  _mpCreate(){ const l=this.state.mpLobby; this._mpSend('room:create',{settings:{lang:this.state.lang, len:(l&&l.settings&&l.settings.len)||'medium'}}); }
+  _mpJoinCode(code){ code=(code||'').toUpperCase().trim(); if(code) this._mpSend('room:join',{code:code}); }
+  _mpInvite(nick){ this._mpSend('invite',{toNickname:nick}); this.setState({mpStatus:(this.state.ui==='en'?'Invited ':'Запрошено ')+nick}); }
+  _mpReadyToggle(){ const room=this.state.mpLobby&&this.state.mpLobby.room; if(!room) return; const me=room.players.find(p=>p.connId===this._mpMyConnId()); this._mpSend('ready:set',{ready: me?!me.ready:true}); }
+  _mpAddBot(){ this._mpSend('addbot',{}); }
+  _mpQuick(){ this._mpMergeLobby({waiting:true}); this._mpSend('quickmatch',{}); }
+  _mpCancelQuick(){ this._mpMergeLobby({waiting:false}); this._mpSend('quickmatch:cancel',{}); }
+  _mpLeaveRoom(){ this._mpSend('room:leave',{}); const l=Object.assign({},this.state.mpLobby||{},{room:null,step:'create',waiting:false}); this.setState({mpLobby:l}); }
+  _mpShareLink(){ const room=this.state.mpLobby&&this.state.mpLobby.room; if(!room) return; const url=location.origin+location.pathname+'?room='+room.code; try{ if(navigator.clipboard) navigator.clipboard.writeText(url); }catch(e){} this.setState({mpStatus:(this.state.ui==='en'?'Link copied: ':'Скопійовано: ')+url}); }
+  _mpAcceptInvite(){ const inv=this.state.mpInvite; if(!inv) return; this.setState({mpInvite:null}); const go=()=>this._mpSend('invite:accept',{roomId:inv.roomId}); if(this.state.screen!=='mp'){ this._openMp(); setTimeout(go,120); } else go(); }
+  _mpDeclineInvite(){ const inv=this.state.mpInvite; if(!inv) return; this._mpSend('invite:decline',{roomId:inv.roomId}); this.setState({mpInvite:null}); }
+  // ---- race ----
+  _mpStartRace(text,startAt,dur){
+    this._stopLoop(); this._mpClearTimers();
+    this._mpTyped=0; this._mpCorrect=0; this._mpMarks=[]; this._mpLastSent=0;
+    const mp={ text:text, startAt:startAt, dur:dur, board:[], remaining:dur, over:false, ranking:null, youId:this._mpConnId, myCpm:0 };
+    this.setState({ screen:'mp', mp:mp, mpCount:null }, ()=>{ this._mpRaceTimer=setInterval(()=>this._mpLocalTick(), 200); });
+  }
+  _mpLocalTick(){
+    const mp=this.state.mp; if(!mp||mp.over) return;
+    const el=Math.max(0,(Date.now()-mp.startAt)/1000);
+    const rem=Math.max(0, mp.dur-el);
+    const cpm= el>0? Math.round(this._mpCorrect/(el/60)):0;
+    this.setState({mp:Object.assign({},mp,{remaining:rem, myCpm:cpm})});
+    const now=Date.now();
+    if(now-this._mpLastSent>=250){ this._mpLastSent=now; this._mpSend('progress',{correct:this._mpCorrect,total:this._mpTyped}); }
+  }
+  _mpRecalc(){ let c=0; const marks=this._mpMarks||[]; for(let i=0;i<this._mpTyped;i++){ if(marks[i]) c++; } this._mpCorrect=c; }
+  _mpKey(e){
+    const mp=this.state.mp; if(!mp||mp.over) return; const text=mp.text||'';
+    if(e.key==='Backspace'){ e.preventDefault(); if(this._mpTyped>0){ this._mpTyped--; this._mpMarks[this._mpTyped]=undefined; this._mpRecalc(); this.forceUpdate(); } return; }
+    if(!e.key || e.key.length!==1) return;
+    e.preventDefault();
+    if(this._mpTyped>=text.length) return;
+    this._mpMarks[this._mpTyped] = (e.key===text[this._mpTyped]);
+    this._mpTyped++;
+    this._mpRecalc();
+    this.forceUpdate();
+    if(this._mpTyped>=text.length){ this._mpLastSent=Date.now(); this._mpSend('progress',{correct:this._mpCorrect,total:this._mpTyped}); }
+  }
+  _mpDone(ranking, youId){
+    this._mpClearTimers(); this._stopLoop();
+    const mp=this.state.mp||{};
+    this.setState({ mp:Object.assign({},mp,{over:true, ranking:ranking, youId:(youId||this._mpConnId), remaining:0}), mpCount:null });
+    const mine=(ranking||[]).find(r=>r.connId===(youId||this._mpConnId)) || (ranking||[]).find(r=>r.name===this.pdata.current);
+    if(mine && this.store){ const wpm=Math.round((mine.cpm||0)/5); if(wpm>(Number(this.store.bestRace)||0)){ this.store.bestRace=wpm; this._save(); } }
+    // авто-возврат в лобби через 7с
+    this._mpReturn=setTimeout(()=>{ if(this.state.screen==='mp') this.setState({mp:null}); this._mpSend('presence:refresh',{}); }, 7000);
+  }
+  // ---- multiplayer view-model (заполняет vals для шаблона) ----
+  _mpVals(vals, T, s){
+    const en = s.ui==='en';
+    const L = s.mpLobby || {};
+    const room = L.room || null;
+    const mp = s.mp || null;
+    const myId = this._mpConnId;
+    vals.mpExit=()=>this._mpExit();
+    vals.mpStatus = s.mpStatus||'';
+    vals.mpConnLabel = s.mpConnected ? (en?'Online':'Онлайн') : (en?'Connecting…':'Підключення…');
+    vals.mpDotColor = s.mpConnected ? 'var(--success)' : 'var(--muted)';
+    vals.mpSubLine = mp ? T.mp_raceTitle : (room ? T.mp_subLobby : T.mp_subCreate);
+    vals.mpLobbyView = s.screen==='mp' && !mp;
+    vals.mpRaceView = s.screen==='mp' && !!mp && !mp.over;
+    vals.mpStepCreate = s.screen==='mp' && !mp && !room;
+    vals.mpStepLobby = s.screen==='mp' && !mp && !!room;
+    // countdown
+    vals.mpCounting = (s.mpCount!=null && s.mpCount>0);
+    vals.mpCount = s.mpCount;
+    // race characters
+    if(mp){
+      const text=mp.text||''; const typed=this._mpTyped||0; const marks=this._mpMarks||[];
+      vals.mpChars = text.split('').map((ch,i)=>{
+        let color='var(--muted)', bg='transparent';
+        if(i<typed){ if(marks[i]){ color='var(--success)'; } else { color='#fff'; bg='var(--error)'; } }
+        else if(i===typed){ color='var(--brand-ink)'; bg='var(--brand-bg)'; }
+        return { disp: ch===' ' ? ' ' : ch, style:`border-radius:4px;padding:0 1px;color:${color};background:${bg}` };
+      });
+      vals.mpMyCpm = mp.myCpm||0;
+    } else { vals.mpChars=[]; vals.mpMyCpm=0; }
+    // live board
+    const board = (mp&&mp.board)||[];
+    vals.mpLive = !!(mp && !mp.over && board.length);
+    vals.mpTimeLabel = mp ? (Math.ceil(mp.remaining||0)+'s') : '';
+    vals.mpClock = (mp && (mp.remaining||0)<=10) ? 'var(--error)' : 'var(--brand-ink)';
+    vals.mpGameTitle = T.mp_raceTitle;
+    vals.mpUnit = en?'CPM':'зн/хв';
+    vals.mpBoard = board.map(p=>({
+      name: p.name, animal: p.animal||'Cat', cpm: p.cpm||0,
+      rowStyle: `display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:10px;`+(p.id===myId?'background:var(--brand-bg)':''),
+      barStyle: `height:100%;width:${Math.round((p.progress||0)*100)}%;background:${p.id===myId?'var(--brand)':'var(--accent)'};border-radius:5px;transition:width .2s`
+    }));
+    // results
+    const rank = (mp&&mp.ranking)||[];
+    vals.mpResult = !!(mp && mp.over && rank.length);
+    vals.mpResTitle = T.mp_resTitle; vals.mpReturning = T.mp_returning;
+    const w = rank[0]||{name:'',animal:'Cat',cpm:0};
+    vals.mpWinner = { name:w.name, animal:w.animal||'Cat', cpm:w.cpm||0 };
+    vals.mpRanking = rank.map((p,i)=>({
+      rank:(i+1), name:p.name, animal:p.animal||'Cat', cpm:p.cpm||0,
+      rankColor: i===0?'#E8A400':(i===1?'#9AA0A6':(i===2?'#C08457':'var(--muted)')),
+      resMood: (p.connId===(mp&&mp.youId)) ? (i===0?'win':'lose') : (i===0?'win':'idle'),
+      rowStyle:`display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:${p.connId===(mp&&mp.youId)?'var(--brand-bg)':'var(--surface-2)'};border:1px solid ${p.connId===(mp&&mp.youId)?'var(--brand)':'var(--border)'}`
+    }));
+    // invite popup
+    vals.mpInvitePending = !!s.mpInvite;
+    vals.mpInviteAnimal = s.mpInvite? (s.mpInvite.fromAnimal||'Cat') : 'Cat';
+    vals.mpInviteBody = s.mpInvite? (s.mpInvite.from+' '+T.mp_invBody) : '';
+    vals.mpAccept=()=>this._mpAcceptInvite(); vals.mpDecline=()=>this._mpDeclineInvite();
+    // ---- create step ----
+    const lens=[['short','fa-solid fa-bolt'],['medium','fa-solid fa-gauge-high'],['long','fa-solid fa-book']];
+    const curLen=(L.settings&&L.settings.len)||'medium';
+    const lenColors=['var(--brand)','var(--accent)','var(--f4)'];
+    vals.mpLenCards = lens.map(([id,icon],i)=>({ title:T['mp_len_'+id], desc:T['mp_len_'+id+'_d'], icon:icon, sel:curLen===id, onClick:()=>this._mpPickLen(id),
+      cardStyle:`position:relative;border:2px solid ${curLen===id?'var(--brand)':'var(--border)'};background:var(--surface-2);border-radius:16px;padding:14px 8px 12px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center`,
+      chipStyle:`width:44px;height:44px;border-radius:13px;background:${lenColors[i]};color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px` }));
+    vals.mpCreate=()=>this._mpCreate();
+    vals.mpQuick=()=>this._mpQuick();
+    vals.mpWaiting=!!L.waiting;
+    vals.mpCancelQuick=()=>this._mpCancelQuick();
+    vals.mpJoinInput = L.joinInput||'';
+    vals.mpJoinType=(e)=>{ const l=Object.assign({},this.state.mpLobby||{},{joinInput:(e.target.value||'').toUpperCase().slice(0,6)}); this.setState({mpLobby:l}); };
+    vals.mpJoinBtn=()=>this._mpJoinCode((this.state.mpLobby&&this.state.mpLobby.joinInput)||'');
+    // ---- lobby step ----
+    const animalName = en
+      ? {Hippo:'Hippo',Cat:'Cat',Chick:'Chick',Bunny:'Bunny',Mouse:'Mouse',Bear:'Bear',Dog:'Dog',Fish:'Fish',Snake:'Snake',Monkey:'Monkey'}
+      : {Hippo:'Бегемотик',Cat:'Котик',Chick:'Пташеня',Bunny:'Зайчик',Mouse:'Мишка',Bear:'Ведмедик',Dog:'Песик',Fish:'Рибка',Snake:'Змійка',Monkey:'Мавпочка'};
+    const sel = L.sel || (this.store&&this.store.animal) || 'Cat';
+    vals.mpAnimalGrid = this.MP_ANIMALS.map(k=>({ key:k, name:animalName[k], mood: sel===k?'ready':'idle', sel:sel===k, onClick:()=>this._mpPickAnimal(k) }));
+    vals.mpRoomCode = room? room.code : '';
+    vals.mpLenLabel = T['mp_len_'+((room&&room.settings&&room.settings.len)||'medium')];
+    vals.mpChangeSettings=()=>this._mpLeaveRoom();
+    vals.mpShareLink=()=>this._mpShareLink();
+    vals.mpAddBot=()=>this._mpAddBot();
+    vals.mpReadyToggle=()=>this._mpReadyToggle();
+    const players=(room&&room.players)||[];
+    const badge=(ready)=> ready?'font-size:12px;font-weight:800;color:var(--success)':'font-size:12px;font-weight:800;color:var(--muted)';
+    const slots = players.map(p=>({ filled:true, empty:false,
+      name:(p.connId===myId? (en?'You':'Ви') : p.nickname)+(p.isHost?' ★':''), animal:p.animal||'Cat', mood:p.ready?'ready':'idle',
+      badge:(p.ready?'● '+(en?'Ready':'Готовий'):'○ '+(en?'Waiting':'Очікує'))+(p.isBot?' · bot':''), badgeStyle:badge(p.ready),
+      wrapStyle:`display:flex;align-items:center;gap:11px;background:${p.connId===myId?'var(--brand-bg)':'var(--surface-2)'};border:${p.connId===myId?'2px solid var(--brand)':'1px solid var(--border)'};border-radius:16px;padding:8px 12px;min-width:0` }));
+    while(slots.length<4) slots.push({filled:false, empty:true});
+    vals.mpSlots=slots;
+    vals.mpCountLabel=(players.length)+'/4';
+    const full=players.length>=4;
+    const inRoom={}; players.forEach(p=>{ inRoom[p.nickname]=true; });
+    const online=(L.online||[]);
+    vals.mpOnline = online.map(o=>{ const joined=!!inRoom[o.nickname]; const can=!joined&&!full;
+      return { name:o.nickname, animal:o.animal||'Cat', wpm:o.bestWpm||0, onInvite:()=>{ if(can) this._mpInvite(o.nickname); },
+        btnLabel: joined?(en?'In lobby':'У лобі'):(full?(en?'Full':'Повно'):(en?'Invite':'Запросити')),
+        btnStyle: joined?'border:1px solid var(--success);background:var(--success-bg);color:var(--success);font-family:inherit;font-weight:800;font-size:12.5px;padding:8px 13px;border-radius:11px;flex:none;cursor:default'
+          :(full?'border:1px solid var(--border);background:var(--surface);color:var(--muted);font-family:inherit;font-weight:800;font-size:12.5px;padding:8px 13px;border-radius:11px;flex:none;cursor:not-allowed'
+          :'border:none;background:var(--brand);color:#fff;font-family:inherit;font-weight:800;font-size:12.5px;padding:8px 13px;border-radius:11px;flex:none;cursor:pointer;box-shadow:0 2px 0 var(--brand-ink)') }; });
+    vals.mpNoOnline = online.length===0;
+    const me=players.find(p=>p.connId===myId);
+    const iAmReady=me?me.ready:false;
+    vals.mpReadyLabel = iAmReady?(en?'Cancel':'Скасувати'):(en?'Ready!':'Готовий!');
+    const rBase="border:none;font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;padding:12px 26px;border-radius:14px;cursor:pointer;flex:none";
+    vals.mpReadyStyle = rBase + (iAmReady?';background:var(--surface);color:var(--brand-ink);box-shadow:0 0 0 2px var(--brand-ink) inset':';background:var(--brand);color:#fff;box-shadow:0 4px 0 var(--brand-ink)');
+    const allReady = players.length>=2 && players.every(p=>p.ready);
+    vals.mpLobbyStatusText = allReady?(en?'All ready — starting!':'Усі готові — старт!'):(players.length<2?(en?'Invite a player or add a bot':'Запросіть гравця або додайте бота'):(en?'Waiting for players…':'Очікуємо гравців…'));
+  }
 
   // ---------- level ladder content ----------
   TIERS = [
@@ -1536,7 +1977,16 @@ class Component extends DCLogic {
   I18N = {
     en: {
       // nav + shell
-      nav_home:'Home', nav_lessons:'Lessons', nav_drills:'Drills', nav_custom:'Your text', nav_games:'Games', nav_leaderboard:'Leaderboard',
+      nav_home:'Home', nav_lessons:'Lessons', nav_drills:'Drills', nav_custom:'Your text', nav_games:'Games', nav_mp:'Multiplayer', nav_leaderboard:'Leaderboard',
+      // --- multiplayer ---
+      mp_title:'Multiplayer race', mp_cardDesc:'Race the same text against friends live', mp_exit:'Exit',
+      mp_subCreate:'Create a room or quick-match', mp_subLobby:'Room ready · invite friends', mp_raceTitle:'Live race',
+      mp_createTitle:'Race length', mp_len_short:'Short', mp_len_short_d:'~15s', mp_len_medium:'Medium', mp_len_medium_d:'~30s', mp_len_long:'Long', mp_len_long_d:'~60s',
+      mp_create:'Create room', mp_quick:'Quick match', mp_quickWait:'Looking for an opponent…', mp_cancel:'Cancel',
+      mp_join:'Join', mp_codePlaceholder:'Room code', mp_or:'or', mp_len:'Length', mp_change:'Change', mp_roomCode:'Room code', mp_copyLink:'Copy link',
+      mp_chooseChar:'Choose your character', mp_players:'Players', mp_online:'Online now', mp_noOnline:'Nobody else is online right now', mp_addBot:'Add bot', mp_slotEmpty:'Empty slot', mp_invite:'Invite',
+      mp_startsIn:'Starting in', mp_resTitle:'Results', mp_returning:'Back to lobby…', mp_unit:'CPM',
+      mp_inviteTitle:'Game invite', mp_invBody:'invites you to a race', mp_accept:'Accept', mp_decline:'Decline',
       brandSub:'TOUCH-TYPING', profile:'Profile', logout:'Log out', dayStreak:'day streak',
       layoutAutoHint:'Lessons follow your system keyboard layout', layoutSwitched:'Keyboard layout',
       // page titles
@@ -1622,7 +2072,16 @@ class Component extends DCLogic {
       tier0_n:'Orientation', tier0_d:'Find home keys, first fingers', tier1_n:'Home row', tier1_d:'asdf jkl; — the anchor row', tier2_n:'Top row', tier2_d:'qwerty and up', tier3_n:'Bottom row', tier3_d:'zxcv and reaches', tier4_n:'Number row', tier4_d:'digits and stretch', tier5_n:'Punctuation', tier5_d:'symbols and marks', tier6_n:'Capitals & Shift', tier6_d:'Shift combos', tier7_n:'Words & bigrams', tier7_d:'real words, common pairs', tier8_n:'Sentences', tier8_d:'connected text', tier9_n:'Speed building', tier9_d:'hit the WPM target', tier10_n:'Advanced', tier10_d:'dense punctuation & numbers', tier11_n:'Pro', tier11_d:'world-class bursts'
     },
     uk: {
-      nav_home:'Головна', nav_lessons:'Уроки', nav_drills:'Тренування', nav_custom:'Свій текст', nav_games:'Ігри', nav_leaderboard:'Лідери',
+      nav_home:'Головна', nav_lessons:'Уроки', nav_drills:'Тренування', nav_custom:'Свій текст', nav_games:'Ігри', nav_mp:'Мультиплеєр', nav_leaderboard:'Лідери',
+      // --- мультиплеєр ---
+      mp_title:'Гонка на швидкість', mp_cardDesc:'Змагайся наживо з друзями на однаковому тексті', mp_exit:'Вийти',
+      mp_subCreate:'Створіть кімнату або швидкий матч', mp_subLobby:'Кімната готова · запросіть друзів', mp_raceTitle:'Жива гонка',
+      mp_createTitle:'Довжина гонки', mp_len_short:'Коротка', mp_len_short_d:'~15с', mp_len_medium:'Середня', mp_len_medium_d:'~30с', mp_len_long:'Довга', mp_len_long_d:'~60с',
+      mp_create:'Створити кімнату', mp_quick:'Швидкий матч', mp_quickWait:'Шукаємо суперника…', mp_cancel:'Скасувати',
+      mp_join:'Приєднатись', mp_codePlaceholder:'Код кімнати', mp_or:'або', mp_len:'Довжина', mp_change:'Змінити', mp_roomCode:'Код кімнати', mp_copyLink:'Скопіювати',
+      mp_chooseChar:'Оберіть персонажа', mp_players:'Гравці', mp_online:'Зараз онлайн', mp_noOnline:'Більше нікого немає онлайн', mp_addBot:'Додати бота', mp_slotEmpty:'Вільний слот', mp_invite:'Запросити',
+      mp_startsIn:'Старт через', mp_resTitle:'Результати', mp_returning:'Повертаємось у лобі…', mp_unit:'зн/хв',
+      mp_inviteTitle:'Запрошення у гру', mp_invBody:'запрошує вас на гонку', mp_accept:'Прийняти', mp_decline:'Відхилити',
       brandSub:'СЛІПИЙ ДРУК', profile:'Профіль', logout:'Вийти з профілю', dayStreak:'дн. поспіль',
       layoutAutoHint:'Уроки підлаштовуються під розкладку системної клавіатури', layoutSwitched:'Розкладка клавіатури',
       t_hub:'Головна', t_onboarding:'Початок', t_lessons:'Уроки', t_lesson:'Структурований урок', t_drill:'Адаптивне тренування', t_results:'Твій результат', t_dashboard:'Прогрес', t_game:'Міні-ігри', t_leaderboard:'Лідери', t_system:'Дизайн-система', t_empty:'Стани',
@@ -1829,14 +2288,15 @@ class Component extends DCLogic {
     // Не перехватывать ввод в полях формы (логин, textarea своего текста и т.п.).
     if(e.target && (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')) return;
     // Shift+Tab = switch the on-screen keyboard layout on demand (EN → УК → РУ), before typing.
-    if(s.layoutAuto && e.key==='Tab' && e.shiftKey && (this._isTypingScreen(s.screen) || s.screen==='game')){
+    const mpRacing = (s.screen==='mp' && s.mp && !s.mp.over);
+    if(s.layoutAuto && e.key==='Tab' && e.shiftKey && (this._isTypingScreen(s.screen) || s.screen==='game' || mpRacing)){
       e.preventDefault();
       this._cycleLayout();
       return;
     }
     // auto-follow the system keyboard layout from the character actually produced.
     // This is ground truth (it's literally what the user typed) and wins over getLayoutMap.
-    if(s.layoutAuto && e.key && e.key.length===1 && (this._isTypingScreen(s.screen) || s.screen==='game')){
+    if(s.layoutAuto && e.key && e.key.length===1 && (this._isTypingScreen(s.screen) || s.screen==='game' || mpRacing)){
       let L=this._layoutFromChar(e.key);
       if(L){
         if(L==='cyr') L=(s.lang==='ru')?'ru':'uk'; // ambiguous Cyrillic → keep current Cyrillic (default uk)
@@ -1845,6 +2305,7 @@ class Component extends DCLogic {
       }
     }
     if(s.screen==='game' && e.key.length===1){ this._gkey=e.key.toLowerCase(); this._gkeyT=Date.now(); }
+    if(mpRacing){ this._mpKey(e); return; }
     if(this._isTypingScreen(s.screen)){ this._typeKey(e); return; }
     if(s.screen==='game' && s.game==='falling' && s.falling && s.falling.running){ this._fallingKey(e); return; }
     if(s.screen==='game' && s.game==='race' && s.race && s.race.running){ this._raceKey(e); return; }
@@ -2384,12 +2845,13 @@ class Component extends DCLogic {
       {sc:'drill',label:T.nav_drills,icon:'fa-solid fa-bullseye'},
       {sc:'custom',label:T.nav_custom,icon:'fa-solid fa-file-import'},
       {sc:'game',label:T.nav_games,icon:'fa-solid fa-gamepad'},
+      {sc:'mp',label:T.nav_mp,icon:'fa-solid fa-users'},
       {sc:'leaderboard',label:T.nav_leaderboard,icon:'fa-solid fa-ranking-star'}
     ];
     const navActive=(k)=> (k===s.screen) || (k==='lessons'&&(s.screen==='lesson'||s.screen==='results')) || (k==='game'&&s.screen==='game');
     // Per-item guided-tour copy. Falls back through i18n so a brand-new nav mode gets a sensible
     // tour step automatically (dedicated tour_<sc>_t/_b → its mode-card desc → page title → label).
-    const tourMoodBySc={hub:'happy',lessons:'encouraging',drill:'neutral',custom:'happy',game:'celebrate',leaderboard:'happy'};
+    const tourMoodBySc={hub:'happy',lessons:'encouraging',drill:'neutral',custom:'happy',game:'celebrate',mp:'celebrate',leaderboard:'happy'};
     const nav=navDefs.map((n,ni)=>{
       const act=navActive(n.sc);
       return { label:n.label, icon:n.icon, badge:n.badge, sc:n.sc, current:act?'page':'false', onClick:()=>this.go(n.sc),
@@ -2408,7 +2870,7 @@ class Component extends DCLogic {
     const uiLangs=uiDefs.map(([code,short])=>({short,onClick:()=>this._setUi(code),
       style:`border:none;cursor:pointer;font-weight:800;font-size:12.5px;padding:6px 11px;border-radius:14px;`+(s.ui===code?`background:var(--ink);color:var(--surface);`:`background:transparent;color:var(--ink-2);`)}));
 
-    const titles={hub:T.t_hub,onboarding:T.t_onboarding,lessons:T.t_lessons,lesson:T.t_lesson,drill:T.t_drill,custom:T.nav_custom,results:T.t_results,dashboard:T.t_dashboard,game:T.t_game,leaderboard:T.t_leaderboard,system:T.t_system,empty:T.t_empty};
+    const titles={hub:T.t_hub,onboarding:T.t_onboarding,lessons:T.t_lessons,lesson:T.t_lesson,drill:T.t_drill,custom:T.nav_custom,results:T.t_results,dashboard:T.t_dashboard,game:T.t_game,mp:T.mp_title,leaderboard:T.t_leaderboard,system:T.t_system,empty:T.t_empty};
 
     const vals={
       theme:s.theme, themeIcon: s.theme==='light'?'fa-solid fa-moon':'fa-solid fa-sun',
@@ -2440,9 +2902,11 @@ class Component extends DCLogic {
       loginBtn: s.loginName.trim()? (this.pdata.profiles[s.loginName.trim()]?T.loginBtnLogin:T.loginBtnCreate):T.loginBtnContinue,
       isHub:screen==='hub', isOnboarding:screen==='onboarding', isTyping, isResults:screen==='results', isCustomLanding: screen==='custom' && !s.session,
       isLessons:screen==='lessons',
-      isDashboard:screen==='dashboard', isGame:screen==='game', isSystem:screen==='system', isEmpty:screen==='empty',
+      isDashboard:screen==='dashboard', isGame:screen==='game', isSystem:screen==='system', isEmpty:screen==='empty', isMp:screen==='mp',
       streak:streakCount, dailyDone:Math.min(15, completedCount*2), dailyTotal:15, topWpm:bestWpm, topAcc:bestAcc
     };
+    // ---- multiplayer view-model ----
+    this._mpVals(vals, T, s);
 
     // ---- leaderboard + welcome modal ----
     const _lb=this._lbView(); const _L=_lb.L; const _met=_lb.metric;
@@ -2493,6 +2957,7 @@ class Component extends DCLogic {
       {title:T.mc_lessons_t,desc:T.mc_lessons_d,icon:'fa-solid fa-book-open',iconStyle:cardIcon('var(--brand)'),onClick:()=>this.go('lessons')},
       {title:T.mc_drills_t,desc:T.mc_drills_d,icon:'fa-solid fa-bullseye',iconStyle:cardIcon('var(--accent)'),onClick:()=>this.go('drill')},
       {title:T.mc_custom_t,desc:T.mc_custom_d,icon:'fa-solid fa-file-import',iconStyle:cardIcon('var(--f6)'),onClick:()=>this._openCustom()},
+      {title:T.mp_title,desc:T.mp_cardDesc,icon:'fa-solid fa-users',iconStyle:cardIcon('var(--brand-2)'),onClick:()=>this._openMp()},
       {title:T.g_falling_t,desc:T.g_falling_d,icon:'fa-solid fa-gamepad',iconStyle:cardIcon('var(--f4)'),onClick:()=>this._openGame('falling')},
       {title:T.g_race_t,desc:T.g_race_d,icon:'fa-solid fa-flag-checkered',iconStyle:cardIcon('var(--f6)'),onClick:()=>this._openGame('race')}
     ];

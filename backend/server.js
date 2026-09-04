@@ -14,8 +14,10 @@
 // защита — добавить необязательный PIN: одна колонка в таблице + одна проверка
 // здесь, без изменений в остальной логике.
 
+const http = require('http');
 const express = require('express');
 const { pool, migrate, waitForDb } = require('./db');
+const { attach: attachRealtime } = require('./realtime');
 
 const PORT = Number(process.env.PORT) || 8787;
 const MAX_SESSIONS = 200;          // столько последних сессий храним на игрока
@@ -184,7 +186,11 @@ app.use((_req, res) => res.status(404).json({ error: 'not found' }));
   try {
     await waitForDb();
     await migrate();
-    app.listen(PORT, () => console.log(`[api] listening on :${PORT}`));
+    // Явний http.Server, щоб на нього повісити і Express, і WebSocket-хаб
+    // мультиплеєра (той слухає шлях /ws на тому ж порту).
+    const server = http.createServer(app);
+    attachRealtime(server);
+    server.listen(PORT, () => console.log(`[api] listening on :${PORT} (http + ws /ws)`));
   } catch (e) {
     console.error('[api] failed to start:', e);
     process.exit(1);
