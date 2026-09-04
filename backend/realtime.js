@@ -11,7 +11,7 @@
 const { WebSocketServer } = require('ws');
 const { pickText } = require('./texts');
 
-const MAX_PLAYERS = 4;         // жорсткий стеля розміру кімнати
+const MAX_PLAYERS = 8;         // жорсткий стеля розміру кімнати (розмір кімнати обирає хост: 2..8)
 const RACE_DUR = 60;           // секунд
 const TICK_MS = 250;           // 4 рази/сек — і бордова стрічка, і рух ботів
 const HEARTBEAT_MS = 25000;    // пінг, щоб ловити мертві зʼєднання (і не давати nginx закрити idle)

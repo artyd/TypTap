@@ -1261,17 +1261,19 @@
 
           <div style="height:1px;background:var(--border);margin:20px 0 14px"></div>
           <h3 style="font-family:'Fredoka';font-weight:600;font-size:15px;margin:0 0 12px;color:var(--ink-2)">{{ t.mp_players }} · {{ mpCountLabel }}</h3>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px">
             <sc-for list="{{ mpSlots }}" as="sl" hint-placeholder-count="4">
-              <sc-if value="{{ sl.filled }}" hint-placeholder-val="{{ true }}">
-                <div style="{{ sl.wrapStyle }}">
-                  <div style="width:46px;height:46px;border-radius:50%;background:#fff;flex:none;overflow:hidden;border:1px solid var(--border)"><dc-import name="Mon" a="{{ sl.animal }}" mood="{{ sl.mood }}" hint-size="46px,46px"></dc-import></div>
-                  <div style="min-width:0"><div style="font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sl.name }}</div><div style="{{ sl.badgeStyle }}">{{ sl.badge }}</div></div>
-                </div>
-              </sc-if>
-              <sc-if value="{{ sl.empty }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;align-items:center;gap:11px;border:2px dashed var(--border-2);border-radius:16px;padding:9px 12px;color:var(--muted)"><div style="width:46px;height:46px;border-radius:50%;border:2px dashed var(--border-2);flex:none;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="fa-solid fa-plus"></i></div><div style="font-weight:800;font-size:13px">{{ t.mp_slotEmpty }}</div></div>
-              </sc-if>
+              <div style="flex:0 1 210px;max-width:230px;min-width:0">
+                <sc-if value="{{ sl.filled }}" hint-placeholder-val="{{ true }}">
+                  <div style="{{ sl.wrapStyle }}">
+                    <div style="width:46px;height:46px;border-radius:50%;background:#fff;flex:none;overflow:hidden;border:1px solid var(--border)"><dc-import name="Mon" a="{{ sl.animal }}" mood="{{ sl.mood }}" hint-size="46px,46px"></dc-import></div>
+                    <div style="min-width:0"><div style="font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sl.name }}</div><div style="{{ sl.badgeStyle }}">{{ sl.badge }}</div></div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ sl.empty }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:11px;border:2px dashed var(--border-2);border-radius:16px;padding:9px 12px;color:var(--muted)"><div style="width:46px;height:46px;border-radius:50%;border:2px dashed var(--border-2);flex:none;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="fa-solid fa-plus"></i></div><div style="font-weight:800;font-size:13px">{{ t.mp_slotEmpty }}</div></div>
+                </sc-if>
+              </div>
             </sc-for>
           </div>
 
@@ -2044,7 +2046,7 @@ class Component extends DCLogic {
     const curDiff=(L.settings&&L.settings.botDifficulty)||'medium';
     vals.mpDiffCards=[['easy',en?'Easy':'Легко'],['medium',en?'Medium':'Норм'],['hard',en?'Hard':'Складно']].map(([id,label])=>({ label, sel:curDiff===id, onClick:()=>this._mpPickDifficulty(id), style:chip(curDiff===id) }));
     const curMax=(L.settings&&L.settings.maxPlayers)||4;
-    vals.mpMaxCards=[2,3,4].map(n=>({ label:String(n), sel:curMax===n, onClick:()=>this._mpPickMax(n), style:chip(curMax===n) }));
+    vals.mpMaxCards=[2,3,4,6,8].map(n=>({ label:String(n), sel:curMax===n, onClick:()=>this._mpPickMax(n), style:chip(curMax===n) }));
     const lens=[['short','fa-solid fa-bolt'],['medium','fa-solid fa-gauge-high'],['long','fa-solid fa-book']];
     const curLen=(L.settings&&L.settings.len)||'medium';
     const lenColors=['var(--brand)','var(--accent)','var(--f4)'];
@@ -2080,7 +2082,7 @@ class Component extends DCLogic {
       name:(p.connId===myId? (en?'You':'Ви') : p.nickname)+(p.isHost?' ★':''), animal:p.animal||'Cat', mood:p.disconnected?'lose':(p.ready?'ready':'idle'),
       badge: p.disconnected ? ('○ '+(en?'offline':'офлайн')) : ((p.ready?'● '+(en?'Ready':'Готовий'):'○ '+(en?'Waiting':'Очікує'))+(p.isBot?' · bot':'')),
       badgeStyle: p.disconnected ? 'font-size:12px;font-weight:800;color:var(--error-ink)' : badge(p.ready),
-      wrapStyle:`display:flex;align-items:center;gap:11px;background:${p.connId===myId?'var(--brand-bg)':'var(--surface-2)'};border:${p.connId===myId?'2px solid var(--brand)':'1px solid var(--border)'};border-radius:16px;padding:8px 12px;min-width:0;${p.disconnected?'opacity:.55':''}` }));
+      wrapStyle:`width:100%;box-sizing:border-box;display:flex;align-items:center;gap:11px;background:${p.connId===myId?'var(--brand-bg)':'var(--surface-2)'};border:${p.connId===myId?'2px solid var(--brand)':'1px solid var(--border)'};border-radius:16px;padding:8px 12px;min-width:0;${p.disconnected?'opacity:.55':''}` }));
     while(slots.length<cap) slots.push({filled:false, empty:true});
     vals.mpSlots=slots;
     vals.mpCountLabel=(players.length)+'/'+cap;

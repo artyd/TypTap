@@ -55,6 +55,19 @@ test('room size cap blocks a join when full', async ({ browser }) => {
   await A.ctx.close(); await B.ctx.close();
 });
 
+test('larger rooms: a room for 6 accepts more than 4 players', async ({ browser }) => {
+  const A = await newPlayer(browser, 'BigHost');
+  await A.logic.evaluate((l) => { l._mpPickMax(6); l._mpCreate(); });
+  await expect.poll(() => A.logic.evaluate((l) => !!(l.state.mpLobby && l.state.mpLobby.room))).toBe(true);
+  expect(await A.logic.evaluate((l) => l.state.mpLobby.room.max)).toBe(6);
+  for (let i = 0; i < 5; i++) await A.logic.evaluate((l) => l._mpAddBot()); // host + 5 bots = 6
+  await expect.poll(() => A.logic.evaluate((l) => l.state.mpLobby.room.players.length)).toBe(6);
+  await A.logic.evaluate((l) => l._mpAddBot()); // 7th rejected (cap 6)
+  await A.page.waitForTimeout(150);
+  expect(await A.logic.evaluate((l) => l.state.mpLobby.room.players.length)).toBe(6);
+  await A.ctx.close();
+});
+
 test('emoji reaction is broadcast back to the sender during a race', async ({ browser }) => {
   const A = await newPlayer(browser, 'Reactor');
   await A.logic.evaluate((l) => { l._mpPickGame('race'); l._mpPickLen('short'); l._mpCreate(); });
