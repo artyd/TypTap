@@ -431,8 +431,8 @@
         </div>
 
         <div style="font-family:'Fredoka';font-weight:600;font-size:20px;margin:32px 0 14px">{{ t.jumpBackIn }}</div>
-        <div class="tt-cols4" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px">
-          <sc-for list="{{ modeCards }}" as="c" hint-placeholder-count="5">
+        <div class="tt-cols3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+          <sc-for list="{{ modeCards }}" as="c" hint-placeholder-count="6">
             <div onClick="{{ c.onClick }}" role="button" tabindex="0" data-kbclick="" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .12s" style-hover="transform:translateY(-3px)">
               <div style="{{ c.iconStyle }}"><i class="{{ c.icon }}"></i></div>
               <div style="font-family:'Fredoka';font-weight:600;font-size:17px;margin-top:14px">{{ c.title }}</div>
@@ -1184,11 +1184,22 @@
             <sc-for list="{{ mpChars }}" as="c" hint-placeholder-count="0"><span style="{{ c.style }}">{{ c.disp }}</span></sc-for>
           </div>
         </div>
+        <sc-if value="{{ mpKbShow }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:16px;box-shadow:var(--shadow);margin-top:14px">
+          <div style="display:flex;flex-direction:column;gap:6px;max-width:780px;margin:0 auto">
+            <sc-for list="{{ mpKb }}" as="row" hint-placeholder-count="5"><div style="display:flex;gap:6px"><sc-for list="{{ row.keys }}" as="k" hint-placeholder-count="12"><div style="{{ k.style }}"><span>{{ k.label }}</span><sc-if value="{{ k.bump }}"><span style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:11px;height:2px;border-radius:2px;background:currentColor;opacity:.55"></span></sc-if></div></sc-for></div></sc-for>
+          </div>
+        </div>
+        </sc-if>
         </sc-if>
 
         <!-- LOBBY: create step -->
         <sc-if value="{{ mpStepCreate }}" hint-placeholder-val="{{ true }}">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:20px;box-shadow:var(--shadow)">
+          <h3 style="font-family:'Fredoka';font-weight:600;font-size:15px;margin:0 0 10px;color:var(--ink-2)">{{ t.mp_langTitle }}</h3>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+            <sc-for list="{{ mpLangCards }}" as="g" hint-placeholder-count="3"><button onClick="{{ g.onClick }}" style="{{ g.style }}">{{ g.label }}</button></sc-for>
+          </div>
           <h2 style="font-family:'Fredoka';font-weight:600;font-size:19px;margin:0 0 14px">{{ t.mp_createTitle }}</h2>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
             <sc-for list="{{ mpLenCards }}" as="g" hint-placeholder-count="3">
@@ -1794,8 +1805,9 @@ class Component extends DCLogic {
   }
   // ---- lobby actions ----
   _mpPickLen(len){ const l=Object.assign({},this.state.mpLobby); l.settings=Object.assign({},l.settings,{len:len}); this.setState({mpLobby:l}); }
+  _mpPickLang(code){ const l=Object.assign({},this.state.mpLobby||{}); l.settings=Object.assign({},l.settings,{lang:code}); this.setState({mpLobby:l, lang:code}); }
   _mpPickAnimal(a){ if(this.store){ this.store.animal=a; this._save(); } this._mpMergeLobby({sel:a}); this._mpSend('char:set',{animal:a}); }
-  _mpCreate(){ const l=this.state.mpLobby; this._mpSend('room:create',{settings:{lang:this.state.lang, len:(l&&l.settings&&l.settings.len)||'medium'}}); }
+  _mpCreate(){ const l=this.state.mpLobby; this._mpSend('room:create',{settings:{lang:(l&&l.settings&&l.settings.lang)||this.state.lang, len:(l&&l.settings&&l.settings.len)||'medium'}}); }
   _mpJoinCode(code){ code=(code||'').toUpperCase().trim(); if(code) this._mpSend('room:join',{code:code}); }
   _mpInvite(nick){ this._mpSend('invite',{toNickname:nick}); this.setState({mpStatus:(this.state.ui==='en'?'Invited ':'Запрошено ')+nick}); }
   _mpReadyToggle(){ const room=this.state.mpLobby&&this.state.mpLobby.room; if(!room) return; const me=room.players.find(p=>p.connId===this._mpMyConnId()); this._mpSend('ready:set',{ready: me?!me.ready:true}); }
@@ -1874,6 +1886,9 @@ class Component extends DCLogic {
       });
       vals.mpMyCpm = mp.myCpm||0;
     } else { vals.mpChars=[]; vals.mpMyCpm=0; }
+    // on-screen keyboard during the race (next expected char highlighted)
+    if(mp && !mp.over){ const nx=(mp.text||'')[this._mpTyped||0]||''; vals.mpKb=this._kbRowsFor(s.lang, nx, ''); vals.mpKbShow=true; }
+    else { vals.mpKb=[]; vals.mpKbShow=false; }
     // live board
     const board = (mp&&mp.board)||[];
     vals.mpLive = !!(mp && !mp.over && board.length);
@@ -1904,6 +1919,9 @@ class Component extends DCLogic {
     vals.mpInviteBody = s.mpInvite? (s.mpInvite.from+' '+T.mp_invBody) : '';
     vals.mpAccept=()=>this._mpAcceptInvite(); vals.mpDecline=()=>this._mpDeclineInvite();
     // ---- create step ----
+    const curLang=(L.settings&&L.settings.lang)||s.lang||'en';
+    vals.mpLangCards=[['uk','Українська'],['en','English'],['ru','Русский']].map(([code,label])=>({ label, sel:curLang===code, onClick:()=>this._mpPickLang(code),
+      style:`border:2px solid ${curLang===code?'var(--brand)':'var(--border)'};background:${curLang===code?'var(--brand-bg)':'var(--surface-2)'};color:${curLang===code?'var(--brand-ink)':'var(--ink)'};font-family:'Fredoka';font-weight:600;font-size:15px;padding:10px 18px;border-radius:13px;cursor:pointer` }));
     const lens=[['short','fa-solid fa-bolt'],['medium','fa-solid fa-gauge-high'],['long','fa-solid fa-book']];
     const curLen=(L.settings&&L.settings.len)||'medium';
     const lenColors=['var(--brand)','var(--accent)','var(--f4)'];
@@ -1981,7 +1999,7 @@ class Component extends DCLogic {
       // --- multiplayer ---
       mp_title:'Multiplayer race', mp_cardDesc:'Race the same text against friends live', mp_exit:'Exit',
       mp_subCreate:'Create a room or quick-match', mp_subLobby:'Room ready · invite friends', mp_raceTitle:'Live race',
-      mp_createTitle:'Race length', mp_len_short:'Short', mp_len_short_d:'~15s', mp_len_medium:'Medium', mp_len_medium_d:'~30s', mp_len_long:'Long', mp_len_long_d:'~60s',
+      mp_langTitle:'Race language', mp_createTitle:'Race length', mp_len_short:'Short', mp_len_short_d:'~15s', mp_len_medium:'Medium', mp_len_medium_d:'~30s', mp_len_long:'Long', mp_len_long_d:'~60s',
       mp_create:'Create room', mp_quick:'Quick match', mp_quickWait:'Looking for an opponent…', mp_cancel:'Cancel',
       mp_join:'Join', mp_codePlaceholder:'Room code', mp_or:'or', mp_len:'Length', mp_change:'Change', mp_roomCode:'Room code', mp_copyLink:'Copy link',
       mp_chooseChar:'Choose your character', mp_players:'Players', mp_online:'Online now', mp_noOnline:'Nobody else is online right now', mp_addBot:'Add bot', mp_slotEmpty:'Empty slot', mp_invite:'Invite',
@@ -2076,7 +2094,7 @@ class Component extends DCLogic {
       // --- мультиплеєр ---
       mp_title:'Гонка на швидкість', mp_cardDesc:'Змагайся наживо з друзями на однаковому тексті', mp_exit:'Вийти',
       mp_subCreate:'Створіть кімнату або швидкий матч', mp_subLobby:'Кімната готова · запросіть друзів', mp_raceTitle:'Жива гонка',
-      mp_createTitle:'Довжина гонки', mp_len_short:'Коротка', mp_len_short_d:'~15с', mp_len_medium:'Середня', mp_len_medium_d:'~30с', mp_len_long:'Довга', mp_len_long_d:'~60с',
+      mp_langTitle:'Мова гонки', mp_createTitle:'Довжина гонки', mp_len_short:'Коротка', mp_len_short_d:'~15с', mp_len_medium:'Середня', mp_len_medium_d:'~30с', mp_len_long:'Довга', mp_len_long_d:'~60с',
       mp_create:'Створити кімнату', mp_quick:'Швидкий матч', mp_quickWait:'Шукаємо суперника…', mp_cancel:'Скасувати',
       mp_join:'Приєднатись', mp_codePlaceholder:'Код кімнати', mp_or:'або', mp_len:'Довжина', mp_change:'Змінити', mp_roomCode:'Код кімнати', mp_copyLink:'Скопіювати',
       mp_chooseChar:'Оберіть персонажа', mp_players:'Гравці', mp_online:'Зараз онлайн', mp_noOnline:'Більше нікого немає онлайн', mp_addBot:'Додати бота', mp_slotEmpty:'Вільний слот', mp_invite:'Запросити',
