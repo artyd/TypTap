@@ -600,8 +600,8 @@
           <h1 style="font-family:'Fredoka';font-weight:600;font-size:32px;margin:4px 0 2px">{{ resultHeadline }}</h1>
           <p style="color:var(--ink-2);font-weight:600;margin:0 0 22px;font-size:15px">{{ resultMessage }}</p>
         </div>
-        <div class="tt-cols4" style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px">
-          <sc-for list="{{ resultStats }}" as="s" hint-placeholder-count="5">
+        <div class="tt-cols4" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:22px">
+          <sc-for list="{{ resultStats }}" as="s" hint-placeholder-count="6">
             <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 14px;text-align:center;box-shadow:var(--shadow-sm)">
               <div style="font-family:'Fredoka';font-weight:600;font-size:34px;color:{{ s.color }};line-height:1">{{ s.value }}</div>
               <div style="font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.03em;margin-top:6px">{{ s.label }}</div>
@@ -2164,7 +2164,7 @@ class Component extends DCLogic {
       mc_custom_t:'Your text', mc_custom_d:'Practice on your own text or file',
       custTitle:'Practice your own text', custSub:'Paste any text, or upload a .txt / .md file — we clean it up and turn it into a drill.', custPlaceholder:'Paste text here… (up to 5000 characters)', custUpload:'Upload .txt / .md', custCancel:'Cancel', custStart:'Start practice',
       custErrType:'Only .txt or .md files are supported.', custErrSize:'File is too large (max 100 KB).', custErrRead:'Could not read the file.', custErrEmpty:'Add at least a few characters of text first.',
-      st_speed:'Speed', st_accuracy:'Accuracy', st_errors:'Errors', wpmUnit:' wpm',
+      st_speed:'Speed', st_cpm:'Chars/min', st_accuracy:'Accuracy', st_errors:'Errors', wpmUnit:' wpm', cpmUnit:' cpm',
       courseMode:'Course mode', adaptivePractice:'Adaptive practice', weakKeyPractice:'Weak-key practice: ', adaptiveFrom:'Adaptive · pulled from your recent misses', adaptiveType:'Adaptive · type more to personalise this', targetWpmSuffix:' · target % wpm', lessonWordCap:'Lesson', lessonDash:' — lesson ', examStart:'Exam', examStop:'Show keys',
       tour_help:'Help / tour', tour_next:'Next', tour_back:'Back', tour_skip:'Skip', tour_done_btn:'Start',
       tour_welcome_t:"Hi, I'm Typo! 👋", tour_welcome_b:'Let me show you around in a few quick steps.',
@@ -2186,7 +2186,7 @@ class Component extends DCLogic {
       // results
       h_pb:'New personal best!', h_brilliant:'Brilliant!', h_nice:'Nicely done!', h_good:'Good progress!',
       msg_needTarget:'You need % WPM to clear this level — you hit %. So close, run it again!', msg_pb:'Your fastest run yet at % WPM. Typo is proud of you.', msg_flawless:'Almost flawless — that muscle memory is really setting in.', msg_keepGoing:"Keep going — a little more practice on your weak keys and you’ll fly.",
-      r_wpm:'WPM', r_accuracy:'Accuracy', r_errors:'Errors', r_time:'Time', r_rhythm:'Rhythm', msg_accFirst:'Accuracy first! Slow down for a steady, even rhythm — speed follows accuracy. This run needs 80%+ to clear.', heatmap:'Keyboard heatmap', redderMore:'Redder = more misses', retryWord:'Retry', continueWord:'Continue',
+      r_wpm:'WPM', r_cpm:'CPM', r_accuracy:'Accuracy', r_errors:'Errors', r_time:'Time', r_rhythm:'Rhythm', msg_accFirst:'Accuracy first! Slow down for a steady, even rhythm — speed follows accuracy. This run needs 80%+ to clear.', heatmap:'Keyboard heatmap', redderMore:'Redder = more misses', retryWord:'Retry', continueWord:'Continue',
       // dashboard
       allTimeProgress:'All-time progress', savedDevice:'Saved on this device · accumulates every session', seedDemo:'Seed demo', resetWord:'Reset',
       ds_avgWpm:'Avg WPM', ds_accuracy:'Accuracy', ds_streak:'Streak', ds_lessons:'Lessons', recentWord:'recent', bestWord:'best', daysWord:'days', ofWord:'of',
@@ -2255,7 +2255,7 @@ class Component extends DCLogic {
       mc_custom_t:'Свій текст', mc_custom_d:'Тренуйся на власному тексті або файлі',
       custTitle:'Тренування на власному тексті', custSub:'Встав будь-який текст або завантаж файл .txt / .md — ми очистимо його й зробимо вправу.', custPlaceholder:'Встав текст сюди… (до 5000 символів)', custUpload:'Завантажити .txt / .md', custCancel:'Скасувати', custStart:'Почати',
       custErrType:'Підтримуються лише файли .txt або .md.', custErrSize:'Файл завеликий (макс. 100 КБ).', custErrRead:'Не вдалося прочитати файл.', custErrEmpty:'Спершу додай хоча б кілька символів тексту.',
-      st_speed:'Швидкість', st_accuracy:'Точність', st_errors:'Помилки', wpmUnit:' зн/хв',
+      st_speed:'Швидкість', st_cpm:'Символи/хв', st_accuracy:'Точність', st_errors:'Помилки', wpmUnit:' сл/хв', cpmUnit:' зн/хв',
       courseMode:'Курс', adaptivePractice:'Адаптивна практика', weakKeyPractice:'Слабкі клавіші: ', adaptiveFrom:'Адаптивно · за твоїми останніми помилками', adaptiveType:'Адаптивно · друкуй більше, щоб персоналізувати', targetWpmSuffix:' · ціль % зн/хв', lessonWordCap:'Урок', lessonDash:' — урок ', examStart:'Залік', examStop:'Показати клавіші',
       tour_help:'Довідка / тур', tour_next:'Далі', tour_back:'Назад', tour_skip:'Пропустити', tour_done_btn:'Почати',
       tour_welcome_t:'Привіт, я Тайпо! 👋', tour_welcome_b:'Покажу за кілька кроків, що тут де.',
@@ -2273,7 +2273,7 @@ class Component extends DCLogic {
       tour_done_t:'Готово! 🚀', tour_done_b:'Почнімо твій перший урок.',
       h_pb:'Новий особистий рекорд!', h_brilliant:'Блискуче!', h_nice:'Гарно вийшло!', h_good:'Гарний прогрес!',
       msg_needTarget:'Потрібно % ЗН/ХВ, щоб пройти рівень — у тебе %. Зовсім близько, спробуй ще!', msg_pb:'Твій найшвидший забіг — % ЗН/ХВ. Typo пишається тобою.', msg_flawless:'Майже бездоганно — м’язова пам’ять уже закріплюється.', msg_keepGoing:'Продовжуй — ще трохи практики над слабкими клавішами, і ти полетиш.',
-      r_wpm:'ЗН/ХВ', r_accuracy:'Точність', r_errors:'Помилки', r_time:'Час', r_rhythm:'Ритм', msg_accFirst:'Спочатку точність! Уповільнись для рівного, спокійного ритму — швидкість прийде за точністю. Для заліку потрібно 80%+.', heatmap:'Теплокарта клавіатури', redderMore:'Червоніше = більше промахів', retryWord:'Ще раз', continueWord:'Далі',
+      r_wpm:'СЛ/ХВ', r_cpm:'ЗН/ХВ', r_accuracy:'Точність', r_errors:'Помилки', r_time:'Час', r_rhythm:'Ритм', msg_accFirst:'Спочатку точність! Уповільнись для рівного, спокійного ритму — швидкість прийде за точністю. Для заліку потрібно 80%+.', heatmap:'Теплокарта клавіатури', redderMore:'Червоніше = більше промахів', retryWord:'Ще раз', continueWord:'Далі',
       allTimeProgress:'Прогрес за весь час', savedDevice:'Збережено на цьому пристрої · накопичується щосесії', seedDemo:'Демо-дані', resetWord:'Скинути',
       ds_avgWpm:'Сер. ЗН/ХВ', ds_accuracy:'Точність', ds_streak:'Серія', ds_lessons:'Уроки', recentWord:'останні', bestWord:'кращий', daysWord:'дн.', ofWord:'з',
       speedOverTime:'Швидкість у часі', wpmLast14:'ЗН/ХВ · останні 14 сесій', weakestKeys:'Найслабші клавіші', achievements:'Досягнення',
@@ -2594,16 +2594,17 @@ class Component extends DCLogic {
   }
 
   _stats(){
-    const s=this.state.session; if(!s || !s.startAt) return {wpm:0,acc:100,err:0,time:0,correct:0,total:0};
+    const s=this.state.session; if(!s || !s.startAt) return {wpm:0,cpm:0,acc:100,err:0,time:0,correct:0,total:0};
     const elapsed = ((s.done?(s._end||Date.now()):Date.now())-s.startAt)/1000;
     const correct = s.marks.filter(Boolean).length;
     const total = s.marks.length;
     const wpm = elapsed>0 ? Math.round((correct/5)/(elapsed/60)) : 0;
+    const cpm = elapsed>0 ? Math.round(correct/(elapsed/60)) : 0; // символи за хвилину (правильні)
     const acc = total>0 ? Math.round(correct/total*100) : 100;
     // Ритм = насколько ровные интервалы между нажатиями (100 = идеально ровно).
     const iv=s.ivals||[]; let cons=100;
     if(iv.length>=3){ const m=iv.reduce((a,b)=>a+b,0)/iv.length; const v=iv.reduce((a,b)=>a+(b-m)*(b-m),0)/iv.length; const cv=m>0?Math.sqrt(v)/m:0; cons=Math.max(0,Math.min(100,Math.round(100*(1-Math.min(1,cv))))); }
-    return { wpm, acc, err:s.errors, time:Math.round(elapsed), correct, total, cons };
+    return { wpm, cpm, acc, err:s.errors, time:Math.round(elapsed), correct, total, cons };
   }
 
   // ---------- falling game ----------
@@ -3202,6 +3203,7 @@ class Component extends DCLogic {
         const flashOn = ses.flash && (Date.now()-ses.flash<320);
         vals.liveStats=[
           {label:T.st_speed,value:stat.wpm,unit:T.wpmUnit,color:'var(--brand)'},
+          {label:T.st_cpm,value:stat.cpm,unit:T.cpmUnit,color:'var(--brand-2)'},
           {label:T.st_accuracy,value:stat.acc,unit:'%',color:stat.acc>=95?'var(--success)':'var(--warning)'},
           {label:T.st_errors,value:stat.err,unit:'',color:stat.err>0?'var(--error)':'var(--ink)'}
         ];
@@ -3242,7 +3244,7 @@ class Component extends DCLogic {
     {
       const stat=this._stats();
       const played = s.session && s.session.startAt;
-      const wpm= played?stat.wpm:58, acc= played?stat.acc:96, err= played?stat.err:4, time= played?stat.time:41;
+      const wpm= played?stat.wpm:58, cpm= played?stat.cpm:290, acc= played?stat.acc:96, err= played?stat.err:4, time= played?stat.time:41;
       const cl=s.currentLesson; const target=cl&&cl.target?cl.target:0;
       const hitTarget = target? wpm>=target : true;
       const isPB = played && wpm>0 && wpm>=bestWpm;
@@ -3253,6 +3255,7 @@ class Component extends DCLogic {
       vals.resultMessage= lowAcc ? T.msg_accFirst : (target&&!hitTarget ? this._fmt(T.msg_needTarget,target,wpm) : isPB? this._fmt(T.msg_pb,wpm) : acc>=97?T.msg_flawless : T.msg_keepGoing);
       vals.resultStats=[
         {value:wpm,label:T.r_wpm,color:'var(--brand)'},
+        {value:cpm,label:T.r_cpm,color:'var(--brand-2)'},
         {value:acc+'%',label:T.r_accuracy,color:acc>=90?'var(--success)':'var(--warning)'},
         {value:err,label:T.r_errors,color:'var(--error)'},
         {value:cons+'%',label:T.r_rhythm,color:'var(--f4)'},
