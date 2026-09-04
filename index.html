@@ -1206,6 +1206,16 @@
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
             <sc-for list="{{ mpLangCards }}" as="g" hint-placeholder-count="3"><button onClick="{{ g.onClick }}" style="{{ g.style }}">{{ g.label }}</button></sc-for>
           </div>
+          <div style="display:flex;gap:26px;flex-wrap:wrap;margin-bottom:20px">
+            <div>
+              <h3 style="font-family:'Fredoka';font-weight:600;font-size:15px;margin:0 0 10px;color:var(--ink-2)">{{ t.mp_diffTitle }}</h3>
+              <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ mpDiffCards }}" as="g" hint-placeholder-count="3"><button onClick="{{ g.onClick }}" style="{{ g.style }}">{{ g.label }}</button></sc-for></div>
+            </div>
+            <div>
+              <h3 style="font-family:'Fredoka';font-weight:600;font-size:15px;margin:0 0 10px;color:var(--ink-2)">{{ t.mp_maxTitle }}</h3>
+              <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ mpMaxCards }}" as="g" hint-placeholder-count="3"><button onClick="{{ g.onClick }}" style="{{ g.style }}">{{ g.label }}</button></sc-for></div>
+            </div>
+          </div>
           <sc-if value="{{ mpShowLen }}" hint-placeholder-val="{{ true }}">
           <h3 style="font-family:'Fredoka';font-weight:600;font-size:15px;margin:0 0 12px;color:var(--ink-2)">{{ t.mp_createTitle }}</h3>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px">
@@ -1280,6 +1290,7 @@
           <div style="display:flex;align-items:center;gap:14px;margin-top:22px;flex-wrap:wrap">
             <button onClick="{{ mpReadyToggle }}" style="{{ mpReadyStyle }}">{{ mpReadyLabel }}</button>
             <button onClick="{{ mpAddBot }}" style="border:1px solid var(--border-2);background:var(--surface);color:var(--ink-2);font-family:'Fredoka';font-weight:600;font-size:15px;padding:12px 20px;border-radius:14px;cursor:pointer"><i class="fa-solid fa-robot" style="margin-right:7px"></i>{{ t.mp_addBot }}</button>
+            <sc-if value="{{ mpCanForce }}" hint-placeholder-val="{{ false }}"><button onClick="{{ mpForceStart }}" style="border:1px solid var(--success);background:var(--success-bg);color:var(--success);font-family:'Fredoka';font-weight:600;font-size:15px;padding:12px 20px;border-radius:14px;cursor:pointer"><i class="fa-solid fa-play" style="margin-right:7px"></i>{{ t.mp_forceStart }}</button></sc-if>
             <div style="font-weight:700;font-size:14px;color:var(--ink-2);flex:1;min-width:160px">{{ mpLobbyStatusText }}</div>
           </div>
         </div>
@@ -1333,7 +1344,7 @@
 
   <!-- ==================== MP: LIVE BOARD ==================== -->
   <sc-if value="{{ mpLive }}" hint-placeholder-val="{{ false }}">
-    <div style="position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:8000;display:flex;flex-direction:column;gap:9px;background:color-mix(in srgb,var(--surface) 97%,transparent);border:1px solid var(--border);border-radius:18px;box-shadow:0 14px 38px rgba(120,70,20,.2);padding:12px 14px;min-width:300px;max-width:360px">
+    <div style="position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:8000;display:flex;flex-direction:column;gap:9px;background:color-mix(in srgb,var(--surface) 97%,transparent);border:1px solid var(--border);border-radius:18px;box-shadow:0 14px 38px rgba(120,70,20,.2);padding:12px 14px;min-width:min(300px,90vw);max-width:min(360px,92vw)">
       <div style="display:flex;align-items:center;gap:10px">
         <span style="font-family:'Fredoka';font-weight:600;font-size:13px;color:var(--brand-ink);text-transform:uppercase;letter-spacing:.04em;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ mpGameTitle }}</span>
         <span style="display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono','Fredoka';font-weight:700;font-size:20px;color:{{ mpClock }}"><i class="fa-regular fa-clock" style="font-size:15px"></i>{{ mpTimeLabel }}</span>
@@ -1373,7 +1384,10 @@
             </div>
           </sc-for>
         </div>
-        <div style="font-weight:700;font-size:13px;color:var(--muted);margin-top:18px"><i class="fa-solid fa-arrow-rotate-left" style="margin-right:6px"></i>{{ mpReturning }}</div>
+        <div style="font-weight:800;font-size:13px;color:var(--ink-2);margin-top:16px">{{ mpMyResult }}</div>
+        <div style="font-weight:700;font-size:12px;color:var(--muted);margin-top:3px"><i class="fa-solid fa-trophy" style="margin-right:5px;color:var(--accent)"></i>{{ mpWinsLabel }}</div>
+        <button onClick="{{ mpRematch }}" style="width:100%;border:none;background:var(--brand);color:#fff;font-family:'Fredoka';font-weight:600;font-size:16px;padding:13px;border-radius:15px;box-shadow:0 4px 0 var(--brand-ink);cursor:pointer;margin-top:16px"><i class="fa-solid fa-rotate-right" style="margin-right:7px"></i>{{ t.mp_rematch }}</button>
+        <div style="font-weight:700;font-size:12px;color:var(--muted);margin-top:10px"><i class="fa-solid fa-arrow-rotate-left" style="margin-right:6px"></i>{{ mpReturning }}</div>
       </div>
     </div>
   </sc-if>
@@ -1390,6 +1404,21 @@
           <button onClick="{{ mpAccept }}" style="flex:1;border:none;background:var(--success);color:#fff;font-family:'Fredoka';font-weight:600;font-size:15px;padding:12px;border-radius:14px;cursor:pointer;box-shadow:0 3px 0 var(--success-ink)">{{ t.mp_accept }}</button>
         </div>
       </div>
+    </div>
+  </sc-if>
+
+  <!-- ==================== MP: LEAVE MATCH (mini-game) ==================== -->
+  <sc-if value="{{ mpGameExitShow }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ mpGameExit }}" style="position:fixed;top:14px;left:14px;z-index:8100;border:1px solid var(--border);background:var(--surface);color:var(--ink-2);font-family:'Fredoka';font-weight:600;font-size:13px;padding:9px 14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.14)"><i class="fa-solid fa-arrow-left" style="margin-right:6px"></i>{{ t.mp_leaveMatch }}</button>
+  </sc-if>
+
+  <!-- ==================== MP: EMOJI REACTIONS ==================== -->
+  <sc-if value="{{ mpReactShow }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;top:150px;transform:translateX(-50%);z-index:8050;display:flex;gap:10px;pointer-events:none">
+      <sc-for list="{{ mpReacts }}" as="r" hint-placeholder-count="0"><span style="{{ r.style }}">{{ r.emoji }}</span></sc-for>
+    </div>
+    <div style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:8100;display:flex;gap:4px;background:color-mix(in srgb,var(--surface) 97%,transparent);border:1px solid var(--border);border-radius:999px;padding:6px 10px;box-shadow:0 10px 30px rgba(120,70,20,.2)">
+      <sc-for list="{{ mpReactBar }}" as="r" hint-placeholder-count="8"><button onClick="{{ r.onClick }}" style="border:none;background:transparent;font-size:20px;cursor:pointer;padding:2px 5px;line-height:1">{{ r.emoji }}</button></sc-for>
     </div>
   </sc-if>
 
@@ -1432,7 +1461,8 @@ class Component extends DCLogic {
       mpInvite: null,    // входящее приглашение: {from, fromAnimal, roomId, code, settings}
       mpConnected: false,
       mpStatus: '',      // строка статуса/ошибки в лобби
-      mpCount: null      // оверлей обратного отсчёта 3-2-1 перед стартом
+      mpCount: null,     // оверлей обратного отсчёта 3-2-1 перед стартом
+      mpReacts: []       // всплывающие эмодзи-реакции во время гонки
     };
     this._onKey = this._onKey.bind(this);
   }
@@ -1689,9 +1719,9 @@ class Component extends DCLogic {
   ]; }
   _ini(n){ const c=(n||'').replace(/[^0-9A-Za-z\u0410-\u042f\u0430-\u044f\u0406\u0407\u0404\u0490\u0456\u0457\u0454\u0491]/g,''); return (c.slice(0,2)||'?').toUpperCase(); }
   LB(lang){ const M={
-    en:{title:'Leaderboard',sub:'The fastest typists in the world \u2014 climb the ranks.',scope:'Global \u00b7 All-time',wpm:'WPM',acc:'Accuracy',streak:'Streak',you:'YOU',your:'Your place',hint:'Finish a lesson or drill to post your first score and claim a rank.',uDays:'days',uWpm:'wpm',mTitle:'Top typists right now',mSub:'See who leads the global board today.',mCta:'Open leaderboard',mClose:'Maybe later'},
-    uk:{title:'\u0422\u0430\u0431\u043b\u0438\u0446\u044f \u043b\u0456\u0434\u0435\u0440\u0456\u0432',sub:'\u041d\u0430\u0439\u0448\u0432\u0438\u0434\u0448\u0456 \u0434\u0440\u0443\u043a\u0430\u0440\u0456 \u0441\u0432\u0456\u0442\u0443 \u2014 \u043f\u0456\u0434\u0456\u0439\u043c\u0430\u0439\u0441\u044f \u0432 \u0440\u0435\u0439\u0442\u0438\u043d\u0433\u0443.',scope:'\u0413\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u043e \u00b7 \u0417\u0430 \u0432\u0435\u0441\u044c \u0447\u0430\u0441',wpm:'\u0417\u043d\u0430\u043a/\u0445\u0432',acc:'\u0422\u043e\u0447\u043d\u0456\u0441\u0442\u044c',streak:'\u0421\u0435\u0440\u0456\u044f',you:'\u0422\u0418',your:'\u0422\u0432\u043e\u0454 \u043c\u0456\u0441\u0446\u0435',hint:'\u041f\u0440\u043e\u0439\u0434\u0438 \u0443\u0440\u043e\u043a \u0430\u0431\u043e \u0442\u0440\u0435\u043d\u0443\u0432\u0430\u043d\u043d\u044f, \u0449\u043e\u0431 \u043e\u0442\u0440\u0438\u043c\u0430\u0442\u0438 \u043f\u0435\u0440\u0448\u0438\u0439 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u0456 \u043c\u0456\u0441\u0446\u0435.',uDays:'\u0434\u043d',uWpm:'\u0437\u043d/\u0445\u0432',mTitle:'\u041d\u0430\u0439\u043a\u0440\u0430\u0449\u0456 \u0434\u0440\u0443\u043a\u0430\u0440\u0456 \u0437\u0430\u0440\u0430\u0437',mSub:'\u041f\u043e\u0434\u0438\u0432\u0438\u0441\u044c, \u0445\u0442\u043e \u043e\u0447\u043e\u043b\u044e\u0454 \u0441\u0432\u0456\u0442\u043e\u0432\u0443 \u0442\u0430\u0431\u043b\u0438\u0446\u044e \u0441\u044c\u043e\u0433\u043e\u0434\u043d\u0456.',mCta:'\u0412\u0456\u0434\u043a\u0440\u0438\u0442\u0438 \u0442\u0430\u0431\u043b\u0438\u0446\u044e',mClose:'\u041f\u0456\u0437\u043d\u0456\u0448\u0435'},
-    ru:{title:'\u0422\u0430\u0431\u043b\u0438\u0446\u0430 \u043b\u0438\u0434\u0435\u0440\u043e\u0432',sub:'\u0421\u0430\u043c\u044b\u0435 \u0431\u044b\u0441\u0442\u0440\u044b\u0435 \u043c\u0430\u0448\u0438\u043d\u0438\u0441\u0442\u044b \u043c\u0438\u0440\u0430 \u2014 \u043f\u043e\u0434\u043d\u0438\u043c\u0430\u0439\u0441\u044f \u0432 \u0440\u0435\u0439\u0442\u0438\u043d\u0433\u0435.',scope:'\u0413\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u043e \u00b7 \u0417\u0430 \u0432\u0441\u0451 \u0432\u0440\u0435\u043c\u044f',wpm:'\u0417\u043d\u0430\u043a/\u043c\u0438\u043d',acc:'\u0422\u043e\u0447\u043d\u043e\u0441\u0442\u044c',streak:'\u0421\u0435\u0440\u0438\u044f',you:'\u0422\u042b',your:'\u0422\u0432\u043e\u0451 \u043c\u0435\u0441\u0442\u043e',hint:'\u041f\u0440\u043e\u0439\u0434\u0438 \u0443\u0440\u043e\u043a \u0438\u043b\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0443, \u0447\u0442\u043e\u0431\u044b \u043f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u043f\u0435\u0440\u0432\u044b\u0439 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u0438 \u043c\u0435\u0441\u0442\u043e.',uDays:'\u0434\u043d',uWpm:'\u0437\u043d/\u0445\u0432',mTitle:'\u041b\u0443\u0447\u0448\u0438\u0435 \u043c\u0430\u0448\u0438\u043d\u0438\u0441\u0442\u044b \u0441\u0435\u0439\u0447\u0430\u0441',mSub:'\u0421\u043c\u043e\u0442\u0440\u0438, \u043a\u0442\u043e \u0432\u043e\u0437\u0433\u043b\u0430\u0432\u043b\u044f\u0435\u0442 \u043c\u0438\u0440\u043e\u0432\u0443\u044e \u0442\u0430\u0431\u043b\u0438\u0446\u0443 \u0441\u0435\u0433\u043e\u0434\u043d\u044f.',mCta:'\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0442\u0430\u0431\u043b\u0438\u0446\u0443',mClose:'\u041f\u043e\u0437\u0436\u0435'}
+    en:{title:'Leaderboard',sub:'The fastest typists in the world \u2014 climb the ranks.',scope:'Global \u00b7 All-time',wpm:'WPM',acc:'Accuracy',streak:'Streak',you:'YOU',your:'Your place',hint:'Finish a lesson or drill to post your first score and claim a rank.',uDays:'days',uWpm:'wpm',mTitle:'Top typists right now',mSub:'See who leads the global board today.',mCta:'Open leaderboard',mClose:'Maybe later',mp:'MP wins',uWins:'wins'},
+    uk:{title:'\u0422\u0430\u0431\u043b\u0438\u0446\u044f \u043b\u0456\u0434\u0435\u0440\u0456\u0432',sub:'\u041d\u0430\u0439\u0448\u0432\u0438\u0434\u0448\u0456 \u0434\u0440\u0443\u043a\u0430\u0440\u0456 \u0441\u0432\u0456\u0442\u0443 \u2014 \u043f\u0456\u0434\u0456\u0439\u043c\u0430\u0439\u0441\u044f \u0432 \u0440\u0435\u0439\u0442\u0438\u043d\u0433\u0443.',scope:'\u0413\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u043e \u00b7 \u0417\u0430 \u0432\u0435\u0441\u044c \u0447\u0430\u0441',wpm:'\u0417\u043d\u0430\u043a/\u0445\u0432',acc:'\u0422\u043e\u0447\u043d\u0456\u0441\u0442\u044c',streak:'\u0421\u0435\u0440\u0456\u044f',you:'\u0422\u0418',your:'\u0422\u0432\u043e\u0454 \u043c\u0456\u0441\u0446\u0435',hint:'\u041f\u0440\u043e\u0439\u0434\u0438 \u0443\u0440\u043e\u043a \u0430\u0431\u043e \u0442\u0440\u0435\u043d\u0443\u0432\u0430\u043d\u043d\u044f, \u0449\u043e\u0431 \u043e\u0442\u0440\u0438\u043c\u0430\u0442\u0438 \u043f\u0435\u0440\u0448\u0438\u0439 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u0456 \u043c\u0456\u0441\u0446\u0435.',uDays:'\u0434\u043d',uWpm:'\u0437\u043d/\u0445\u0432',mTitle:'\u041d\u0430\u0439\u043a\u0440\u0430\u0449\u0456 \u0434\u0440\u0443\u043a\u0430\u0440\u0456 \u0437\u0430\u0440\u0430\u0437',mSub:'\u041f\u043e\u0434\u0438\u0432\u0438\u0441\u044c, \u0445\u0442\u043e \u043e\u0447\u043e\u043b\u044e\u0454 \u0441\u0432\u0456\u0442\u043e\u0432\u0443 \u0442\u0430\u0431\u043b\u0438\u0446\u044e \u0441\u044c\u043e\u0433\u043e\u0434\u043d\u0456.',mCta:'\u0412\u0456\u0434\u043a\u0440\u0438\u0442\u0438 \u0442\u0430\u0431\u043b\u0438\u0446\u044e',mClose:'\u041f\u0456\u0437\u043d\u0456\u0448\u0435',mp:'\u041f\u0435\u0440\u0435\u043c\u043e\u0433\u0438 MP',uWins:'\u043f\u0435\u0440\u0435\u043c\u043e\u0433'},
+    ru:{title:'\u0422\u0430\u0431\u043b\u0438\u0446\u0430 \u043b\u0438\u0434\u0435\u0440\u043e\u0432',sub:'\u0421\u0430\u043c\u044b\u0435 \u0431\u044b\u0441\u0442\u0440\u044b\u0435 \u043c\u0430\u0448\u0438\u043d\u0438\u0441\u0442\u044b \u043c\u0438\u0440\u0430 \u2014 \u043f\u043e\u0434\u043d\u0438\u043c\u0430\u0439\u0441\u044f \u0432 \u0440\u0435\u0439\u0442\u0438\u043d\u0433\u0435.',scope:'\u0413\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u043e \u00b7 \u0417\u0430 \u0432\u0441\u0451 \u0432\u0440\u0435\u043c\u044f',wpm:'\u0417\u043d\u0430\u043a/\u043c\u0438\u043d',acc:'\u0422\u043e\u0447\u043d\u043e\u0441\u0442\u044c',streak:'\u0421\u0435\u0440\u0438\u044f',you:'\u0422\u042b',your:'\u0422\u0432\u043e\u0451 \u043c\u0435\u0441\u0442\u043e',hint:'\u041f\u0440\u043e\u0439\u0434\u0438 \u0443\u0440\u043e\u043a \u0438\u043b\u0438 \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0443, \u0447\u0442\u043e\u0431\u044b \u043f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u043f\u0435\u0440\u0432\u044b\u0439 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u0438 \u043c\u0435\u0441\u0442\u043e.',uDays:'\u0434\u043d',uWpm:'\u0437\u043d/\u0445\u0432',mTitle:'\u041b\u0443\u0447\u0448\u0438\u0435 \u043c\u0430\u0448\u0438\u043d\u0438\u0441\u0442\u044b \u0441\u0435\u0439\u0447\u0430\u0441',mSub:'\u0421\u043c\u043e\u0442\u0440\u0438, \u043a\u0442\u043e \u0432\u043e\u0437\u0433\u043b\u0430\u0432\u043b\u044f\u0435\u0442 \u043c\u0438\u0440\u043e\u0432\u0443\u044e \u0442\u0430\u0431\u043b\u0438\u0446\u0443 \u0441\u0435\u0433\u043e\u0434\u043d\u044f.',mCta:'\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0442\u0430\u0431\u043b\u0438\u0446\u0443',mClose:'\u041f\u043e\u0437\u0436\u0435',mp:'\u041f\u043e\u0431\u0435\u0434\u044b MP',uWins:'\u043f\u043e\u0431\u0435\u0434'}
   }; return M[lang]||M.en; }
   _lbView(){
     const s=this.state; const metric=s.lbMetric||'wpm'; const L=this.LB(s.ui);
@@ -1701,18 +1731,20 @@ class Component extends DCLogic {
     const bestWpm=hist.length?Math.max(...hist.map(x=>x.wpm)):0;
     const bestAcc=hist.length?Math.max(...hist.map(x=>x.acc)):0;
     const streakCount=(this.store&&this.store.streak&&this.store.streak.count)||0;
-    const disp=(v)=> metric==='acc'?(Number(v).toFixed(1)+'%'):String(v);
-    const unit=()=> metric==='acc'?'':(metric==='wpm'?(L.uWpm||'wpm'):L.uDays);
+    const disp=(v)=> metric==='acc'?(Number(v).toFixed(1)+'%'):String(v==null?0:v);
+    const unit=()=> metric==='acc'?'':(metric==='wpm'?(L.uWpm||'wpm'):(metric==='mpwins'?(L.uWins||'wins'):L.uDays));
     // \u0416\u0438\u0432\u044b\u0435 \u0434\u0430\u043d\u043d\u044b\u0435 \u0441 \u0441\u0435\u0440\u0432\u0435\u0440\u0430 \u0434\u043b\u044f \u0442\u0435\u043a\u0443\u0449\u0435\u0439 \u043c\u0435\u0442\u0440\u0438\u043a\u0438; \u0438\u043d\u0430\u0447\u0435 \u0444\u043e\u043b\u0431\u044d\u043a \u043d\u0430 \u0434\u0435\u043c\u043e-\u0441\u0438\u0434 (\u043e\u0444\u043b\u0430\u0439\u043d/\u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0430).
     const remote=(s.lbRemote && s.lbRemote.metric===metric) ? s.lbRemote : null;
     let rows;
     if(remote){
       rows=(remote.top||[]).map((p)=>({rank:p.rank,name:p.nickname,av:this._ini(p.nickname),val:disp(p.value),unit:unit()}));
+    } else if(metric==='mpwins'){
+      rows=[]; // без сервера MP-таблицы нет демо-сида — покажем только своё место
     } else {
       const sorted=this._lbSeed().slice().sort((a,b)=>b[metric]-a[metric]);
       rows=sorted.map((p,i)=>({rank:i+1,name:p.name,av:this._ini(p.name),val:disp(p[metric]),unit:unit()}));
     }
-    const uv=metric==='wpm'?bestWpm:metric==='acc'?bestAcc:streakCount;
+    const uv=metric==='wpm'?bestWpm:metric==='acc'?bestAcc:metric==='mpwins'?((this.store&&this.store.mpWins)||0):streakCount;
     const has=uv>0;
     let you;
     if(remote && remote.you && remote.you.rank){
@@ -1751,6 +1783,8 @@ class Component extends DCLogic {
   // ---------- navigation ----------
   go(screen){
     this._stopLoop();
+    // Уходя с мультиплеера (в т.ч. из мини-игры) — корректно покидаем матч/комнату.
+    if(screen!=='mp' && (this.state.mp || this.state.screen==='mp')){ this._mpLeaveAll(); }
     if(screen==='lesson'){ const n=this._nextLesson(); this._startLesson(n.tier,n.idx); return; }
     if(screen==='drill'){ this.setState({screen:'drill'}, ()=>this._startDrill()); return; }
     if(screen==='game'){ this.setState({screen:'game', game:null}); return; }
@@ -1764,7 +1798,7 @@ class Component extends DCLogic {
   }
   _openGame(id){ this._stopLoop(); this.setState({screen:'game', game:id}, ()=>this._startGame(id)); }
   _startGame(id){ if(id==='falling')this._startFalling(true); else if(id==='race')this._startRace(true); else if(id==='boss')this._startBoss(true); else if(id==='combo')this._startCombo(true); else if(id==='defense')this._startDefense(true); else if(id==='balloon')this._startBalloon(true); else if(id==='climber')this._startClimber(true); else if(id==='piano')this._startPiano(true); else if(id==='maze')this._startMaze(true); else if(id==='horde')this._startHorde(true); else if(id==='flash')this._startFlash(true); else if(id==='cipher')this._startCipher(true); else if(id==='chain')this._startChain(true); else if(id==='duel')this._startDuel(true); else if(id==='garden')this._startGarden(true); else if(id==='ladder')this._startLadder(true); }
-  _backToHub(){ this._stopLoop(); this.setState({game:null}); }
+  _backToHub(){ this._stopLoop(); if(this.state.mp){ this._mpLeaveAll(); } this.setState({game:null}); }
   _shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
   // ==================== MULTIPLAYER (гонка одинаковым текстом) ====================
@@ -1805,9 +1839,11 @@ class Component extends DCLogic {
       case 'invite:declined': this.setState({mpStatus:(m.nickname||'')+' '+(this.state.ui==='en'?'declined':'відхилив запрошення')}); break;
       case 'quickmatch:waiting': this._mpMergeLobby({waiting:true}); break;
       case 'countdown': this.setState({mpCount:m.n}); break;
+      case 'countdown:cancel': this.setState({mpCount:null}); break;
       case 'race:start': if(m.game && m.game!=='race'){ this._mpStartGame(m.game, m.startAt, m.dur); } else { this._mpStartRace(m.text, m.startAt, m.dur); } break;
       case 'race:tick': { const mp=this.state.mp; if(mp && !mp.over) this.setState({mp:Object.assign({},mp,{board:m.players||[], remaining:m.remaining})}); break; }
-      case 'race:done': this._mpDone(m.ranking||[], m.youId); break;
+      case 'race:done': this._mpDone(m.ranking||[], m.youId, m.won); break;
+      case 'react': this._mpAddReact(m); break;
       case 'error': this.setState({mpStatus:this._mpErr(m.msg)}); break;
     }
   }
@@ -1816,7 +1852,8 @@ class Component extends DCLogic {
   _mpPickLang(code){ const l=Object.assign({},this.state.mpLobby||{}); l.settings=Object.assign({},l.settings,{lang:code}); this.setState({mpLobby:l, lang:code}); }
   _mpPickGame(id){ const l=Object.assign({},this.state.mpLobby||{}); l.settings=Object.assign({},l.settings,{game:id}); this.setState({mpLobby:l}); }
   _mpPickAnimal(a){ if(this.store){ this.store.animal=a; this._save(); } this._mpMergeLobby({sel:a}); this._mpSend('char:set',{animal:a}); }
-  _mpCreate(){ const l=this.state.mpLobby; const st=(l&&l.settings)||{}; this._mpSend('room:create',{settings:{lang:st.lang||this.state.lang, len:st.len||'medium', game:st.game||'race'}}); }
+  _mpCreate(){ const l=this.state.mpLobby; const st=(l&&l.settings)||{}; this._mpSend('room:create',{settings:{lang:st.lang||this.state.lang, len:st.len||'medium', game:st.game||'race', maxPlayers:st.maxPlayers||4, botDifficulty:st.botDifficulty||'medium'}}); }
+  MP_REACTIONS = ['👍','😂','🔥','😮','😅','🎉','💪','🐢'];
   _mpJoinCode(code){ code=(code||'').toUpperCase().trim(); if(code) this._mpSend('room:join',{code:code}); }
   _mpInvite(nick){ this._mpSend('invite',{toNickname:nick}); this.setState({mpStatus:(this.state.ui==='en'?'Invited ':'Запрошено ')+nick}); }
   _mpReadyToggle(){ const room=this.state.mpLobby&&this.state.mpLobby.room; if(!room) return; const me=room.players.find(p=>p.connId===this._mpMyConnId()); this._mpSend('ready:set',{ready: me?!me.ready:true}); }
@@ -1873,15 +1910,30 @@ class Component extends DCLogic {
     this.forceUpdate();
     if(this._mpTyped>=text.length){ this._mpLastSent=Date.now(); this._mpSend('progress',{correct:this._mpCorrect,total:this._mpTyped}); }
   }
-  _mpDone(ranking, youId){
+  _mpDone(ranking, youId, won){
     this._mpClearTimers(); this._stopLoop();
     const mp=this.state.mp||{};
-    this.setState({ mp:Object.assign({},mp,{over:true, ranking:ranking, youId:(youId||this._mpConnId), remaining:0}), mpCount:null });
-    const mine=(ranking||[]).find(r=>r.connId===(youId||this._mpConnId)) || (ranking||[]).find(r=>r.name===this.pdata.current);
-    if(mine && this.store){ const wpm=Math.round((mine.cpm||0)/5); if(wpm>(Number(this.store.bestRace)||0)){ this.store.bestRace=wpm; this._save(); } }
+    const myId=youId||this._mpConnId;
+    this.setState({ mp:Object.assign({},mp,{over:true, ranking:ranking, youId:myId, remaining:0}), mpCount:null });
+    const mine=(ranking||[]).find(r=>r.connId===myId) || (ranking||[]).find(r=>r.name===this.pdata.current);
+    const iWon = !!won || !!(ranking && ranking[0] && ranking[0].connId===myId && !ranking[0].isBot);
+    if(this.store){
+      if(mine){ const wpm=Math.round((mine.cpm||0)/5); if(wpm>(Number(this.store.bestRace)||0)) this.store.bestRace=wpm; }
+      this.store.mpRaces=(this.store.mpRaces||0)+1;
+      if(iWon) this.store.mpWins=(this.store.mpWins||0)+1;
+      this._save();
+    }
     // авто-возврат в лобби через 7с (и для гонки, и для мини-игры)
     this._mpReturn=setTimeout(()=>{ this._stopLoop(); this.setState({mp:null, screen:'mp'}); this._mpSend('presence:refresh',{}); }, 7000);
   }
+  // выход из матча/комнаты (навигация прочь, кнопка «Вийти»)
+  _mpLeaveAll(){ this._mpClearTimers(); this._mpSend('room:leave',{}); this._mpSend('quickmatch:cancel',{}); const l=Object.assign({},this.state.mpLobby||{},{room:null,step:'create',waiting:false}); this.setState({mp:null, mpLobby:l, mpCount:null, mpReacts:[]}); }
+  _mpRematch(){ this._mpClearTimers(); this.setState({mp:null, mpCount:null, mpReacts:[], screen:'mp'}); this._mpSend('presence:refresh',{}); }
+  _mpForceStart(){ this._mpSend('room:start',{}); }
+  _mpPickDifficulty(d){ const l=Object.assign({},this.state.mpLobby||{}); l.settings=Object.assign({},l.settings,{botDifficulty:d}); this.setState({mpLobby:l}); }
+  _mpPickMax(n){ const l=Object.assign({},this.state.mpLobby||{}); l.settings=Object.assign({},l.settings,{maxPlayers:n}); this.setState({mpLobby:l}); }
+  _mpReact(emoji){ this._mpSend('react',{emoji:emoji}); }
+  _mpAddReact(m){ const id=(this._reactSeq=(this._reactSeq||0)+1); const arr=(this.state.mpReacts||[]).concat([{id:id, emoji:m.emoji, name:m.name||'', mine:m.from===this._mpConnId}]); this.setState({mpReacts:arr.slice(-8)}); setTimeout(()=>{ this.setState(s=>({mpReacts:(s.mpReacts||[]).filter(r=>r.id!==id)})); }, 2200); }
   // ---- multiplayer view-model (заполняет vals для шаблона) ----
   _mpVals(vals, T, s){
     const en = s.ui==='en';
@@ -1894,13 +1946,22 @@ class Component extends DCLogic {
     vals.mpConnLabel = s.mpConnected ? (en?'Online':'Онлайн') : (en?'Connecting…':'Підключення…');
     vals.mpDotColor = s.mpConnected ? 'var(--success)' : 'var(--muted)';
     vals.mpSubLine = mp ? T.mp_raceTitle : (room ? T.mp_subLobby : T.mp_subCreate);
+    // Оверлеи мультиплеера показываем только в MP-контексте (экран 'mp' или мини-игра с активным матчем)
+    const mpCtx = (s.screen==='mp') || (s.screen==='game' && !!mp);
     vals.mpLobbyView = s.screen==='mp' && !mp;
     vals.mpRaceView = s.screen==='mp' && !!mp && !mp.over;
     vals.mpStepCreate = s.screen==='mp' && !mp && !room;
     vals.mpStepLobby = s.screen==='mp' && !mp && !!room;
+    // floating «Вийти» во время мини-игры-матча
+    vals.mpGameExitShow = !!(mp && !mp.over && s.screen==='game');
+    vals.mpGameExit = ()=>{ this._mpLeaveAll(); this.go('mp'); };
     // countdown
-    vals.mpCounting = (s.mpCount!=null && s.mpCount>0);
+    vals.mpCounting = (s.mpCount!=null && s.mpCount>0) && mpCtx;
     vals.mpCount = s.mpCount;
+    // эмодзи-реакции
+    vals.mpReactBar = this.MP_REACTIONS.map(e=>({ emoji:e, onClick:()=>this._mpReact(e) }));
+    vals.mpReacts = (s.mpReacts||[]).map(r=>({ emoji:r.emoji, name:r.name, style:'font-size:26px;animation:tt-pop .3s' }));
+    vals.mpReactShow = !!(mp && !mp.over && mpCtx);
     // race characters
     if(mp){
       const text=mp.text||''; const typed=this._mpTyped||0; const marks=this._mpMarks||[];
@@ -1917,22 +1978,30 @@ class Component extends DCLogic {
     else { vals.mpKb=[]; vals.mpKbShow=false; }
     // live board
     const board = (mp&&mp.board)||[];
-    vals.mpLive = !!(mp && !mp.over && board.length);
+    vals.mpLive = !!(mp && !mp.over && board.length) && mpCtx;
     vals.mpTimeLabel = mp ? (Math.ceil(mp.remaining||0)+'s') : '';
     vals.mpClock = (mp && (mp.remaining||0)<=10) ? 'var(--error)' : 'var(--brand-ink)';
     vals.mpGameTitle = T.mp_raceTitle;
     vals.mpUnit = en?'CPM':'зн/хв';
     vals.mpBoard = board.map(p=>({
-      name: p.name, animal: p.animal||'Cat', cpm: p.cpm||0,
-      rowStyle: `display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:10px;`+(p.id===myId?'background:var(--brand-bg)':''),
+      name: p.name + (p.disconnected?(en?' · offline':' · офлайн'):''), animal: p.animal||'Cat', cpm: p.cpm||0,
+      rowStyle: `display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:10px;${p.disconnected?'opacity:.45;':''}`+(p.id===myId?'background:var(--brand-bg)':''),
       barStyle: `height:100%;width:${Math.round((p.progress||0)*100)}%;background:${p.id===myId?'var(--brand)':'var(--accent)'};border-radius:5px;transition:width .2s`
     }));
     // results
     const rank = (mp&&mp.ranking)||[];
-    vals.mpResult = !!(mp && mp.over && rank.length);
+    vals.mpResult = !!(mp && mp.over && rank.length) && mpCtx;
     vals.mpResTitle = T.mp_resTitle; vals.mpReturning = T.mp_returning;
+    vals.mpRematch = ()=>this._mpRematch();
     const w = rank[0]||{name:'',animal:'Cat',cpm:0};
     vals.mpWinner = { name:w.name, animal:w.animal||'Cat', cpm:w.cpm||0 };
+    vals.mpWinnerWpm = Math.round((w.cpm||0)/5);
+    // моя строка результата: WPM + точность (для гонки одним текстом)
+    const myR = rank.find(r=>r.connId===(mp&&mp.youId));
+    const myAcc = (mp && mp.text && (this._mpTyped||0)>0) ? Math.round((this._mpCorrect/this._mpTyped)*100) : null;
+    vals.mpMyResult = myR ? ((en?'You: ':'Ви: ')+(myR.cpm||0)+' '+vals.mpUnit+' · '+Math.round((myR.cpm||0)/5)+' WPM'+(myAcc!=null?(' · '+myAcc+'%'):'')) : '';
+    vals.mpWinsTotal = (this.store&&this.store.mpWins)||0;
+    vals.mpWinsLabel = (en?'Your MP wins: ':'Ваших перемог: ')+vals.mpWinsTotal;
     vals.mpRanking = rank.map((p,i)=>({
       rank:(i+1), name:p.name, animal:p.animal||'Cat', cpm:p.cpm||0,
       rankColor: i===0?'#E8A400':(i===1?'#9AA0A6':(i===2?'#C08457':'var(--muted)')),
@@ -1968,9 +2037,14 @@ class Component extends DCLogic {
     vals.mpGameCards=mpGameDefs.map(g=>({ title:g.title, icon:g.icon, sel:curGame===g.id, onClick:()=>this._mpPickGame(g.id),
       cardStyle:`position:relative;border:2px solid ${curGame===g.id?'var(--brand)':'var(--border)'};background:var(--surface-2);border-radius:14px;padding:12px 6px 9px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center`,
       chipStyle:`width:38px;height:38px;border-radius:11px;background:${g.color};color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px` }));
+    const chip=(sel)=>`border:2px solid ${sel?'var(--brand)':'var(--border)'};background:${sel?'var(--brand-bg)':'var(--surface-2)'};color:${sel?'var(--brand-ink)':'var(--ink)'};font-family:'Fredoka';font-weight:600;font-size:15px;padding:10px 18px;border-radius:13px;cursor:pointer`;
     const curLang=(L.settings&&L.settings.lang)||s.lang||'en';
-    vals.mpLangCards=[['uk','Українська'],['en','English'],['ru','Русский']].map(([code,label])=>({ label, sel:curLang===code, onClick:()=>this._mpPickLang(code),
-      style:`border:2px solid ${curLang===code?'var(--brand)':'var(--border)'};background:${curLang===code?'var(--brand-bg)':'var(--surface-2)'};color:${curLang===code?'var(--brand-ink)':'var(--ink)'};font-family:'Fredoka';font-weight:600;font-size:15px;padding:10px 18px;border-radius:13px;cursor:pointer` }));
+    vals.mpLangCards=[['uk','Українська'],['en','English'],['ru','Русский']].map(([code,label])=>({ label, sel:curLang===code, onClick:()=>this._mpPickLang(code), style:chip(curLang===code) }));
+    // сложность ботов + размер комнаты
+    const curDiff=(L.settings&&L.settings.botDifficulty)||'medium';
+    vals.mpDiffCards=[['easy',en?'Easy':'Легко'],['medium',en?'Medium':'Норм'],['hard',en?'Hard':'Складно']].map(([id,label])=>({ label, sel:curDiff===id, onClick:()=>this._mpPickDifficulty(id), style:chip(curDiff===id) }));
+    const curMax=(L.settings&&L.settings.maxPlayers)||4;
+    vals.mpMaxCards=[2,3,4].map(n=>({ label:String(n), sel:curMax===n, onClick:()=>this._mpPickMax(n), style:chip(curMax===n) }));
     const lens=[['short','fa-solid fa-bolt'],['medium','fa-solid fa-gauge-high'],['long','fa-solid fa-book']];
     const curLen=(L.settings&&L.settings.len)||'medium';
     const lenColors=['var(--brand)','var(--accent)','var(--f4)'];
@@ -2000,15 +2074,21 @@ class Component extends DCLogic {
     vals.mpAddBot=()=>this._mpAddBot();
     vals.mpReadyToggle=()=>this._mpReadyToggle();
     const players=(room&&room.players)||[];
+    const cap=(room&&room.max)||4;
     const badge=(ready)=> ready?'font-size:12px;font-weight:800;color:var(--success)':'font-size:12px;font-weight:800;color:var(--muted)';
     const slots = players.map(p=>({ filled:true, empty:false,
-      name:(p.connId===myId? (en?'You':'Ви') : p.nickname)+(p.isHost?' ★':''), animal:p.animal||'Cat', mood:p.ready?'ready':'idle',
-      badge:(p.ready?'● '+(en?'Ready':'Готовий'):'○ '+(en?'Waiting':'Очікує'))+(p.isBot?' · bot':''), badgeStyle:badge(p.ready),
-      wrapStyle:`display:flex;align-items:center;gap:11px;background:${p.connId===myId?'var(--brand-bg)':'var(--surface-2)'};border:${p.connId===myId?'2px solid var(--brand)':'1px solid var(--border)'};border-radius:16px;padding:8px 12px;min-width:0` }));
-    while(slots.length<4) slots.push({filled:false, empty:true});
+      name:(p.connId===myId? (en?'You':'Ви') : p.nickname)+(p.isHost?' ★':''), animal:p.animal||'Cat', mood:p.disconnected?'lose':(p.ready?'ready':'idle'),
+      badge: p.disconnected ? ('○ '+(en?'offline':'офлайн')) : ((p.ready?'● '+(en?'Ready':'Готовий'):'○ '+(en?'Waiting':'Очікує'))+(p.isBot?' · bot':'')),
+      badgeStyle: p.disconnected ? 'font-size:12px;font-weight:800;color:var(--error-ink)' : badge(p.ready),
+      wrapStyle:`display:flex;align-items:center;gap:11px;background:${p.connId===myId?'var(--brand-bg)':'var(--surface-2)'};border:${p.connId===myId?'2px solid var(--brand)':'1px solid var(--border)'};border-radius:16px;padding:8px 12px;min-width:0;${p.disconnected?'opacity:.55':''}` }));
+    while(slots.length<cap) slots.push({filled:false, empty:true});
     vals.mpSlots=slots;
-    vals.mpCountLabel=(players.length)+'/4';
-    const full=players.length>=4;
+    vals.mpCountLabel=(players.length)+'/'+cap;
+    const full=players.length>=cap;
+    // форс-старт хостом
+    const iAmHost = !!(room && room.hostConnId===myId);
+    vals.mpCanForce = !!(iAmHost && players.length>=2);
+    vals.mpForceStart=()=>this._mpForceStart();
     const inRoom={}; players.forEach(p=>{ inRoom[p.nickname]=true; });
     const online=(L.online||[]);
     vals.mpOnline = online.map(o=>{ const joined=!!inRoom[o.nickname]; const can=!joined&&!full;
@@ -2052,6 +2132,7 @@ class Component extends DCLogic {
       mp_title:'Multiplayer race', mp_cardDesc:'Race the same text against friends live', mp_exit:'Exit',
       mp_subCreate:'Create a room or quick-match', mp_subLobby:'Room ready · invite friends', mp_raceTitle:'Live race',
       mp_gameTitle:'Game', mp_gameRace:'Race (shared text)', mp_gameRandom:'Random',
+      mp_diffTitle:'Bot difficulty', mp_maxTitle:'Room size', mp_forceStart:'Start now', mp_rematch:'Rematch', mp_leaveMatch:'Leave match',
       mp_langTitle:'Race language', mp_createTitle:'Race length', mp_len_short:'Short', mp_len_short_d:'~15s', mp_len_medium:'Medium', mp_len_medium_d:'~30s', mp_len_long:'Long', mp_len_long_d:'~60s',
       mp_create:'Create room', mp_quick:'Quick match', mp_quickWait:'Looking for an opponent…', mp_cancel:'Cancel',
       mp_join:'Join', mp_codePlaceholder:'Room code', mp_or:'or', mp_len:'Length', mp_change:'Change', mp_roomCode:'Room code', mp_copyLink:'Copy link',
@@ -2148,6 +2229,7 @@ class Component extends DCLogic {
       mp_title:'Гонка на швидкість', mp_cardDesc:'Змагайся наживо з друзями на однаковому тексті', mp_exit:'Вийти',
       mp_subCreate:'Створіть кімнату або швидкий матч', mp_subLobby:'Кімната готова · запросіть друзів', mp_raceTitle:'Жива гонка',
       mp_gameTitle:'Гра', mp_gameRace:'Гонка (спільний текст)', mp_gameRandom:'Випадкова',
+      mp_diffTitle:'Складність ботів', mp_maxTitle:'Розмір кімнати', mp_forceStart:'Почати зараз', mp_rematch:'Реванш', mp_leaveMatch:'Вийти з матчу',
       mp_langTitle:'Мова гонки', mp_createTitle:'Довжина гонки', mp_len_short:'Коротка', mp_len_short_d:'~15с', mp_len_medium:'Середня', mp_len_medium_d:'~30с', mp_len_long:'Довга', mp_len_long_d:'~60с',
       mp_create:'Створити кімнату', mp_quick:'Швидкий матч', mp_quickWait:'Шукаємо суперника…', mp_cancel:'Скасувати',
       mp_join:'Приєднатись', mp_codePlaceholder:'Код кімнати', mp_or:'або', mp_len:'Довжина', mp_change:'Змінити', mp_roomCode:'Код кімнати', mp_copyLink:'Скопіювати',
@@ -2990,7 +3072,7 @@ class Component extends DCLogic {
     const _lb=this._lbView(); const _L=_lb.L; const _met=_lb.metric;
     vals.isLeaderboard=screen==='leaderboard';
     vals.lbTitle=_L.title; vals.lbSub=_L.sub; vals.lbScope=_L.scope; vals.lbHint=_L.hint; vals.lbYouTag=_L.you;
-    vals.lbTabs=[['wpm',_L.wpm],['acc',_L.acc],['streak',_L.streak]].map(([k,label])=>({label,onClick:()=>this.setState({lbMetric:k}),
+    vals.lbTabs=[['wpm',_L.wpm],['acc',_L.acc],['streak',_L.streak],['mpwins',_L.mp]].map(([k,label])=>({label,onClick:()=>this.setState({lbMetric:k}),
       style:`border:none;font-family:'Fredoka';font-weight:500;font-size:14px;padding:9px 20px;border-radius:12px;cursor:pointer;`+(k===_met?`background:var(--brand);color:#fff;box-shadow:0 2px 0 var(--brand-ink);`:`background:transparent;color:var(--ink-2);`)}));
     vals.lbP1=_lb.top3[0]; vals.lbP2=_lb.top3[1]; vals.lbP3=_lb.top3[2];
     vals.lbList=_lb.list.map((r,i)=>({...r,rowStyle:`display:flex;align-items:center;gap:14px;padding:13px 18px;`+(i%2?`background:var(--surface-2);`:`background:var(--surface);`)+(i<_lb.list.length-1?`border-bottom:1px solid var(--border);`:``)}));

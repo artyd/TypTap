@@ -59,12 +59,14 @@ function deriveMetrics(data) {
 
   const streakCount = Number(data && data.streak && data.streak.count) || 0;
   const xp = Number(data && data.xp) || 0;
+  const mpWins = Number(data && data.mpWins) || 0; // победы в мультиплеере (для MP-лидерборда)
 
   return {
     best_wpm: clamp(bestWpm, 0, 400),
     best_acc: clamp(bestAcc, 0, 100),
     streak_count: clamp(streakCount, 0, 20000),
     xp: clamp(xp, 0, 100_000_000),
+    mp_wins: clamp(mpWins, 0, 1_000_000),
   };
 }
 
@@ -85,7 +87,7 @@ function sanitizeData(raw) {
   return data;
 }
 
-const METRIC_COLUMN = { wpm: 'best_wpm', acc: 'best_acc', streak: 'streak_count' };
+const METRIC_COLUMN = { wpm: 'best_wpm', acc: 'best_acc', streak: 'streak_count', mpwins: 'mp_wins' };
 
 function asyncHandler(fn) {
   return (req, res) => fn(req, res).catch((e) => {
@@ -118,16 +120,17 @@ app.put('/profile', asyncHandler(async (req, res) => {
   const m = deriveMetrics(data);
 
   const { rows } = await pool.query(
-    `insert into public.profiles (nickname, data, best_wpm, best_acc, streak_count, xp)
-       values ($1, $2, $3, $4, $5, $6)
+    `insert into public.profiles (nickname, data, best_wpm, best_acc, streak_count, xp, mp_wins)
+       values ($1, $2, $3, $4, $5, $6, $7)
      on conflict (nickname) do update set
        data = excluded.data,
        best_wpm = excluded.best_wpm,
        best_acc = excluded.best_acc,
        streak_count = excluded.streak_count,
-       xp = excluded.xp
+       xp = excluded.xp,
+       mp_wins = excluded.mp_wins
      returning updated_at`,
-    [nickname, data, m.best_wpm, m.best_acc, m.streak_count, m.xp],
+    [nickname, data, m.best_wpm, m.best_acc, m.streak_count, m.xp, m.mp_wins],
   );
   return res.json({ ok: true, updated_at: rows[0].updated_at });
 }));

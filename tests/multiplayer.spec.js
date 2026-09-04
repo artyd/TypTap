@@ -40,7 +40,7 @@ async function newPlayer(browser, nick) {
 
 test.beforeAll(async () => {
   wsServer = http.createServer();
-  attach(wsServer);
+  attach(wsServer, { allowOrigins: ['127.0.0.1:8123', 'localhost:8123'] });
   await new Promise((r) => wsServer.listen(0, '127.0.0.1', r));
   WS_PORT = wsServer.address().port;
 });
