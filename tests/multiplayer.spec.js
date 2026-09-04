@@ -101,6 +101,30 @@ test('two players: presence → invite → race → ranked results', async ({ br
   await B.ctx.close();
 });
 
+test('mini-game selection: chosen game runs (no shared text) and live board updates', async ({ browser }) => {
+  const A = await newPlayer(browser, 'Gina');
+  await expect.poll(() => A.logic.evaluate((l) => l.state.mpConnected)).toBe(true);
+  // choose the "boss" mini-game, create, add a bot, ready
+  await A.logic.evaluate((l) => { l._mpPickGame('boss'); l._mpCreate(); });
+  await expect.poll(() => A.logic.evaluate((l) => !!(l.state.mpLobby && l.state.mpLobby.room))).toBe(true);
+  expect(await A.logic.evaluate((l) => l.state.mpLobby.room.settings.game)).toBe('boss');
+  await A.logic.evaluate((l) => l._mpAddBot());
+  await A.logic.evaluate((l) => l._mpReadyToggle());
+  // race:start → the boss game screen, NOT the shared-text race
+  await expect.poll(() => A.logic.evaluate((l) => !!(l.state.mp && l.state.mp.game)), { timeout: 12000 }).toBe(true);
+  const st = await A.logic.evaluate((l) => ({ game: l.state.mp.game, text: l.state.mp.text, screen: l.state.screen }));
+  expect(st.game).toBe('boss');
+  expect(st.text).toBe('');            // mini-games have no shared text
+  expect(st.screen).toBe('game');
+  // simulate typing progress; the live board (server ticks) should populate + advance
+  await A.logic.evaluate((l) => { l._mpCorrect = 40; });
+  await A.page.waitForTimeout(700);
+  const board = await A.logic.evaluate((l) => (l.state.mp.board || []).map((p) => ({ name: p.name, progress: p.progress })));
+  expect(board.length).toBe(2);        // Gina + bot
+  expect(board.some((p) => p.progress > 0)).toBe(true);
+  await A.ctx.close();
+});
+
 test('quick match pairs two waiting players and starts a race', async ({ browser }) => {
   const A = await newPlayer(browser, 'Quinn');
   const B = await newPlayer(browser, 'Robin');

@@ -17,6 +17,11 @@ const TICK_MS = 250;          // 4 рази/сек — і бордова стр�
 const HEARTBEAT_MS = 25000;   // пінг, щоб ловити мертві зʼєднання (і не давати nginx закрити idle)
 const ANIMALS = ['Hippo','Cat','Chick','Bunny','Mouse','Bear','Dog','Fish','Snake','Monkey'];
 const BOT_NAMES = ['Max','Nina','Leo','Kira','Sam','Zoe','Rex','Mia','Tom','Eva'];
+// Ігри, доступні в мультиплеєрі. 'race' — чесна гонка одним текстом (сервер
+// шле однаковий текст усім). Решта — міні-ігри: кожен грає свою партію, рейтинг
+// за кількістю натиснень (швидкість друку). Клієнт вміє запускати всі ці id.
+const MP_GAMES = ['race','falling','boss','combo','defense','balloon','climber','piano','maze','horde','flash','cipher','chain','garden','ladder'];
+const NONTEXT_CAP = (RACE_DUR / 60) * 180; // умовна «повна» шкала прогресу для міні-ігор
 
 // ---------- дрібні утиліти ----------
 
@@ -149,7 +154,11 @@ function attach(server) {
   }
   function startRace(room) {
     room.state = 'racing';
-    room.text = pickText(room.settings.lang, room.settings.len);
+    let game = room.settings.game || 'race';
+    if (game === 'random') game = MP_GAMES[Math.floor(Math.random() * MP_GAMES.length)];
+    room.game = game;
+    // Спільний текст — лише для 'race'; для міні-ігор тексту немає (кожен грає своє).
+    room.text = (game === 'race') ? pickText(room.settings.lang, room.settings.len) : '';
     room.startAt = Date.now();
     for (const p of room.players) {
       p.correct = 0; p.total = 0; p.cpm = 0; p.finished = false; p.finishAt = 0;
@@ -158,7 +167,7 @@ function attach(server) {
     for (const p of room.players) {
       if (p.isBot) continue;
       const c = clients.get(p.connId);
-      if (c) send(c.ws, 'race:start', { text: room.text, startAt: room.startAt, dur: RACE_DUR });
+      if (c) send(c.ws, 'race:start', { game: room.game, text: room.text, startAt: room.startAt, dur: RACE_DUR });
     }
     room.tick = setInterval(() => raceTick(room), TICK_MS);
   }
@@ -166,24 +175,27 @@ function attach(server) {
     if (room.state !== 'racing') return;
     const now = Date.now();
     const elapsed = (now - room.startAt) / 1000;
+    const isText = !!room.text;
     const len = room.text.length;
     // рух ботів
     for (const p of room.players) {
       if (!p.isBot || p.finished) continue;
       const jitter = 0.85 + Math.random() * 0.3;
-      p.correct = Math.min(len, p.correct + (p.target / 60) * (TICK_MS / 1000) * jitter);
+      p.correct = p.correct + (p.target / 60) * (TICK_MS / 1000) * jitter;
       p.cpm = Math.round(p.target * (0.9 + Math.random() * 0.15));
-      if (p.correct >= len) { p.finished = true; p.finishAt = now; p.correct = len; }
+      if (isText && p.correct >= len) { p.finished = true; p.finishAt = now; p.correct = len; }
     }
-    broadcastTick(room, elapsed, len);
+    broadcastTick(room, elapsed);
     if (elapsed >= RACE_DUR) { finishRace(room); return; }
     maybeFinish(room);
   }
-  function broadcastTick(room, elapsed, len) {
+  function broadcastTick(room, elapsed) {
     const remaining = Math.max(0, RACE_DUR - elapsed);
+    const isText = !!room.text;
+    const cap = isText ? room.text.length : NONTEXT_CAP;
     const players = room.players.map(p => ({
-      id: p.connId, name: p.isBot ? p.nickname : p.nickname, animal: p.animal,
-      progress: len ? Math.min(1, p.correct / len) : 0,
+      id: p.connId, name: p.nickname, animal: p.animal,
+      progress: cap ? Math.min(1, p.correct / cap) : 0,
       cpm: Math.round(p.cpm || 0), finished: p.finished,
     }));
     for (const p of room.players) {
@@ -248,7 +260,11 @@ function attach(server) {
     },
     'room:create'(c, m) {
       leaveRoom(c);
-      const settings = { lang: (m.settings && m.settings.lang) || 'en', len: (m.settings && m.settings.len) || 'medium' };
+      const settings = {
+        lang: (m.settings && m.settings.lang) || 'en',
+        len: (m.settings && m.settings.len) || 'medium',
+        game: (m.settings && MP_GAMES.includes(m.settings.game) ? m.settings.game : ((m.settings && m.settings.game) === 'random' ? 'random' : 'race')),
+      };
       const id = genId('room-'); const code = genCode();
       const room = { id, code, hostConnId: c.connId, settings, state: 'lobby', players: [], text: '', startAt: 0 };
       room.players.push(newPlayer(c, { ready: false }));
@@ -343,12 +359,13 @@ function attach(server) {
       if (!room || room.state !== 'racing') return;
       const p = room.players.find(x => x.connId === c.connId);
       if (!p || p.isBot || p.finished) return;
-      const len = room.text.length;
-      p.correct = clampNum(m.correct, 0, len);
-      p.total = clampNum(m.total, 0, len * 2);
+      const isText = !!room.text; const len = room.text.length;
+      const maxC = isText ? len : 100000;
+      p.correct = clampNum(m.correct, 0, maxC);
+      p.total = clampNum(m.total, 0, maxC * 2);
       const secs = Math.max(0.1, (Date.now() - room.startAt) / 1000);
-      p.cpm = clampNum(Math.round(p.correct / (secs / 60)), 0, 600); // cpm рахуємо самі
-      if (p.correct >= len) { p.finished = true; p.finishAt = Date.now(); }
+      p.cpm = clampNum(Math.round(p.correct / (secs / 60)), 0, 800); // cpm рахуємо самі
+      if (isText && p.correct >= len) { p.finished = true; p.finishAt = Date.now(); }
     },
     pong(c) { c.alive = true; },
   };

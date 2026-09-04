@@ -1196,16 +1196,24 @@
         <!-- LOBBY: create step -->
         <sc-if value="{{ mpStepCreate }}" hint-placeholder-val="{{ true }}">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:20px;box-shadow:var(--shadow)">
+          <h3 style="font-family:'Fredoka';font-weight:600;font-size:15px;margin:0 0 10px;color:var(--ink-2)">{{ t.mp_gameTitle }}</h3>
+          <div class="tt-cols4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+            <sc-for list="{{ mpGameCards }}" as="g" hint-placeholder-count="8">
+              <button onClick="{{ g.onClick }}" style="{{ g.cardStyle }}"><span style="{{ g.chipStyle }}"><i class="{{ g.icon }}"></i></span><span style="font-family:'Fredoka';font-weight:600;font-size:13px;color:var(--ink);line-height:1.2">{{ g.title }}</span></button>
+            </sc-for>
+          </div>
           <h3 style="font-family:'Fredoka';font-weight:600;font-size:15px;margin:0 0 10px;color:var(--ink-2)">{{ t.mp_langTitle }}</h3>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
             <sc-for list="{{ mpLangCards }}" as="g" hint-placeholder-count="3"><button onClick="{{ g.onClick }}" style="{{ g.style }}">{{ g.label }}</button></sc-for>
           </div>
-          <h2 style="font-family:'Fredoka';font-weight:600;font-size:19px;margin:0 0 14px">{{ t.mp_createTitle }}</h2>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+          <sc-if value="{{ mpShowLen }}" hint-placeholder-val="{{ true }}">
+          <h3 style="font-family:'Fredoka';font-weight:600;font-size:15px;margin:0 0 12px;color:var(--ink-2)">{{ t.mp_createTitle }}</h3>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px">
             <sc-for list="{{ mpLenCards }}" as="g" hint-placeholder-count="3">
               <button onClick="{{ g.onClick }}" style="{{ g.cardStyle }}"><span style="{{ g.chipStyle }}"><i class="{{ g.icon }}"></i></span><span style="font-family:'Fredoka';font-weight:600;font-size:15px;color:var(--ink)">{{ g.title }}</span><span style="font-size:12px;font-weight:700;color:var(--ink-2)">{{ g.desc }}</span></button>
             </sc-for>
           </div>
+          </sc-if>
           <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:22px">
             <button onClick="{{ mpCreate }}" style="border:none;background:var(--brand);color:#fff;font-family:'Fredoka';font-weight:600;font-size:16px;padding:13px 26px;border-radius:14px;box-shadow:0 4px 0 var(--brand-ink);cursor:pointer">{{ t.mp_create }}</button>
             <button onClick="{{ mpQuick }}" style="border:1px solid var(--border-2);background:var(--surface);color:var(--brand-ink);font-family:'Fredoka';font-weight:600;font-size:16px;padding:13px 22px;border-radius:14px;cursor:pointer"><i class="fa-solid fa-bolt" style="margin-right:7px"></i>{{ t.mp_quick }}</button>
@@ -1224,7 +1232,7 @@
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:20px;box-shadow:var(--shadow)">
           <div style="display:flex;align-items:center;gap:12px;background:var(--brand-bg);border:1px solid color-mix(in srgb,var(--brand) 30%,var(--border));border-radius:16px;padding:12px 16px;margin-bottom:18px;flex-wrap:wrap">
             <span style="width:40px;height:40px;border-radius:12px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 3px 0 var(--brand-ink)"><i class="fa-solid fa-flag-checkered"></i></span>
-            <div style="flex:1;min-width:120px"><div style="font-size:12px;font-weight:800;color:var(--brand-ink);text-transform:uppercase;letter-spacing:.04em">{{ t.mp_len }}</div><div style="font-family:'Fredoka';font-weight:600;font-size:17px">{{ mpLenLabel }}</div></div>
+            <div style="flex:1;min-width:120px"><div style="font-size:12px;font-weight:800;color:var(--brand-ink);text-transform:uppercase;letter-spacing:.04em">{{ t.mp_gameTitle }}</div><div style="font-family:'Fredoka';font-weight:600;font-size:17px">{{ mpGameLabel }}</div></div>
             <div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 12px"><span style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase">{{ t.mp_roomCode }}</span><b style="font-family:'JetBrains Mono';font-size:16px;letter-spacing:2px;color:var(--brand-ink)">{{ mpRoomCode }}</b></div>
             <button onClick="{{ mpShareLink }}" style="border:1px solid var(--border-2);background:var(--surface);color:var(--ink-2);font-family:inherit;font-weight:800;font-size:12.5px;padding:9px 13px;border-radius:11px;cursor:pointer"><i class="fa-solid fa-link" style="margin-right:5px"></i>{{ t.mp_copyLink }}</button>
             <button onClick="{{ mpChangeSettings }}" style="border:1px solid var(--border-2);background:var(--surface);color:var(--ink-2);font-family:inherit;font-weight:800;font-size:12.5px;padding:9px 13px;border-radius:11px;cursor:pointer">{{ t.mp_change }}</button>
@@ -1797,7 +1805,7 @@ class Component extends DCLogic {
       case 'invite:declined': this.setState({mpStatus:(m.nickname||'')+' '+(this.state.ui==='en'?'declined':'відхилив запрошення')}); break;
       case 'quickmatch:waiting': this._mpMergeLobby({waiting:true}); break;
       case 'countdown': this.setState({mpCount:m.n}); break;
-      case 'race:start': this._mpStartRace(m.text, m.startAt, m.dur); break;
+      case 'race:start': if(m.game && m.game!=='race'){ this._mpStartGame(m.game, m.startAt, m.dur); } else { this._mpStartRace(m.text, m.startAt, m.dur); } break;
       case 'race:tick': { const mp=this.state.mp; if(mp && !mp.over) this.setState({mp:Object.assign({},mp,{board:m.players||[], remaining:m.remaining})}); break; }
       case 'race:done': this._mpDone(m.ranking||[], m.youId); break;
       case 'error': this.setState({mpStatus:this._mpErr(m.msg)}); break;
@@ -1806,8 +1814,9 @@ class Component extends DCLogic {
   // ---- lobby actions ----
   _mpPickLen(len){ const l=Object.assign({},this.state.mpLobby); l.settings=Object.assign({},l.settings,{len:len}); this.setState({mpLobby:l}); }
   _mpPickLang(code){ const l=Object.assign({},this.state.mpLobby||{}); l.settings=Object.assign({},l.settings,{lang:code}); this.setState({mpLobby:l, lang:code}); }
+  _mpPickGame(id){ const l=Object.assign({},this.state.mpLobby||{}); l.settings=Object.assign({},l.settings,{game:id}); this.setState({mpLobby:l}); }
   _mpPickAnimal(a){ if(this.store){ this.store.animal=a; this._save(); } this._mpMergeLobby({sel:a}); this._mpSend('char:set',{animal:a}); }
-  _mpCreate(){ const l=this.state.mpLobby; this._mpSend('room:create',{settings:{lang:(l&&l.settings&&l.settings.lang)||this.state.lang, len:(l&&l.settings&&l.settings.len)||'medium'}}); }
+  _mpCreate(){ const l=this.state.mpLobby; const st=(l&&l.settings)||{}; this._mpSend('room:create',{settings:{lang:st.lang||this.state.lang, len:st.len||'medium', game:st.game||'race'}}); }
   _mpJoinCode(code){ code=(code||'').toUpperCase().trim(); if(code) this._mpSend('room:join',{code:code}); }
   _mpInvite(nick){ this._mpSend('invite',{toNickname:nick}); this.setState({mpStatus:(this.state.ui==='en'?'Invited ':'Запрошено ')+nick}); }
   _mpReadyToggle(){ const room=this.state.mpLobby&&this.state.mpLobby.room; if(!room) return; const me=room.players.find(p=>p.connId===this._mpMyConnId()); this._mpSend('ready:set',{ready: me?!me.ready:true}); }
@@ -1824,6 +1833,23 @@ class Component extends DCLogic {
     this._mpTyped=0; this._mpCorrect=0; this._mpMarks=[]; this._mpLastSent=0;
     const mp={ text:text, startAt:startAt, dur:dur, board:[], remaining:dur, over:false, ranking:null, youId:this._mpConnId, myCpm:0 };
     this.setState({ screen:'mp', mp:mp, mpCount:null }, ()=>{ this._mpRaceTimer=setInterval(()=>this._mpLocalTick(), 200); });
+  }
+  // Міні-гра в мультиплеєрі: кожен грає свою партію, прогрес = кількість натиснень.
+  _mpStartGame(game, startAt, dur){
+    this._stopLoop(); this._mpClearTimers();
+    this._mpTyped=0; this._mpCorrect=0; this._mpMarks=[]; this._mpLastSent=0;
+    const mp={ game:game, text:'', startAt:startAt, dur:dur, board:[], remaining:dur, over:false, ranking:null, youId:this._mpConnId, myCpm:0 };
+    this.setState({ screen:'game', game:game, mp:mp, mpCount:null }, ()=>{
+      this._mpStartGameLive(game);
+      this._mpRaceTimer=setInterval(()=>this._mpLocalTick(), 200);
+    });
+  }
+  _mpStartGameLive(id){
+    if(id==='falling')this._startFalling(false); else if(id==='boss')this._startBoss(false); else if(id==='combo')this._startCombo(false);
+    else if(id==='defense')this._startDefense(false); else if(id==='balloon')this._startBalloon(false); else if(id==='climber')this._startClimber(false);
+    else if(id==='piano')this._startPiano(false); else if(id==='maze')this._startMaze(false); else if(id==='horde')this._startHorde(false);
+    else if(id==='flash')this._startFlash(false); else if(id==='cipher')this._startCipher(false); else if(id==='chain')this._startChain(false);
+    else if(id==='garden')this._startGarden(false); else if(id==='ladder')this._startLadder(false);
   }
   _mpLocalTick(){
     const mp=this.state.mp; if(!mp||mp.over) return;
@@ -1853,8 +1879,8 @@ class Component extends DCLogic {
     this.setState({ mp:Object.assign({},mp,{over:true, ranking:ranking, youId:(youId||this._mpConnId), remaining:0}), mpCount:null });
     const mine=(ranking||[]).find(r=>r.connId===(youId||this._mpConnId)) || (ranking||[]).find(r=>r.name===this.pdata.current);
     if(mine && this.store){ const wpm=Math.round((mine.cpm||0)/5); if(wpm>(Number(this.store.bestRace)||0)){ this.store.bestRace=wpm; this._save(); } }
-    // авто-возврат в лобби через 7с
-    this._mpReturn=setTimeout(()=>{ if(this.state.screen==='mp') this.setState({mp:null}); this._mpSend('presence:refresh',{}); }, 7000);
+    // авто-возврат в лобби через 7с (и для гонки, и для мини-игры)
+    this._mpReturn=setTimeout(()=>{ this._stopLoop(); this.setState({mp:null, screen:'mp'}); this._mpSend('presence:refresh',{}); }, 7000);
   }
   // ---- multiplayer view-model (заполняет vals для шаблона) ----
   _mpVals(vals, T, s){
@@ -1919,6 +1945,29 @@ class Component extends DCLogic {
     vals.mpInviteBody = s.mpInvite? (s.mpInvite.from+' '+T.mp_invBody) : '';
     vals.mpAccept=()=>this._mpAcceptInvite(); vals.mpDecline=()=>this._mpDeclineInvite();
     // ---- create step ----
+    const curGame=(L.settings&&L.settings.game)||'race';
+    vals.mpShowLen = curGame==='race';
+    const mpGameDefs=[
+      {id:'race', title:T.mp_gameRace, icon:'fa-solid fa-flag-checkered', color:'var(--brand)'},
+      {id:'random', title:T.mp_gameRandom, icon:'fa-solid fa-dice', color:'var(--ink-2)'},
+      {id:'falling', title:T.g_falling_t, icon:'fa-solid fa-gamepad', color:'var(--f4)'},
+      {id:'boss', title:T.g_boss_t, icon:'fa-solid fa-dragon', color:'var(--error)'},
+      {id:'combo', title:T.g_combo_t, icon:'fa-solid fa-bolt', color:'var(--accent)'},
+      {id:'defense', title:T.g_defense_t, icon:'fa-solid fa-shield-halved', color:'var(--error)'},
+      {id:'balloon', title:T.g_balloon_t, icon:'fa-solid fa-circle-up', color:'var(--f5)'},
+      {id:'climber', title:T.g_climber_t, icon:'fa-solid fa-person-hiking', color:'var(--f6)'},
+      {id:'piano', title:T.g_piano_t, icon:'fa-solid fa-music', color:'var(--f3)'},
+      {id:'maze', title:T.g_maze_t, icon:'fa-solid fa-route', color:'var(--f7)'},
+      {id:'horde', title:T.g_horde_t, icon:'fa-solid fa-skull-crossbones', color:'var(--error)'},
+      {id:'flash', title:T.g_flash_t, icon:'fa-solid fa-bolt', color:'var(--f4)'},
+      {id:'cipher', title:T.g_cipher_t, icon:'fa-solid fa-lock', color:'var(--f1)'},
+      {id:'chain', title:T.g_chain_t, icon:'fa-solid fa-link', color:'var(--f5)'},
+      {id:'garden', title:T.g_garden_t, icon:'fa-solid fa-seedling', color:'var(--success)'},
+      {id:'ladder', title:T.g_ladder_t, icon:'fa-solid fa-list-ol', color:'var(--f3)'},
+    ];
+    vals.mpGameCards=mpGameDefs.map(g=>({ title:g.title, icon:g.icon, sel:curGame===g.id, onClick:()=>this._mpPickGame(g.id),
+      cardStyle:`position:relative;border:2px solid ${curGame===g.id?'var(--brand)':'var(--border)'};background:var(--surface-2);border-radius:14px;padding:12px 6px 9px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center`,
+      chipStyle:`width:38px;height:38px;border-radius:11px;background:${g.color};color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px` }));
     const curLang=(L.settings&&L.settings.lang)||s.lang||'en';
     vals.mpLangCards=[['uk','Українська'],['en','English'],['ru','Русский']].map(([code,label])=>({ label, sel:curLang===code, onClick:()=>this._mpPickLang(code),
       style:`border:2px solid ${curLang===code?'var(--brand)':'var(--border)'};background:${curLang===code?'var(--brand-bg)':'var(--surface-2)'};color:${curLang===code?'var(--brand-ink)':'var(--ink)'};font-family:'Fredoka';font-weight:600;font-size:15px;padding:10px 18px;border-radius:13px;cursor:pointer` }));
@@ -1943,6 +1992,9 @@ class Component extends DCLogic {
     vals.mpAnimalGrid = this.MP_ANIMALS.map(k=>({ key:k, name:animalName[k], mood: sel===k?'ready':'idle', sel:sel===k, onClick:()=>this._mpPickAnimal(k) }));
     vals.mpRoomCode = room? room.code : '';
     vals.mpLenLabel = T['mp_len_'+((room&&room.settings&&room.settings.len)||'medium')];
+    const roomGame=(room&&room.settings&&room.settings.game)||'race';
+    const gameTitleById={}; mpGameDefs.forEach(g=>{ gameTitleById[g.id]=g.title; });
+    vals.mpGameLabel = (gameTitleById[roomGame]||roomGame) + (roomGame==='race' ? (' · '+vals.mpLenLabel) : '');
     vals.mpChangeSettings=()=>this._mpLeaveRoom();
     vals.mpShareLink=()=>this._mpShareLink();
     vals.mpAddBot=()=>this._mpAddBot();
@@ -1999,6 +2051,7 @@ class Component extends DCLogic {
       // --- multiplayer ---
       mp_title:'Multiplayer race', mp_cardDesc:'Race the same text against friends live', mp_exit:'Exit',
       mp_subCreate:'Create a room or quick-match', mp_subLobby:'Room ready · invite friends', mp_raceTitle:'Live race',
+      mp_gameTitle:'Game', mp_gameRace:'Race (shared text)', mp_gameRandom:'Random',
       mp_langTitle:'Race language', mp_createTitle:'Race length', mp_len_short:'Short', mp_len_short_d:'~15s', mp_len_medium:'Medium', mp_len_medium_d:'~30s', mp_len_long:'Long', mp_len_long_d:'~60s',
       mp_create:'Create room', mp_quick:'Quick match', mp_quickWait:'Looking for an opponent…', mp_cancel:'Cancel',
       mp_join:'Join', mp_codePlaceholder:'Room code', mp_or:'or', mp_len:'Length', mp_change:'Change', mp_roomCode:'Room code', mp_copyLink:'Copy link',
@@ -2094,6 +2147,7 @@ class Component extends DCLogic {
       // --- мультиплеєр ---
       mp_title:'Гонка на швидкість', mp_cardDesc:'Змагайся наживо з друзями на однаковому тексті', mp_exit:'Вийти',
       mp_subCreate:'Створіть кімнату або швидкий матч', mp_subLobby:'Кімната готова · запросіть друзів', mp_raceTitle:'Жива гонка',
+      mp_gameTitle:'Гра', mp_gameRace:'Гонка (спільний текст)', mp_gameRandom:'Випадкова',
       mp_langTitle:'Мова гонки', mp_createTitle:'Довжина гонки', mp_len_short:'Коротка', mp_len_short_d:'~15с', mp_len_medium:'Середня', mp_len_medium_d:'~30с', mp_len_long:'Довга', mp_len_long_d:'~60с',
       mp_create:'Створити кімнату', mp_quick:'Швидкий матч', mp_quickWait:'Шукаємо суперника…', mp_cancel:'Скасувати',
       mp_join:'Приєднатись', mp_codePlaceholder:'Код кімнати', mp_or:'або', mp_len:'Довжина', mp_change:'Змінити', mp_roomCode:'Код кімнати', mp_copyLink:'Скопіювати',
@@ -2324,6 +2378,12 @@ class Component extends DCLogic {
     }
     if(s.screen==='game' && e.key.length===1){ this._gkey=e.key.toLowerCase(); this._gkeyT=Date.now(); }
     if(mpRacing){ this._mpKey(e); return; }
+    // Мультиплеер поверх мини-игры: считаем нажатия как прогресс скорости печати,
+    // затем отдаём клавишу самой игре. Во время оверлея результатов клавиши глотаем.
+    if(this.state.mp && s.screen==='game'){
+      if(this.state.mp.over) return;
+      if(e.key && e.key.length===1){ this._mpCorrect=(this._mpCorrect||0)+1; }
+    }
     if(this._isTypingScreen(s.screen)){ this._typeKey(e); return; }
     if(s.screen==='game' && s.game==='falling' && s.falling && s.falling.running){ this._fallingKey(e); return; }
     if(s.screen==='game' && s.game==='race' && s.race && s.race.running){ this._raceKey(e); return; }
